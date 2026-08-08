@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Simulador VisuAlg - Cálculo de Frequência</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f4f4;
+            color: #2b1e20;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        header {
+            background: linear-gradient(135deg, #4a0e17, #2b080d);
+            padding: 24px 20px;
+            text-align: center;
+            border-bottom: 3px solid #721c24;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            color: #f8c0c8;
+            margin-bottom: 6px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        header p {
+            color: #e2c0c5;
+            font-size: 0.95rem;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1100px;
+            margin: 20px auto;
+            flex-grow: 1;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 6px 18px rgba(74, 14, 23, 0.08);
+            border: 1px solid #e8dadc;
+        }
+
+        /* CONTROLES DO SIMULADOR */
+        .visualg-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sim {
+            background-color: #4a0e17;
+            color: #ffffff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-size: 0.9rem;
+        }
+
+        .btn-sim:hover:not(:disabled) {
+            background-color: #85182a;
+        }
+
+        .btn-sim:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .btn-sim:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+
+        /* LAYOUT VERTICAL DO VISUALG */
+        .visualg-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .code-box {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            height: 350px;
+            overflow-y: auto;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+            width: 100%;
+        }
+
+        .code-line {
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            display: flex;
+            align-items: center;
+        }
+
+        .code-pointer {
+            display: inline-block;
+            width: 20px;
+            color: #ff4d6d;
+            font-weight: bold;
+            visibility: hidden;
+            user-select: none;
+        }
+
+        .code-line.active .code-pointer {
+            visibility: visible;
+        }
+
+        .code-line.active {
+            background-color: #4a0e17;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        /* Destaque de sintaxe */
+        .kw-instruction { color: #569cd6; font-weight: bold; }
+        .kw-type { color: #4ec9b0; font-weight: bold; }
+        .kw-comment { color: #6a9955; }
+
+        .vertical-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .vertical-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .console-box {
+            background-color: #0c0c0c;
+            color: #00ff66;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            height: 180px;
+            overflow-y: auto;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            color: #888;
+            border-bottom: 1px solid #333;
+            padding-bottom: 4px;
+            margin-bottom: 6px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: bold;
+        }
+
+        .console-output {
+            flex-grow: 1;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        /* Destaque para o prompt de confirmação */
+        .enter-prompt-badge {
+            display: inline-block;
+            background-color: #ff9800;
+            color: #000;
+            font-weight: bold;
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 8px;
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        /* PAINEL DE MEMÓRIA (RAM) */
+        .memory-box {
+            background-color: #181818;
+            border-radius: 8px;
+            padding: 10px 12px;
+            height: 180px;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .memory-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            overflow-y: auto;
+        }
+
+        .memory-cell {
+            display: grid;
+            grid-template-columns: 75px 1fr 1fr;
+            background: #252526;
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.78rem;
+            align-items: center;
+            border-left: 3px solid #555;
+            transition: all 0.3s ease;
+        }
+
+        .memory-cell.updated {
+            border-left-color: #00ff66;
+            background: #2a3a2e;
+            transform: scale(1.01);
+        }
+
+        .mem-addr { color: #888; font-size: 0.68rem; }
+        .mem-name { color: #f8c0c8; font-weight: bold; }
+        .mem-val { color: #ffffff; text-align: right; font-weight: bold; }
+        .mem-unassigned { color: #666; font-style: italic; }
+
+        .input-wrapper {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-inline {
+            background: #111;
+            border: 1px solid #00ff66;
+            color: #00ff66;
+            font-family: inherit;
+            font-size: 0.9rem;
+            width: 130px;
+            outline: none;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .btn-confirm-input {
+            background: #00ff66;
+            color: #000;
+            border: none;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .explanation-box {
+            background-color: #fcebeb;
+            border-left: 4px solid #6b1120;
+            padding: 12px 16px;
+            border-radius: 6px;
+            color: #4a0e17;
+            font-size: 0.9rem;
+            min-height: 70px;
+        }
+
+        .explanation-box h4 {
+            margin-bottom: 4px;
+            color: #6b1120;
+            font-size: 0.95rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 18px;
+            background-color: #ebdada;
+            color: #5c3a3e;
+            border-top: 1px solid #d8c2c4;
+            font-size: 0.85rem;
+            margin-top: auto;
+            padding-bottom: calc(18px + env(safe-area-inset-bottom));
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Cálculo de Frequência Escolar (VisuAlg)</h1>
+        <p>Simulação passo a passo da porcentagem de presença com base na disciplina, nome do aluno, total de aulas e faltas.</p>
+    </header>
+
+    <div class="container">
+        
+        <!-- BOTOES DE CONTROLE -->
+        <div class="visualg-controls">
+            <button class="btn-sim" id="btnIniciar" onclick="iniciarSimulacao()">▶ Iniciar Execução</button>
+            <button class="btn-sim" id="btnProximo" onclick="proximoPasso()" disabled>⏭ Próximo Passo</button>
+            <button class="btn-sim" id="btnReiniciar" onclick="reiniciarSimulacao()">🔄 Reiniciar</button>
+        </div>
+
+        <div class="visualg-layout">
+            <!-- EDITOR DE CODIGO -->
+            <div class="code-box" id="codeEditor">
+                <!-- Gerado via JavaScript -->
+            </div>
+
+            <!-- PAINEIS INFERIORES: CONSOLE E RAM -->
+            <div class="vertical-panel">
+                <!-- Console -->
+                <div class="console-box">
+                    <div class="panel-header">Console de Saída</div>
+                    <div class="console-output" id="consoleOutput">Aguardando início...</div>
+                </div>
+
+                <!-- Memória RAM -->
+                <div class="memory-box">
+                    <div class="panel-header">Memória RAM (Variáveis)</div>
+                    <div class="memory-grid" id="memoryGrid">
+                        <div style="color: #666; font-size: 0.8rem; font-style: italic;">Nenhuma variável declarada na memória.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXPLICACAO DO PASSO ATUAL -->
+        <div class="explanation-box">
+            <h4 id="expTitle">Explicação da Instrução</h4>
+            <p id="expText">Clique no botão "Iniciar Execução" para avançar linha a linha pelo algoritmo.</p>
+        </div>
+
+    </div>
+
+    <footer>
+        Algoritmos & Programação • Simulador Interativo VisuAlg
+    </footer>
+
+    <script>
+        // --- CÓDIGO E ETAPAS DO ALGORITMO ---
+        const codigoAlgoritmo = [
+            { id: 1, text: 'algoritmo "CalculoFrequenciaAluno"', expTitle: 'Instrução: algoritmo', expText: 'Declara o nome do programa de verificação de frequência escolar.' },
+            { id: 2, text: '// Frequencia = ((aulasDadas - faltas) / aulasDadas) * 100', expTitle: 'Comentário (//)', expText: 'Indica a fórmula matemática para calcular a porcentagem de presenças.' },
+            { id: 3, text: 'var', expTitle: 'Instrução: var', expText: 'Abre a seção de declaração de variáveis na memória RAM.' },
+            { id: 4, text: '   nomeDisciplina, nomeAluno : caractere', expTitle: 'Declaração de Textos', expText: 'Aloca memória para armazenar textos (nome da matéria e nome do estudante).' },
+            { id: 5, text: '   aulasDadas, faltas, aulasAssistidas : inteiro', expTitle: 'Declaração de Inteiros', expText: 'Aloca memória para números inteiros representando as quantidades de aulas e faltas.' },
+            { id: 6, text: '   frequencia : real', expTitle: 'Declaração de Real', expText: 'Aloca memória para o valor percentual da frequência com casas decimais.' },
+            { id: 7, text: 'inicio', expTitle: 'Instrução: inicio', expText: 'Marca o início da sequência de instruções.' },
+            { id: 8, text: '   escreva("Nome da Disciplina: ")', expTitle: 'Instrução: escreva', expText: 'Solicita a matéria no console de saída.' },
+            { id: 9, text: '   leia(nomeDisciplina)', expTitle: 'Instrução: leia', expText: 'Pausa para entrada do nome da disciplina. Digite e pressione ENTER, OK ou Próximo Passo.' },
+            { id: 10, text: '   escreva("Nome do Aluno: ")', expTitle: 'Instrução: escreva', expText: 'Solicita o nome do aluno no console.' },
+            { id: 11, text: '   leia(nomeAluno)', expTitle: 'Instrução: leia', expText: 'Pausa para entrada do nome do aluno. Digite e pressione ENTER, OK ou Próximo Passo.' },
+            { id: 12, text: '   escreva("Total de Aulas Dadas: ")', expTitle: 'Instrução: escreva', expText: 'Solicita a quantidade total de aulas lecionadas.' },
+            { id: 13, text: '   leia(aulasDadas)', expTitle: 'Instrução: leia', expText: 'Pausa para entrada do total de aulas. Digite e pressione ENTER, OK ou Próximo Passo.' },
+            { id: 14, text: '   escreva("Total de Faltas do Aluno: ")', expTitle: 'Instrução: escreva', expText: 'Solicita a quantidade de faltas cometidas.' },
+            { id: 15, text: '   leia(faltas)', expTitle: 'Instrução: leia', expText: 'Pausa para entrada das faltas. Digite e pressione ENTER, OK ou Próximo Passo.' },
+            { id: 16, text: '   aulasAssistidas <- aulasDadas - faltas', expTitle: 'Cálculo de Presenças', expText: 'Subtrai as faltas do total de aulas para encontrar as presenças reais.' },
+            { id: 17, text: '   frequencia <- (aulasAssistidas / aulasDadas) * 100', expTitle: 'Cálculo da Porcentagem', expText: 'Calcula a razão entre presenças e aulas dadas, multiplicando por 100 para gerar o percentual.' },
+            { id: 18, text: '   escreval("--- RELATÓRIO DE FREQUÊNCIA ---")', expTitle: 'Instrução: escreval', expText: 'Imprime cabeçalho do relatório no console.' },
+            { id: 19, text: '   escreval("Disciplina : ", nomeDisciplina)', expTitle: 'Instrução: escreval', expText: 'Exibe o nome da disciplina informada.' },
+            { id: 20, text: '   escreval("Aluno      : ", nomeAluno)', expTitle: 'Instrução: escreval', expText: 'Exibe o nome do aluno.' },
+            { id: 21, text: '   escreval("Aulas/Faltas: ", aulasDadas, " aulas / ", faltas, " faltas")', expTitle: 'Instrução: escreval', expText: 'Exibe o resumo numérico das aulas e faltas.' },
+            { id: 22, text: '   escreval("Frequência : ", frequencia, "%")', expTitle: 'Instrução: escreval', expText: 'Exibe a porcentagem final de presença apurada.' },
+            { id: 23, text: 'fimalgoritmo', expTitle: 'Instrução: fimalgoritmo', expText: 'Finaliza a execução do programa.' }
+        ];
+
+        // Estado da Memória RAM
+        let memoriaRAM = {
+            declarado: false,
+            vars: {
+                nomeDisciplina: { addr: '0x00D1', val: null, type: 'text', updated: false },
+                nomeAluno: { addr: '0x00D2', val: null, type: 'text', updated: false },
+                aulasDadas: { addr: '0x00D3', val: null, type: 'int', updated: false },
+                faltas: { addr: '0x00D4', val: null, type: 'int', updated: false },
+                aulasAssistidas: { addr: '0x00D5', val: null, type: 'int', updated: false },
+                frequencia: { addr: '0x00D6', val: null, type: 'real', updated: false }
+            }
+        };
+
+        let passoAtual = 0;
+        let emExecucao = false;
+        let aguardandoInput = false;
+        let callbackInputPendente = null;
+        let consoleTexto = "";
+
+        function formatarSintaxe(str) {
+            let res = str;
+            if (res.trim().startsWith('//')) {
+                return `<span class="kw-comment">${res}</span>`;
+            }
+            res = res.replace(/\b(algoritmo|var|inicio|fimalgoritmo|escreva|escreval|leia)\b/gi, '<span class="kw-instruction">$1</span>');
+            res = res.replace(/\b(real|inteiro|caractere|logico)\b/gi, '<span class="kw-type">$1</span>');
+            return res;
+        }
+
+        function renderizarCodigo() {
+            const editor = document.getElementById('codeEditor');
+            editor.innerHTML = '';
+            codigoAlgoritmo.forEach((linha, index) => {
+                const lineDiv = document.createElement('div');
+                lineDiv.className = 'code-line' + (index === passoAtual - 1 ? ' active' : '');
+                lineDiv.id = `line-${index + 1}`;
+                
+                const ptr = document.createElement('span');
+                ptr.className = 'code-pointer';
+                ptr.innerText = '➔';
+                
+                const txt = document.createElement('span');
+                txt.innerHTML = formatarSintaxe(linha.text);
+                
+                lineDiv.appendChild(ptr);
+                lineDiv.appendChild(txt);
+                editor.appendChild(lineDiv);
+            });
+
+            if (passoAtual > 0) {
+                const activeEl = document.getElementById(`line-${passoAtual}`);
+                if (activeEl) {
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+        }
+
+        function renderizarMemoria() {
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = '';
+
+            if (!memoriaRAM.declarado) {
+                grid.innerHTML = '<div style="color: #666; font-size: 0.8rem; font-style: italic;">Nenhuma variável declarada na memória.</div>';
+                return;
+            }
+
+            for (let [nome, dados] of Object.entries(memoriaRAM.vars)) {
+                const cell = document.createElement('div');
+                cell.className = 'memory-cell' + (dados.updated ? ' updated' : '');
+                
+                let valStr = dados.val === null ? '<span class="mem-unassigned">não inicializado</span>' : dados.val;
+                if (dados.type === 'text' && dados.val !== null) {
+                    valStr = `"${dados.val}"`;
+                }
+
+                cell.innerHTML = `
+                    <span class="mem-addr">${dados.addr}</span>
+                    <span class="mem-name">${nome}</span>
+                    <span class="mem-val">${valStr}</span>
+                `;
+                grid.appendChild(cell);
+            }
+        }
+
+        function atualizarExplicacao(titulo, texto) {
+            document.getElementById('expTitle').innerText = titulo;
+            document.getElementById('expText').innerText = texto;
+        }
+
+        function iniciarSimulacao() {
+            reiniciarSimulacao();
+            emExecucao = true;
+            document.getElementById('btnIniciar').disabled = true;
+            document.getElementById('btnProximo').disabled = false;
+            proximoPasso();
+        }
+
+        function proximoPasso() {
+            // Se estiver aguardando input no 'leia', confirma o valor digitado primeiro
+            if (aguardandoInput && callbackInputPendente) {
+                callbackInputPendente();
+                return;
+            }
+
+            if (passoAtual >= codigoAlgoritmo.length) return;
+
+            passoAtual++;
+            const instrucao = codigoAlgoritmo[passoAtual - 1];
+            
+            // Limpa destaques na RAM
+            for (let k in memoriaRAM.vars) memoriaRAM.vars[k].updated = false;
+
+            renderizarCodigo();
+            atualizarExplicacao(instrucao.expTitle, instrucao.expText);
+
+            switch (passoAtual) {
+                case 1:
+                    consoleTexto = "*** Inicio da execução do algoritmo ***\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 2:
+                case 3:
+                    break;
+                case 4:
+                case 5:
+                case 6:
+                    memoriaRAM.declarado = true;
+                    renderizarMemoria();
+                    break;
+                case 7:
+                    break;
+                case 8:
+                    consoleTexto += "Nome da Disciplina: ";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 9:
+                    solicitarInput('nomeDisciplina', 'text', 'Algoritmos');
+                    break;
+                case 10:
+                    consoleTexto += "Nome do Aluno: ";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 11:
+                    solicitarInput('nomeAluno', 'text', 'Carlos Silva');
+                    break;
+                case 12:
+                    consoleTexto += "Total de Aulas Dadas: ";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 13:
+                    solicitarInput('aulasDadas', 'number', 80);
+                    break;
+                case 14:
+                    consoleTexto += "Total de Faltas do Aluno: ";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 15:
+                    solicitarInput('faltas', 'number', 12);
+                    break;
+                case 16:
+                    let ad = parseInt(memoriaRAM.vars.aulasDadas.val, 10);
+                    let fl = parseInt(memoriaRAM.vars.faltas.val, 10);
+                    let assistidas = ad - fl;
+                    memoriaRAM.vars.aulasAssistidas.val = assistidas;
+                    memoriaRAM.vars.aulasAssistidas.updated = true;
+                    renderizarMemoria();
+                    break;
+                case 17:
+                    let adTot = parseInt(memoriaRAM.vars.aulasDadas.val, 10);
+                    let assist = parseInt(memoriaRAM.vars.aulasAssistidas.val, 10);
+                    let freq = (assist / adTot) * 100;
+                    memoriaRAM.vars.frequencia.val = freq.toFixed(1);
+                    memoriaRAM.vars.frequencia.updated = true;
+                    renderizarMemoria();
+                    break;
+                case 18:
+                    consoleTexto += "--- RELATÓRIO DE FREQUÊNCIA ---\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 19:
+                    consoleTexto += "Disciplina : " + memoriaRAM.vars.nomeDisciplina.val + "\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 20:
+                    consoleTexto += "Aluno      : " + memoriaRAM.vars.nomeAluno.val + "\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 21:
+                    consoleTexto += "Aulas/Faltas: " + memoriaRAM.vars.aulasDadas.val + " aulas / " + memoriaRAM.vars.faltas.val + " faltas\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 22:
+                    consoleTexto += "Frequência : " + memoriaRAM.vars.frequencia.val + "%\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 23:
+                    consoleTexto += "\n*** Fim da execução ***";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    document.getElementById('btnProximo').disabled = true;
+                    atualizarExplicacao("Execução Concluída", "Cálculo de frequência do aluno realizado com sucesso.");
+                    break;
+            }
+        }
+
+        function solicitarInput(varNome, tipoInput, sugestao) {
+            aguardandoInput = true;
+
+            const consoleBox = document.getElementById('consoleOutput');
+            
+            const inputWrapper = document.createElement('span');
+            inputWrapper.className = 'input-wrapper';
+
+            const inputEl = document.createElement('input');
+            inputEl.type = tipoInput;
+            if (tipoInput === 'number') {
+                inputEl.min = '0';
+                inputEl.step = '1';
+            }
+            inputEl.value = sugestao || '';
+            inputEl.className = 'input-inline';
+            inputEl.id = 'inputVar';
+
+            const btnConfirm = document.createElement('button');
+            btnConfirm.className = 'btn-confirm-input';
+            btnConfirm.innerText = 'OK';
+
+            const enterBadge = document.createElement('span');
+            enterBadge.className = 'enter-prompt-badge';
+            enterBadge.innerText = '[ ENTER, OK ou Próximo Passo ]';
+
+            inputWrapper.appendChild(inputEl);
+            inputWrapper.appendChild(btnConfirm);
+            inputWrapper.appendChild(enterBadge);
+            consoleBox.appendChild(inputWrapper);
+
+            inputEl.focus();
+            inputEl.select();
+
+            atualizarExplicacao(`Instrução: leia(${varNome})`, `Informe o valor para '${varNome}'. Você pode pressionar ENTER, clicar em OK ou no botão "Próximo Passo" para continuar.`);
+
+            const processarEntrada = () => {
+                if (!aguardandoInput) return;
+
+                let valor = inputEl.value.trim();
+                
+                if (tipoInput === 'number') {
+                    if (valor === "" || isNaN(valor)) valor = "0";
+                    memoriaRAM.vars[varNome].val = parseInt(valor, 10);
+                } else {
+                    if (valor === "") valor = "Sem Nome";
+                    memoriaRAM.vars[varNome].val = valor;
+                }
+
+                memoriaRAM.vars[varNome].updated = true;
+
+                inputWrapper.remove();
+                consoleTexto += memoriaRAM.vars[varNome].val + "\n";
+                consoleBox.innerText = consoleTexto;
+
+                renderizarMemoria();
+                aguardandoInput = false;
+                callbackInputPendente = null;
+
+                proximoPasso();
+            };
+
+            callbackInputPendente = processarEntrada;
+
+            inputEl.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    processarEntrada();
+                }
+            });
+
+            btnConfirm.addEventListener('click', processarEntrada);
+        }
+
+        function reiniciarSimulacao() {
+            passoAtual = 0;
+            emExecucao = false;
+            aguardandoInput = false;
+            callbackInputPendente = null;
+            consoleTexto = "Aguardando início...";
+            
+            memoriaRAM.declarado = false;
+            for (let k in memoriaRAM.vars) {
+                memoriaRAM.vars[k].val = null;
+                memoriaRAM.vars[k].updated = false;
+            }
+
+            document.getElementById('btnIniciar').disabled = false;
+            document.getElementById('btnProximo').disabled = true;
+            document.getElementById('consoleOutput').innerText = consoleTexto;
+
+            renderizarCodigo();
+            renderizarMemoria();
+            atualizarExplicacao("Explicação da Instrução", "Clique no botão \"Iniciar Execução\" para avançar linha a linha pelo algoritmo.");
+        }
+
+        // Inicialização na abertura
+        renderizarCodigo();
+    </script>
+</body>
+</html>
