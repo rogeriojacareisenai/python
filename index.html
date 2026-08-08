@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hub de Aulas - PHP e MySQLi Interativo</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            padding: 40px 20px;
+            text-align: center;
+            border-bottom: 1px solid #334155;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            color: #38bdf8;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 40px auto;
+            flex-grow: 1;
+        }
+
+        .grid-aulas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background-color: #111827;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: #38bdf8;
+            box-shadow: 0 8px 24px rgba(56, 189, 248, 0.15);
+        }
+
+        .card-badge {
+            align-self: flex-start;
+            background: rgba(56, 189, 248, 0.1);
+            color: #38bdf8;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            color: #f1f5f9;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .card-btn {
+            display: inline-block;
+            text-align: center;
+            background-color: #2563eb;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+        }
+
+        .card-btn:hover {
+            background-color: #1d4ed8;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            background-color: #0b0f19;
+            color: #64748b;
+            border-top: 1px solid #1e293b;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Painel de Aulas Interativas PHP & MySQLi</h1>
+        <p>Selecione uma das simulações abaixo para visualizar a execução linha a linha do script no servidor.</p>
+    </header>
+
+    <div class="container">
+        <div class="grid-aulas">
+
+            <!-- Card 1: Execução em Terminal -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Aula 01</span>
+                    <h2>Criação do Banco de Dados Workbench</h2>
+                    <p>Demonstração script da criação do banco de dados.</p>
+                </div>
+                <a href="criabd.html" class="card-btn">Acessar Aula →</a>
+            </div>
+            <!-- Card 2: Execução em Terminal -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Aula 02</span>
+                    <h2>Formulário de cadastro</h2>
+                    <p>Demonstração da criação de um formulário de cadastro em html.</p>
+                </div>
+                <a href="formCadExplica.html" class="card-btn">Acessar Aula →</a>
+            </div>
+
+            <!-- Card 3: Execução com HTML + CSS -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Aula 03</span>
+                    <h2>Cadastro de informações em banco de dados</h2>
+                    <p>Simulação de cadastro de informações em banco de dados com PHP e MySql.</p>
+                </div>
+                <a href="formCadbd.html" class="card-btn">Acessar Aula →</a>
+            </div>
+
+            <!-- Card 4: Execução com HTML Puro -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Aula 04</span>
+                    <h2>Formulário de Consulta de Dados</h2>
+                    <p>Simulação de consulta de informações em banco de dados com PHP e MySql.</p>
+                </div>
+                <a href="formConsbd.html" class="card-btn">Acessar Aula →</a>
+            </div>
+             <!-- Card 5: Execução com HTML Puro -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Aula 04</span>
+                    <h2>Formulário de Alteração de Dados</h2>
+                    <p>Simulação de alteração de informações em banco de dados com PHP e MySql.</p>
+                </div>
+                <a href="formAltbd.html" class="card-btn">Acessar Aula →</a>
+            </div>
+              <!-- Card 6: Execução com HTML Puro -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Aula 04</span>
+                    <h2>Formulário Simulação comando Fethassoc</h2>
+                    <p>Simulação de procura em banco de dados com PHP e MySql.</p>
+                </div>
+                <a href="simuladorFetchassoc.html" class="card-btn">Acessar Aula →</a>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        Curso de PHP & MySQLi • Material Interativo de Aprendizado
+    </footer>
+
+</body>
+</html>
