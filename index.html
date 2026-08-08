@@ -2,8 +2,8 @@
 <html lang="pt-BR">
 <head> 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hub de Aulas - PHP e MySQLi Interativo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Hub de Aulas - Algoritmos e VisuAlg</title>
     <style>
         * {
             box-sizing: border-box;
@@ -13,191 +13,1051 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0f172a;
-            color: #f8fafc;
+            background-color: #f7f4f4;
+            color: #2b1e20;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
         header {
-            background: linear-gradient(135deg, #1e293b, #0f172a);
-            padding: 40px 20px;
+            background: linear-gradient(135deg, #4a0e17, #2b080d);
+            padding: 30px 20px;
             text-align: center;
-            border-bottom: 1px solid #334155;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            border-bottom: 3px solid #721c24;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
         header h1 {
-            font-size: 2.2rem;
-            color: #38bdf8;
-            margin-bottom: 10px;
+            font-size: 2rem;
+            color: #f8c0c8;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         header p {
-            color: #94a3b8;
-            font-size: 1.1rem;
+            color: #e2c0c5;
+            font-size: 1rem;
             max-width: 600px;
             margin: 0 auto;
         }
 
         .container {
-            width: 90%;
+            width: 92%;
             max-width: 1200px;
-            margin: 40px auto;
+            margin: 30px auto;
             flex-grow: 1;
+            padding-bottom: 30px;
         }
 
         .grid-aulas {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
         }
 
         .card {
-            background-color: #111827;
-            border: 1px solid #1e293b;
+            background-color: #ffffff;
+            border: 1px solid #e8dadc;
             border-radius: 12px;
-            padding: 25px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 12px rgba(74, 14, 23, 0.05);
         }
 
         .card:hover {
-            transform: translateY(-5px);
-            border-color: #38bdf8;
-            box-shadow: 0 8px 24px rgba(56, 189, 248, 0.15);
+            transform: translateY(-4px);
+            border-color: #801b2c;
+            box-shadow: 0 8px 20px rgba(128, 27, 44, 0.12);
         }
 
         .card-badge {
             align-self: flex-start;
-            background: rgba(56, 189, 248, 0.1);
-            color: #38bdf8;
-            padding: 4px 10px;
+            background-color: #fcebeb;
+            color: #721c24;
+            padding: 4px 12px;
             border-radius: 20px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: bold;
             text-transform: uppercase;
-            margin-bottom: 15px;
-            border: 1px solid rgba(56, 189, 248, 0.3);
+            margin-bottom: 12px;
+            border: 1px solid #f5c6cb;
         }
 
         .card h2 {
-            font-size: 1.3rem;
-            color: #f1f5f9;
-            margin-bottom: 10px;
+            font-size: 1.25rem;
+            color: #3b0b12;
+            margin-bottom: 8px;
         }
 
         .card p {
-            color: #94a3b8;
-            font-size: 0.95rem;
+            color: #5a4b4e;
+            font-size: 0.9rem;
             line-height: 1.5;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             flex-grow: 1;
         }
 
         .card-btn {
             display: inline-block;
             text-align: center;
-            background-color: #2563eb;
+            background-color: #6b1120;
             color: #ffffff;
             text-decoration: none;
-            padding: 12px 20px;
+            padding: 10px 16px;
             border-radius: 8px;
             font-weight: bold;
-            transition: background-color 0.2s ease;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-family: inherit;
         }
 
         .card-btn:hover {
-            background-color: #1d4ed8;
+            background-color: #85182a;
+            box-shadow: 0 4px 12px rgba(107, 17, 32, 0.25);
         }
 
         footer {
             text-align: center;
-            padding: 25px;
-            background-color: #0b0f19;
-            color: #64748b;
-            border-top: 1px solid #1e293b;
+            padding: 20px;
+            background-color: #ebdada;
+            color: #5c3a3e;
+            border-top: 1px solid #d8c2c4;
+            font-size: 0.85rem;
+            margin-top: auto;
+            padding-bottom: calc(20px + env(safe-area-inset-bottom));
+        }
+
+        /* ESTILOS DOS MODAIS */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.65);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+            padding: 15px;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 1100px;
+            max-height: 92vh;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+            border: 1px solid #e8dadc;
+            margin-bottom: env(safe-area-inset-bottom);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #4a0e17, #2b080d);
+            color: #ffffff;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #721c24;
+        }
+
+        .modal-header h2 {
+            font-size: 1.3rem;
+            color: #f8c0c8;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #f8c0c8;
+            font-size: 1.8rem;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.2s ease;
+        }
+
+        .modal-close:hover {
+            color: #ffffff;
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            color: #3b0b12;
+            line-height: 1.5;
+        }
+
+        .topic-group {
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px dashed #e8dadc;
+        }
+
+        .topic-group:last-child {
+            border-bottom: none;
+        }
+
+        .topic-title {
+            font-size: 1.15rem;
+            color: #6b1120;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .subtopic-title {
+            font-size: 1rem;
+            color: #4a0e17;
+            margin: 8px 0 4px 12px;
+            font-weight: 600;
+        }
+
+        .topic-desc {
+            margin-left: 15px;
+            color: #5a4b4e;
             font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+
+        .topic-desc ul {
+            margin-left: 18px;
+            margin-top: 4px;
+        }
+
+        .topic-desc span {
+            font-weight: bold;
+            color: #85182a;
+        }
+
+        .modal-footer {
+            padding: 12px 20px;
+            background-color: #f7f4f4;
+            border-top: 1px solid #e8dadc;
+            text-align: right;
+        }
+
+        /* SIMULADOR VISUALG + LAYOUT VERTICAL */
+        .visualg-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sim {
+            background-color: #4a0e17;
+            color: #ffffff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 0.85rem;
+        }
+
+        .btn-sim:hover:not(:disabled) {
+            background-color: #85182a;
+        }
+
+        .btn-sim:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+
+        /* REORGANIZAÇÃO EM COLUNA VERTICAL */
+        .visualg-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .code-box {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            height: 320px;
+            overflow-y: auto;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+            width: 100%;
+        }
+
+        .code-line {
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            display: flex;
+            align-items: center;
+        }
+
+        .code-pointer {
+            display: inline-block;
+            width: 20px;
+            color: #ff4d6d;
+            font-weight: bold;
+            visibility: hidden;
+            user-select: none;
+        }
+
+        .code-line.active .code-pointer {
+            visibility: visible;
+        }
+
+        .code-line.active {
+            background-color: #4a0e17;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        /* Syntax highlighting para INSTRUÇÕES do VisuAlg */
+        .kw-instruction { color: #569cd6; font-weight: bold; }
+        .kw-type { color: #4ec9b0; font-weight: bold; }
+        .kw-comment { color: #6a9955; }
+
+        .vertical-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .vertical-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .console-box {
+            background-color: #0c0c0c;
+            color: #00ff66;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            height: 160px;
+            overflow-y: auto;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            color: #888;
+            border-bottom: 1px solid #333;
+            padding-bottom: 4px;
+            margin-bottom: 6px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: bold;
+        }
+
+        .console-output {
+            flex-grow: 1;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        /* Destaque para o prompt de Enter */
+        .enter-prompt-badge {
+            display: inline-block;
+            background-color: #ff9800;
+            color: #000;
+            font-weight: bold;
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 8px;
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        /* REPRESENTAÇÃO DE MEMÓRIA (RAM) */
+        .memory-box {
+            background-color: #181818;
+            border-radius: 8px;
+            padding: 10px 12px;
+            height: 160px;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .memory-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            overflow-y: auto;
+        }
+
+        .memory-cell {
+            display: grid;
+            grid-template-columns: 80px 1fr 1fr;
+            background: #252526;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.8rem;
+            align-items: center;
+            border-left: 3px solid #555;
+            transition: all 0.3s ease;
+        }
+
+        .memory-cell.updated {
+            border-left-color: #00ff66;
+            background: #2a3a2e;
+            transform: scale(1.01);
+        }
+
+        .mem-addr { color: #888; font-size: 0.7rem; }
+        .mem-name { color: #f8c0c8; font-weight: bold; }
+        .mem-val { color: #ffffff; text-align: right; font-weight: bold; }
+        .mem-unassigned { color: #666; font-style: italic; }
+
+        .input-wrapper {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-inline {
+            background: #111;
+            border: 1px solid #00ff66;
+            color: #00ff66;
+            font-family: inherit;
+            font-size: 0.9rem;
+            width: 80px;
+            outline: none;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .btn-confirm-input {
+            background: #00ff66;
+            color: #000;
+            border: none;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .explanation-box {
+            background-color: #fcebeb;
+            border-left: 4px solid #6b1120;
+            padding: 12px;
+            border-radius: 6px;
+            color: #4a0e17;
+            font-size: 0.9rem;
+            min-height: 70px;
+        }
+
+        .explanation-box h4 {
+            margin-bottom: 4px;
+            color: #6b1120;
+            font-size: 0.95rem;
+        }
+
+        .typing-cursor::after {
+            content: '█';
+            animation: blink 0.8s infinite;
+            margin-left: 2px;
+            font-size: 0.85em;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Painel de Aulas Interativas PHP & MySQLi</h1>
-        <p>Selecione uma das simulações abaixo para visualizar a execução linha a linha do script no servidor.</p>
+        <h1>PROGRAMAÇÃO EM ALGORITMOS & PYTHON</h1>
+        <p>Selecione uma das aulas abaixo para visualizar o conteúdo e simulações passo a passo de código.</p>
     </header>
 
     <div class="container">
         <div class="grid-aulas">
 
-            <!-- Card 1: Execução em Terminal -->
+            <!-- Card 1 -->
             <div class="card">
                 <div>
                     <span class="card-badge">Aula 01</span>
-                    <h2>Criação do Banco de Dados Workbench</h2>
-                    <p>Demonstração script da criação do banco de dados.</p>
+                    <h2>Fundamentos da Computação</h2>
+                    <p>Visão geral sobre o funcionamento dos computadores, programas, algoritmos e classificação de linguagens de programação.</p>
                 </div>
-                <a href="criabd.html" class="card-btn">Acessar Aula →</a>
+                <button class="card-btn" onclick="openModal('modalFundamentos')">Acessar Aula →</button>
             </div>
-            <!-- Card 2: Execução em Terminal -->
+
+            <!-- Card 2 -->
             <div class="card">
                 <div>
                     <span class="card-badge">Aula 02</span>
-                    <h2>Formulário de cadastro</h2>
-                    <p>Demonstração da criação de um formulário de cadastro em html.</p>
+                    <h2>Lógica de Programação</h2>
+                    <p>Conceitos essenciais de abstração, álgebra booleana, fluxogramas, operadores, testes de mesa e refatoração.</p>
                 </div>
-                <a href="formCadExplica.html" class="card-btn">Acessar Aula →</a>
+                <button class="card-btn" onclick="openModal('modalLogica')">Acessar Aula →</button>
             </div>
 
-            <!-- Card 3: Execução com HTML + CSS -->
+            <!-- Card 3 (Simulador VisuAlg - Soma) -->
             <div class="card">
                 <div>
                     <span class="card-badge">Aula 03</span>
-                    <h2>Cadastro de informações em banco de dados</h2>
-                    <p>Simulação de cadastro de informações em banco de dados com PHP e MySql.</p>
+                    <h2>Algoritmo de Soma no VisuAlg</h2>
+                    <p>Simulador interativo do VisuAlg com execução linha a linha, ponteiro de execução e representação de memória RAM.</p>
                 </div>
-                <a href="formCadbd.html" class="card-btn">Acessar Aula →</a>
+                <button class="card-btn" onclick="openModal('modalVisualg')">Acessar Aula →</button>
             </div>
 
-            <!-- Card 4: Execução com HTML Puro -->
+            <!-- Card 4 -->
             <div class="card">
                 <div>
                     <span class="card-badge">Aula 04</span>
-                    <h2>Formulário de Consulta de Dados</h2>
-                    <p>Simulação de consulta de informações em banco de dados com PHP e MySql.</p>
+                    <h2>Algorito média de aluno</h2>
+                    <p>Exemplo de algoritmo que solicita nota de atividade e avaliação e calcula média.</p>
                 </div>
-                <a href="formConsbd.html" class="card-btn">Acessar Aula →</a>
+                <a href="algmedia.html" class="card-btn">Acessar Aula →</a>
             </div>
-             <!-- Card 5: Execução com HTML Puro -->
+
+            <!-- Card 5 -->
             <div class="card">
                 <div>
-                    <span class="card-badge">Aula 04</span>
-                    <h2>Formulário de Alteração de Dados</h2>
-                    <p>Simulação de alteração de informações em banco de dados com PHP e MySql.</p>
+                    <span class="card-badge">Aula 05</span>
+                    <h2>Atualização de Registros (UPDATE)</h2>
+                    <p>Simulação de alteração de dados no banco com controle de transação e tratamento de exceções.</p>
                 </div>
-                <a href="formAltbd.html" class="card-btn">Acessar Aula →</a>
+                <a href="formAltbd_python.html" class="card-btn">Acessar Aula →</a>
             </div>
-              <!-- Card 6: Execução com HTML Puro -->
+
+            <!-- Card 6 -->
             <div class="card">
                 <div>
-                    <span class="card-badge">Aula 04</span>
-                    <h2>Formulário Simulação comando Fethassoc</h2>
-                    <p>Simulação de procura em banco de dados com PHP e MySql.</p>
+                    <span class="card-badge">Aula 06</span>
+                    <h2>Simulação fetchone() e fetchall()</h2>
+                    <p>Mapeamento e iteração sobre cursores de consulta para extração de resultados em dicionários e tuplas.</p>
                 </div>
-                <a href="simuladorFetchassoc.html" class="card-btn">Acessar Aula →</a>
+                <a href="simuladorFetch_python.html" class="card-btn">Acessar Aula →</a>
             </div>
 
         </div>
     </div>
 
+    <!-- MODAL 1: FUNDAMENTOS DA COMPUTAÇÃO -->
+    <div class="modal-overlay" id="modalFundamentos">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Fundamentos da Computação</h2>
+                <button class="modal-close" onclick="closeModal('modalFundamentos')">&times;</button>
+            </div>
+            <div class="modal-body">
+                
+                <div class="topic-group">
+                    <div class="topic-title">1.1. Funcionamento de um computador</div>
+                    <div class="topic-desc">
+                        O computador opera processando dados através de uma arquitetura básica composta por <strong>Entrada (Input)</strong> (teclado, mouse), <strong>Processamento</strong> (CPU/Processador), <strong>Memória</strong> (RAM para armazenamento temporário e HD/SSD para permanente) e <strong>Saída (Output)</strong> (monitor, caixas de som). Tudo é convertido e processado como sinais elétricos codificados no sistema binário (0s e 1s).
+                    </div>
+                </div>
+
+                <div class="topic-group">
+                    <div class="topic-title">1.2. Programas de computador</div>
+                    
+                    <div class="subtopic-title">1.2.1. Definição</div>
+                    <div class="topic-desc">
+                        Um programa de computador é uma sequência lógica e estruturada de instruções escritas em uma linguagem específica, projetada para ser executada pelo hardware a fim de realizar uma tarefa ou resolver um problema.
+                    </div>
+
+                    <div class="subtopic-title">1.2.2. Tipos</div>
+                    <div class="topic-desc">
+                        Os programas dividem-se principalmente em:
+                        <ul>
+                            <li><span>Sistemas Operacionais/Base:</span> Gerenciam o hardware (ex: Windows, Linux, macOS).</li>
+                            <li><span>Aplicativos:</span> Atendem a necessidades diretas do usuário (ex: navegadores, editores de texto, jogos).</li>
+                            <li><span>Utilitários e Ferramentas:</span> Auxiliam na manutenção do sistema ou no desenvolvimento (ex: antivírus, compiladores, IDEs).</li>
+                        </ul>
+                    </div>
+
+                    <div class="subtopic-title">1.2.3. Algoritmos</div>
+                    <div class="topic-desc">
+                        Um algoritmo é uma sequência finita de passos claros, bem definidos e não ambíguos para a solução de um problema (semelhante a uma receita de bolo). É a base conceitual antes de escrever o código em qualquer linguagem.
+                    </div>
+                </div>
+
+                <div class="topic-group">
+                    <div class="topic-title">1.3. Linguagens de programação</div>
+                    
+                    <div class="subtopic-title">1.3.1. Baixo nível</div>
+                    <div class="topic-desc">
+                        Linguagens próximas da arquitetura física da máquina (como <span>Código de Máquina</span> e <span>Assembly</span>). Oferecem alto controle de hardware e rápida execução, mas são difíceis de ler, escrever e não são portáveis.
+                    </div>
+
+                    <div class="subtopic-title">1.3.2. Alto nível</div>
+                    <div class="topic-desc">
+                        Linguagens com sintaxe próxima da linguagem humana (geralmente em inglês), como <span>Python</span>, <span>C#</span> ou <span>Java</span>. São fáceis de aprender, portáveis e abstraem a complexidade do hardware.
+                    </div>
+
+                    <div class="subtopic-title">1.3.3. Interpretada</div>
+                    <div class="topic-desc">
+                        O código-fonte é traduzido e executado linha a linha em tempo real por um <span>Interpretador</span>. Exemplo principal: <strong>Python</strong> e JavaScript.
+                    </div>
+
+                    <div class="subtopic-title">1.3.4. Compilada</div>
+                    <div class="topic-desc">
+                        Todo o código-fonte é traduzido de uma só vez por um <span>Compilador</span>, gerando um arquivo executável direto na linguagem de máquina (ex: C, C++, Go).
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="card-btn" onclick="closeModal('modalFundamentos')">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: LÓGICA DE PROGRAMAÇÃO -->
+    <div class="modal-overlay" id="modalLogica">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Lógica de Programação</h2>
+                <button class="modal-close" onclick="closeModal('modalLogica')">&times;</button>
+            </div>
+            <div class="modal-body">
+                
+                <div class="topic-group">
+                    <div class="topic-title">2.1. Abstração lógica</div>
+                    <div class="topic-desc">
+                        Capacidade de isolar os aspectos essenciais de um problema complexo, ignorando detalhes irrelevantes no momento. Permite focar na modelagem de soluções e na criação de estruturas de dados e funções reutilizáveis sem se preocupar com detalhes de implementação de baixo nível.
+                    </div>
+                </div>
+
+                <div class="topic-group">
+                    <div class="topic-title">2.2. Álgebra booleana</div>
+                    <div class="topic-desc">
+                        Ramo da matemática que lida com variáveis de apenas dois valores lógicos: <strong>Verdadeiro (True/1)</strong> ou <strong>Falso (False/0)</strong>. É a base da tomada de decisões em algoritmos através de operações lógicas fundamentais (E/AND, OU/OR, NÃO/NOT).
+                    </div>
+                </div>
+
+                <div class="topic-group">
+                    <div class="topic-title">2.3. Fluxogramas</div>
+                    <div class="topic-desc">
+                        Representação gráfica de um algoritmo utilizando formas geométricas padronizadas (retângulos para ações, losangos para decisões, elipses para início/fim) conectadas por setas que indicam o fluxo de execução das instruções.
+                    </div>
+                </div>
+
+                <div class="topic-group">
+                    <div class="topic-title">2.4. Operadores</div>
+                    
+                    <div class="subtopic-title">2.4.1. Aritméticos</div>
+                    <div class="topic-desc">
+                        Símbolos usados para realizar cálculos matemáticos:
+                        <ul>
+                            <li><span>Adição (+), Subtração (-), Multiplicação (*), Divisão (/)</span></li>
+                            <li><span>Divisão Inteira (//) e Módulo/Resto (%)</span> em Python.</li>
+                            <li><span>Exponenciação (**)</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="subtopic-title">2.4.2. Relacionais</div>
+                    <div class="topic-desc">
+                        Utilizados para comparar dois valores, retornando um resultado booleano (True ou False):
+                        <ul>
+                            <li><span>Igual (==), Diferente (!=)</span></li>
+                            <li><span>Maior que (>), Menor que (<)</span></li>
+                            <li><span>Maior ou igual (>=), Menor ou igual (<=)</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="subtopic-title">2.4.3. Lógicos</div>
+                    <div class="topic-desc">
+                        Combinam ou invertem expressões booleanas:
+                        <ul>
+                            <li><span>and (E):</span> Retorna True se ambas as condições forem verdadeiras.</li>
+                            <li><span>or (OU):</span> Retorna True se pelo menos uma condição for verdadeira.</li>
+                            <li><span>not (NÃO):</span> Inverte o valor lógico (True vira False e vice-versa).</li>
+                        </ul>
+                    </div>
+
+                    <div class="subtopic-title">2.4.4. Expressões</div>
+                    <div class="topic-desc">
+                        Combinações de variáveis, constantes e operadores que são avaliadas pelo computador para produzir um único valor final. Podem ser aritméticas (resultam em número) ou lógicas/booleanas (resultam em True/False).
+                    </div>
+                </div>
+
+                <div class="topic-group">
+                    <div class="topic-title">2.5. Teste de mesa</div>
+                    <div class="topic-desc">
+                        Processo manual (geralmente feito no papel ou em planilha) no qual o programador segue passo a passo as instruções do algoritmo, anotando o valor de cada variável a cada linha executada. Serve para validar a lógica e encontrar erros (bugs) sem precisar rodar o código.
+                    </div>
+                </div>
+
+                <div class="topic-group">
+                    <div class="topic-title">2.6. Refatoração</div>
+                    <div class="topic-desc">
+                        Prática de reestruturar e melhorar a organização interna do código existente (tornando-o mais limpo, legível e eficiente) <strong>sem alterar seu comportamento externo</strong> ou seu resultado final.
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="card-btn" onclick="closeModal('modalLogica')">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: SIMULADOR VISUALG (SOMA DE DOIS NÚMEROS) -->
+    <div class="modal-overlay" id="modalVisualg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Ambiente VisuAlg - Algoritmo de Soma</h2>
+                <button class="modal-close" onclick="closeModal('modalVisualg')">&times;</button>
+            </div>
+            <div class="modal-body">
+                
+                <div class="visualg-controls">
+                    <button class="btn-sim" id="btnIniciar" onclick="iniciarSimulacao()">▶ Iniciar Execução</button>
+                    <button class="btn-sim" id="btnProximo" onclick="proximoPasso()" disabled>⏭ Próximo Passo</button>
+                    <button class="btn-sim" id="btnReiniciar" onclick="reiniciarSimulacao()">🔄 Reiniciar</button>
+                </div>
+
+                <div class="visualg-layout">
+                    <!-- Editor de Código VisuAlg (Expandido para 100% de largura) -->
+                    <div class="code-box" id="codeEditor">
+                        <!-- Gerado dinamicamente -->
+                    </div>
+
+                    <!-- Coluna Vertical Abaixo do Editor: Console e Memória RAM -->
+                    <div class="vertical-panel">
+                        <!-- Console de Saída -->
+                        <div class="console-box">
+                            <div class="panel-header">Console de Saída</div>
+                            <div class="console-output" id="consoleOutput">Aguardando início...</div>
+                        </div>
+
+                        <!-- Estado da Memória (RAM) -->
+                        <div class="memory-box">
+                            <div class="panel-header">Memória RAM (Variáveis)</div>
+                            <div class="memory-grid" id="memoryGrid">
+                                <div style="color: #666; font-size: 0.8rem; font-style: italic;">Nenhuma variável declarada na memória.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Caixa de Explicação da Instrução Atual -->
+                <div class="explanation-box">
+                    <h4 id="expTitle">Explicação da Instrução</h4>
+                    <p id="expText">Clique no botão "Iniciar Execução" para avançar linha a linha pelo algoritmo.</p>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="card-btn" onclick="closeModal('modalVisualg')">Fechar</button>
+            </div>
+        </div>
+    </div>
+
     <footer>
-        Curso de PHP & MySQLi • Material Interativo de Aprendizado
+        Curso de Algoritmos & Programação • Material Interativo de Aprendizado
     </footer>
 
+    <script>
+        // --- ESTRUTURA E ESTADO DO SIMULADOR VISUALG ---
+        const codigoAlgoritmo = [
+            { id: 1, text: 'algoritmo "SomaDoisNumeros"', expTitle: 'Instrução: algoritmo', expText: 'Palavra reservada que define o nome do programa no VisuAlg.' },
+            { id: 2, text: '// Disciplina  : Lógica de Programação', expTitle: 'Comentário (//)', expText: 'Linhas com // são ignoradas pelo interpretador e servem para documentar o código.' },
+            { id: 3, text: 'var', expTitle: 'Instrução: var', expText: 'Inicia a seção de declaração de variáveis na memória do sistema.' },
+            { id: 4, text: '   n1, n2, soma : real', expTitle: 'Declaração de Tipo: real', expText: 'Aloca 3 espaços na memória RAM para números reais (com casas decimais), inicializados sem valor.' },
+            { id: 5, text: 'inicio', expTitle: 'Instrução: inicio', expText: 'Marca o começo do bloco executável do programa.' },
+            { id: 6, text: '   escreva("Digite o primeiro número: ")', expTitle: 'Instrução: escreva', expText: 'Exibe uma mensagem no console de saída sem saltar linha.' },
+            { id: 7, text: '   leia(n1)', expTitle: 'Instrução: leia', expText: 'Pausa a execução, aguarda o usuário digitar um valor e pressionar ENTER para salvar na variável n1.' },
+            { id: 8, text: '   escreva("Digite o segundo número: ")', expTitle: 'Instrução: escreva', expText: 'Exibe a solicitação do segundo número no console.' },
+            { id: 9, text: '   leia(n2)', expTitle: 'Instrução: leia', expText: 'Aguardar o usuário digitar um valor e pressionar ENTER para armazenar na variável n2 na memória RAM.' },
+            { id: 10, text: '   soma <- n1 + n2', expTitle: 'Instrução de Atribuição (<-)', expText: 'Lê os valores de n1 e n2 da memória, calcula a soma e atribui o resultado à variável soma.' },
+            { id: 11, text: '   escreval("A soma dos dois números é: ", soma)', expTitle: 'Instrução: escreval', expText: 'Busca o valor da variável soma na memória e o exibe no console junto com o texto, saltando uma linha no final.' },
+            { id: 12, text: 'fimalgoritmo', expTitle: 'Instrução: fimalgoritmo', expText: 'Finaliza a execução do programa.' }
+        ];
+
+        // Estado das variáveis na memória RAM
+        let memoriaRAM = {
+            declarado: false,
+            vars: {
+                n1: { addr: '0x00A1', val: null, updated: false },
+                n2: { addr: '0x00A2', val: null, updated: false },
+                soma: { addr: '0x00A3', val: null, updated: false }
+            }
+        };
+
+        let passoAtual = 0;
+        let emExecucao = false;
+        let aguardandoInput = false;
+        let consoleTexto = "";
+
+        function formatarApenasInstrucoesVisuAlg(str) {
+            let res = str;
+            if (res.trim().startsWith('//')) {
+                return `<span class="kw-comment">${res}</span>`;
+            }
+            res = res.replace(/\b(algoritmo|var|inicio|fimalgoritmo|escreva|escreval|leia)\b/gi, '<span class="kw-instruction">$1</span>');
+            res = res.replace(/\b(real|inteiro|caractere|logico)\b/gi, '<span class="kw-type">$1</span>');
+            return res;
+        }
+
+        function renderizarCodigo() {
+            const editor = document.getElementById('codeEditor');
+            editor.innerHTML = '';
+            codigoAlgoritmo.forEach((linha, index) => {
+                const lineDiv = document.createElement('div');
+                lineDiv.className = 'code-line' + (index === passoAtual - 1 ? ' active' : '');
+                lineDiv.id = `line-${index + 1}`;
+                
+                const ptr = document.createElement('span');
+                ptr.className = 'code-pointer';
+                ptr.innerText = '➔';
+                
+                const txt = document.createElement('span');
+                txt.innerHTML = formatarApenasInstrucoesVisuAlg(linha.text);
+                
+                lineDiv.appendChild(ptr);
+                lineDiv.appendChild(txt);
+                editor.appendChild(lineDiv);
+            });
+
+            if (passoAtual > 0) {
+                const activeEl = document.getElementById(`line-${passoAtual}`);
+                if (activeEl) {
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+        }
+
+        function renderizarMemoria() {
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = '';
+
+            if (!memoriaRAM.declarado) {
+                grid.innerHTML = '<div style="color: #666; font-size: 0.8rem; font-style: italic;">Nenhuma variável declarada na memória.</div>';
+                return;
+            }
+
+            for (let [nome, dados] of Object.entries(memoriaRAM.vars)) {
+                const cell = document.createElement('div');
+                cell.className = 'memory-cell' + (dados.updated ? ' updated' : '');
+                
+                const valStr = dados.val === null ? '<span class="mem-unassigned">não inicializado</span>' : dados.val;
+                
+                cell.innerHTML = `
+                    <span class="mem-addr">${dados.addr}</span>
+                    <span class="mem-name">${nome}</span>
+                    <span class="mem-val">${valStr}</span>
+                `;
+                grid.appendChild(cell);
+            }
+        }
+
+        function atualizarExplicacao(titulo, texto) {
+            document.getElementById('expTitle').innerText = titulo;
+            document.getElementById('expText').innerText = texto;
+        }
+
+        function iniciarSimulacao() {
+            reiniciarSimulacao();
+            emExecucao = true;
+            document.getElementById('btnIniciar').disabled = true;
+            document.getElementById('btnProximo').disabled = false;
+            proximoPasso();
+        }
+
+        function proximoPasso() {
+            if (aguardandoInput || passoAtual >= codigoAlgoritmo.length) return;
+
+            passoAtual++;
+            const instrucao = codigoAlgoritmo[passoAtual - 1];
+            
+            // Limpar destaques da memória
+            for (let k in memoriaRAM.vars) memoriaRAM.vars[k].updated = false;
+
+            renderizarCodigo();
+            atualizarExplicacao(instrucao.expTitle, instrucao.expText);
+
+            // Lógica de execução por linha
+            switch (passoAtual) {
+                case 1:
+                    consoleTexto = "*** Inicio da execução do algoritmo ***\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    memoriaRAM.declarado = true;
+                    renderizarMemoria();
+                    break;
+                case 5:
+                    break;
+                case 6:
+                    consoleTexto += "Digite o primeiro número: ";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 7:
+                    solicitarInput('n1');
+                    break;
+                case 8:
+                    consoleTexto += "Digite o segundo número: ";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 9:
+                    solicitarInput('n2');
+                    break;
+                case 10:
+                    let v1 = parseFloat(memoriaRAM.vars.n1.val);
+                    let v2 = parseFloat(memoriaRAM.vars.n2.val);
+                    memoriaRAM.vars.soma.val = (v1 + v2).toString();
+                    memoriaRAM.vars.soma.updated = true;
+                    renderizarMemoria();
+                    break;
+                case 11:
+                    consoleTexto += "A soma dos dois números é: " + memoriaRAM.vars.soma.val + "\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 12:
+                    consoleTexto += "\n*** Fim da execução ***";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    document.getElementById('btnProximo').disabled = true;
+                    atualizarExplicacao("Execução Concluída", "O algoritmo foi finalizado com sucesso.");
+                    break;
+            }
+        }
+
+        function solicitarInput(varNome) {
+            aguardandoInput = true;
+            document.getElementById('btnProximo').disabled = true;
+
+            const consoleBox = document.getElementById('consoleOutput');
+            
+            const inputWrapper = document.createElement('span');
+            inputWrapper.className = 'input-wrapper';
+
+            const inputEl = document.createElement('input');
+            inputEl.type = 'number';
+            inputEl.className = 'input-inline';
+            inputEl.id = 'inputVar';
+
+            const btnConfirm = document.createElement('button');
+            btnConfirm.className = 'btn-confirm-input';
+            btnConfirm.innerText = 'OK';
+
+            const enterBadge = document.createElement('span');
+            enterBadge.className = 'enter-prompt-badge';
+            enterBadge.innerText = '[ Pressione ENTER ou clique em OK ]';
+
+            inputWrapper.appendChild(inputEl);
+            inputWrapper.appendChild(btnConfirm);
+            inputWrapper.appendChild(enterBadge);
+            consoleBox.appendChild(inputWrapper);
+
+            inputEl.focus();
+
+            atualizarExplicacao(`Instrução: leia(${varNome})`, `Aguardando entrada. Digite o valor para '${varNome}' e pressione a tecla ENTER no teclado (ou clique em OK) para confirmar.`);
+
+            const processarEntrada = () => {
+                let valor = inputEl.value.trim();
+                if (valor === "") valor = "0";
+
+                memoriaRAM.vars[varNome].val = valor;
+                memoriaRAM.vars[varNome].updated = true;
+
+                inputWrapper.remove();
+                consoleTexto += valor + "\n";
+                consoleBox.innerText = consoleTexto;
+
+                renderizarMemoria();
+                aguardandoInput = false;
+                document.getElementById('btnProximo').disabled = false;
+                proximoPasso();
+            };
+
+            inputEl.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    processarEntrada();
+                }
+            });
+
+            btnConfirm.addEventListener('click', processarEntrada);
+        }
+
+        function reiniciarSimulacao() {
+            passoAtual = 0;
+            emExecucao = false;
+            aguardandoInput = false;
+            consoleTexto = "Aguardando início...";
+            
+            memoriaRAM.declarado = false;
+            memoriaRAM.vars.n1.val = null;
+            memoriaRAM.vars.n1.updated = false;
+            memoriaRAM.vars.n2.val = null;
+            memoriaRAM.vars.n2.updated = false;
+            memoriaRAM.vars.soma.val = null;
+            memoriaRAM.vars.soma.updated = false;
+
+            document.getElementById('btnIniciar').disabled = false;
+            document.getElementById('btnProximo').disabled = true;
+            document.getElementById('consoleOutput').innerText = consoleTexto;
+
+            renderizarCodigo();
+            renderizarMemoria();
+            atualizarExplicacao("Explicação da Instrução", "Clique no botão \"Iniciar Execução\" para avançar linha a linha pelo algoritmo.");
+        }
+
+        // Funções para controle de Modais
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+            if (id === 'modalVisualg') {
+                reiniciarSimulacao();
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // Inicializar a exibição estática do código ao carregar
+        renderizarCodigo();
+    </script>
 </body>
 </html>
