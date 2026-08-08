@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Simulador VisuAlg - Cálculo de Salário</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f4f4;
+            color: #2b1e20;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        header {
+            background: linear-gradient(135deg, #4a0e17, #2b080d);
+            padding: 24px 20px;
+            text-align: center;
+            border-bottom: 3px solid #721c24;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            color: #f8c0c8;
+            margin-bottom: 6px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        header p {
+            color: #e2c0c5;
+            font-size: 0.95rem;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1100px;
+            margin: 20px auto;
+            flex-grow: 1;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 6px 18px rgba(74, 14, 23, 0.08);
+            border: 1px solid #e8dadc;
+        }
+
+        /* CONTROLES DO SIMULADOR */
+        .visualg-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sim {
+            background-color: #4a0e17;
+            color: #ffffff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-size: 0.9rem;
+        }
+
+        .btn-sim:hover:not(:disabled) {
+            background-color: #85182a;
+        }
+
+        .btn-sim:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .btn-sim:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+
+        /* LAYOUT VERTICAL DO VISUALG */
+        .visualg-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .code-box {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            height: 350px;
+            overflow-y: auto;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+            width: 100%;
+        }
+
+        .code-line {
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            display: flex;
+            align-items: center;
+        }
+
+        .code-pointer {
+            display: inline-block;
+            width: 20px;
+            color: #ff4d6d;
+            font-weight: bold;
+            visibility: hidden;
+            user-select: none;
+        }
+
+        .code-line.active .code-pointer {
+            visibility: visible;
+        }
+
+        .code-line.active {
+            background-color: #4a0e17;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        /* Destaque de sintaxe */
+        .kw-instruction { color: #569cd6; font-weight: bold; }
+        .kw-type { color: #4ec9b0; font-weight: bold; }
+        .kw-comment { color: #6a9955; }
+
+        .vertical-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .vertical-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .console-box {
+            background-color: #0c0c0c;
+            color: #00ff66;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            height: 180px;
+            overflow-y: auto;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            color: #888;
+            border-bottom: 1px solid #333;
+            padding-bottom: 4px;
+            margin-bottom: 6px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: bold;
+        }
+
+        .console-output {
+            flex-grow: 1;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        /* Destaque para o prompt de Enter */
+        .enter-prompt-badge {
+            display: inline-block;
+            background-color: #ff9800;
+            color: #000;
+            font-weight: bold;
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 8px;
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        /* PAINEL DE MEMÓRIA (RAM) */
+        .memory-box {
+            background-color: #181818;
+            border-radius: 8px;
+            padding: 10px 12px;
+            height: 180px;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .memory-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            overflow-y: auto;
+        }
+
+        .memory-cell {
+            display: grid;
+            grid-template-columns: 75px 1fr 1fr;
+            background: #252526;
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.78rem;
+            align-items: center;
+            border-left: 3px solid #555;
+            transition: all 0.3s ease;
+        }
+
+        .memory-cell.updated {
+            border-left-color: #00ff66;
+            background: #2a3a2e;
+            transform: scale(1.01);
+        }
+
+        .mem-addr { color: #888; font-size: 0.68rem; }
+        .mem-name { color: #f8c0c8; font-weight: bold; }
+        .mem-val { color: #ffffff; text-align: right; font-weight: bold; }
+        .mem-unassigned { color: #666; font-style: italic; }
+
+        .input-wrapper {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-inline {
+            background: #111;
+            border: 1px solid #00ff66;
+            color: #00ff66;
+            font-family: inherit;
+            font-size: 0.9rem;
+            width: 90px;
+            outline: none;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .btn-confirm-input {
+            background: #00ff66;
+            color: #000;
+            border: none;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .explanation-box {
+            background-color: #fcebeb;
+            border-left: 4px solid #6b1120;
+            padding: 12px 16px;
+            border-radius: 6px;
+            color: #4a0e17;
+            font-size: 0.9rem;
+            min-height: 70px;
+        }
+
+        .explanation-box h4 {
+            margin-bottom: 4px;
+            color: #6b1120;
+            font-size: 0.95rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 18px;
+            background-color: #ebdada;
+            color: #5c3a3e;
+            border-top: 1px solid #d8c2c4;
+            font-size: 0.85rem;
+            margin-top: auto;
+            padding-bottom: calc(18px + env(safe-area-inset-bottom));
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Cálculo de Folha de Pagamento (VisuAlg)</h1>
+        <p>Simulação passo a passo do cálculo salarial (30 dias x 8h = 240h/mês), acréscimo de HE (+50%) e desconto de faltas em horas.</p>
+    </header>
+
+    <div class="container">
+        
+        <!-- BOTOES DE CONTROLE -->
+        <div class="visualg-controls">
+            <button class="btn-sim" id="btnIniciar" onclick="iniciarSimulacao()">▶ Iniciar Execução</button>
+            <button class="btn-sim" id="btnProximo" onclick="proximoPasso()" disabled>⏭ Próximo Passo</button>
+            <button class="btn-sim" id="btnReiniciar" onclick="reiniciarSimulacao()">🔄 Reiniciar</button>
+        </div>
+
+        <div class="visualg-layout">
+            <!-- EDITOR DE CODIGO -->
+            <div class="code-box" id="codeEditor">
+                <!-- Gerado via JavaScript -->
+            </div>
+
+            <!-- PAINEIS INFERIORES: CONSOLE E RAM -->
+            <div class="vertical-panel">
+                <!-- Console -->
+                <div class="console-box">
+                    <div class="panel-header">Console de Saída</div>
+                    <div class="console-output" id="consoleOutput">Aguardando início...</div>
+                </div>
+
+                <!-- Memória RAM -->
+                <div class="memory-box">
+                    <div class="panel-header">Memória RAM (Variáveis)</div>
+                    <div class="memory-grid" id="memoryGrid">
+                        <div style="color: #666; font-size: 0.8rem; font-style: italic;">Nenhuma variável declarada na memória.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXPLICACAO DO PASSO ATUAL -->
+        <div class="explanation-box">
+            <h4 id="expTitle">Explicação da Instrução</h4>
+            <p id="expText">Clique no botão "Iniciar Execução" para avançar linha a linha pelo algoritmo.</p>
+        </div>
+
+    </div>
+
+    <footer>
+        Algoritmos & Programação • Simulador Interativo VisuAlg
+    </footer>
+
+    <script>
+        // --- CÓDIGO E ETAPAS DO ALGORITMO ---
+        const codigoAlgoritmo = [
+            { id: 1, text: 'algoritmo "CalculoSalarioFuncionario"', expTitle: 'Instrução: algoritmo', expText: 'Declara o nome do programa de folha de pagamento.' },
+            { id: 2, text: '// Jornada: 240h/mês | Horas Extras: +50% | Faltas: em horas', expTitle: 'Comentário (//)', expText: 'Indica a base de cálculo: 30 dias x 8h/dia = 240 horas mensais.' },
+            { id: 3, text: 'var', expTitle: 'Instrução: var', expText: 'Abre a seção de alocação de variáveis na memória RAM.' },
+            { id: 4, text: '   salarioBase, horasExtras, faltasHoras : real', expTitle: 'Declaração de Entradas', expText: 'Aloca memória para o salário base e as quantidades de horas de extras e faltas.' },
+            { id: 5, text: '   valorHora, valorHE, valorFaltas, salarioLiquido : real', expTitle: 'Declaração de Auxiliares/Saída', expText: 'Aloca memória para armazenar os valores intermediários e o salário líquido final.' },
+            { id: 6, text: 'inicio', expTitle: 'Instrução: inicio', expText: 'Marca o início do bloco de execução.' },
+            { id: 7, text: '   escreva("Informe o Salário Base (R$): ")', expTitle: 'Instrução: escreva', expText: 'Exibe a solicitação do salário base no console.' },
+            { id: 8, text: '   leia(salarioBase)', expTitle: 'Instrução: leia', expText: 'Pausa para entrada do valor do salário base e grava na variável salarioBase.' },
+            { id: 9, text: '   escreva("Informe a quantidade de Horas Extras realizadas: ")', expTitle: 'Instrução: escreva', expText: 'Solicita a quantidade de horas extras trabalhadas.' },
+            { id: 10, text: '   leia(horasExtras)', expTitle: 'Instrução: leia', expText: 'Recebe e armazena o número de horas extras em horasExtras.' },
+            { id: 11, text: '   escreva("Informe a quantidade de Faltas (em horas): ")', expTitle: 'Instrução: escreva', expText: 'Solicita o total de horas não trabalhadas por faltas.' },
+            { id: 12, text: '   leia(faltasHoras)', expTitle: 'Instrução: leia', expText: 'Salva o número de horas de falta em faltasHoras.' },
+            { id: 13, text: '   valorHora <- salarioBase / 240', expTitle: 'Cálculo do Valor da Hora Normal', expText: 'Divide o salário base por 240 horas (30 dias x 8 horas/dia) para obter o valor por hora.' },
+            { id: 14, text: '   valorHE <- horasExtras * (valorHora * 1.5)', expTitle: 'Cálculo do Adicional de Horas Extras', expText: 'Calcula o valor das horas extras acrescentando o adicional de 50% (valorHora * 1.5).' },
+            { id: 15, text: '   valorFaltas <- faltasHoras * valorHora', expTitle: 'Cálculo do Desconto de Faltas', expText: 'Multiplica as horas faltadas pelo valor da hora normal de trabalho.' },
+            { id: 16, text: '   salarioLiquido <- salarioBase + valorHE - valorFaltas', expTitle: 'Cálculo do Salário Líquido', expText: 'Soma o valor das horas extras ao salário base e subtrai o desconto total de faltas.' },
+            { id: 17, text: '   escreval("--- DEMONSTRATIVO DE PAGAMENTO ---")', expTitle: 'Instrução: escreval', expText: 'Exibe cabeçalho no console.' },
+            { id: 18, text: '   escreval("(+) Salário Base  : R$ ", salarioBase)', expTitle: 'Instrução: escreval', expText: 'Exibe o salário base original.' },
+            { id: 19, text: '   escreval("(+) Horas Extras  : R$ ", valorHE)', expTitle: 'Instrução: escreval', expText: 'Exibe o valor total ganho com horas extras.' },
+            { id: 20, text: '   escreval("(-) Desconto Faltas: R$ ", valorFaltas)', expTitle: 'Instrução: escreval', expText: 'Exibe o valor total descontado pelas faltas.' },
+            { id: 21, text: '   escreval("(=) Salário a Receber: R$ ", salarioLiquido)', expTitle: 'Instrução: escreval', expText: 'Exibe o valor final a ser pago ao funcionário.' },
+            { id: 22, text: 'fimalgoritmo', expTitle: 'Instrução: fimalgoritmo', expText: 'Encerra o programa.' }
+        ];
+
+        // Estado da Memória RAM
+        let memoriaRAM = {
+            declarado: false,
+            vars: {
+                salarioBase: { addr: '0x00C1', val: null, updated: false },
+                horasExtras: { addr: '0x00C2', val: null, updated: false },
+                faltasHoras: { addr: '0x00C3', val: null, updated: false },
+                valorHora: { addr: '0x00C4', val: null, updated: false },
+                valorHE: { addr: '0x00C5', val: null, updated: false },
+                valorFaltas: { addr: '0x00C6', val: null, updated: false },
+                salarioLiquido: { addr: '0x00C7', val: null, updated: false }
+            }
+        };
+
+        let passoAtual = 0;
+        let emExecucao = false;
+        let aguardandoInput = false;
+        let consoleTexto = "";
+
+        function formatarSintaxe(str) {
+            let res = str;
+            if (res.trim().startsWith('//')) {
+                return `<span class="kw-comment">${res}</span>`;
+            }
+            res = res.replace(/\b(algoritmo|var|inicio|fimalgoritmo|escreva|escreval|leia)\b/gi, '<span class="kw-instruction">$1</span>');
+            res = res.replace(/\b(real|inteiro|caractere|logico)\b/gi, '<span class="kw-type">$1</span>');
+            return res;
+        }
+
+        function renderizarCodigo() {
+            const editor = document.getElementById('codeEditor');
+            editor.innerHTML = '';
+            codigoAlgoritmo.forEach((linha, index) => {
+                const lineDiv = document.createElement('div');
+                lineDiv.className = 'code-line' + (index === passoAtual - 1 ? ' active' : '');
+                lineDiv.id = `line-${index + 1}`;
+                
+                const ptr = document.createElement('span');
+                ptr.className = 'code-pointer';
+                ptr.innerText = '➔';
+                
+                const txt = document.createElement('span');
+                txt.innerHTML = formatarSintaxe(linha.text);
+                
+                lineDiv.appendChild(ptr);
+                lineDiv.appendChild(txt);
+                editor.appendChild(lineDiv);
+            });
+
+            if (passoAtual > 0) {
+                const activeEl = document.getElementById(`line-${passoAtual}`);
+                if (activeEl) {
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+        }
+
+        function renderizarMemoria() {
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = '';
+
+            if (!memoriaRAM.declarado) {
+                grid.innerHTML = '<div style="color: #666; font-size: 0.8rem; font-style: italic;">Nenhuma variável declarada na memória.</div>';
+                return;
+            }
+
+            for (let [nome, dados] of Object.entries(memoriaRAM.vars)) {
+                const cell = document.createElement('div');
+                cell.className = 'memory-cell' + (dados.updated ? ' updated' : '');
+                
+                const valStr = dados.val === null ? '<span class="mem-unassigned">não inicializado</span>' : dados.val;
+                
+                cell.innerHTML = `
+                    <span class="mem-addr">${dados.addr}</span>
+                    <span class="mem-name">${nome}</span>
+                    <span class="mem-val">${valStr}</span>
+                `;
+                grid.appendChild(cell);
+            }
+        }
+
+        function atualizarExplicacao(titulo, texto) {
+            document.getElementById('expTitle').innerText = titulo;
+            document.getElementById('expText').innerText = texto;
+        }
+
+        function iniciarSimulacao() {
+            reiniciarSimulacao();
+            emExecucao = true;
+            document.getElementById('btnIniciar').disabled = true;
+            document.getElementById('btnProximo').disabled = false;
+            proximoPasso();
+        }
+
+        function proximoPasso() {
+            if (aguardandoInput || passoAtual >= codigoAlgoritmo.length) return;
+
+            passoAtual++;
+            const instrucao = codigoAlgoritmo[passoAtual - 1];
+            
+            // Limpa destaques na RAM
+            for (let k in memoriaRAM.vars) memoriaRAM.vars[k].updated = false;
+
+            renderizarCodigo();
+            atualizarExplicacao(instrucao.expTitle, instrucao.expText);
+
+            switch (passoAtual) {
+                case 1:
+                    consoleTexto = "*** Inicio da execução do algoritmo ***\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 2:
+                case 3:
+                    break;
+                case 4:
+                case 5:
+                    memoriaRAM.declarado = true;
+                    renderizarMemoria();
+                    break;
+                case 6:
+                    break;
+                case 7:
+                    consoleTexto += "Informe o Salário Base (R$): ";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 8:
+                    solicitarInput('salarioBase', 2500.00);
+                    break;
+                case 9:
+                    consoleTexto += "Informe a quantidade de Horas Extras realizadas: ";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 10:
+                    solicitarInput('horasExtras', 10);
+                    break;
+                case 11:
+                    consoleTexto += "Informe a quantidade de Faltas (em horas): ";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 12:
+                    solicitarInput('faltasHoras', 8);
+                    break;
+                case 13:
+                    let sb = parseFloat(memoriaRAM.vars.salarioBase.val);
+                    let vh = sb / 240;
+                    memoriaRAM.vars.valorHora.val = vh.toFixed(2);
+                    memoriaRAM.vars.valorHora.updated = true;
+                    renderizarMemoria();
+                    break;
+                case 14:
+                    let vhNum = parseFloat(memoriaRAM.vars.valorHora.val);
+                    let heNum = parseFloat(memoriaRAM.vars.horasExtras.val);
+                    let vHE = heNum * (vhNum * 1.5);
+                    memoriaRAM.vars.valorHE.val = vHE.toFixed(2);
+                    memoriaRAM.vars.valorHE.updated = true;
+                    renderizarMemoria();
+                    break;
+                case 15:
+                    let vhNum2 = parseFloat(memoriaRAM.vars.valorHora.val);
+                    let fltNum = parseFloat(memoriaRAM.vars.faltasHoras.val);
+                    let vFaltas = fltNum * vhNum2;
+                    memoriaRAM.vars.valorFaltas.val = vFaltas.toFixed(2);
+                    memoriaRAM.vars.valorFaltas.updated = true;
+                    renderizarMemoria();
+                    break;
+                case 16:
+                    let sbFinal = parseFloat(memoriaRAM.vars.salarioBase.val);
+                    let heFinal = parseFloat(memoriaRAM.vars.valorHE.val);
+                    let fltFinal = parseFloat(memoriaRAM.vars.valorFaltas.val);
+                    let liq = sbFinal + heFinal - fltFinal;
+                    memoriaRAM.vars.salarioLiquido.val = liq.toFixed(2);
+                    memoriaRAM.vars.salarioLiquido.updated = true;
+                    renderizarMemoria();
+                    break;
+                case 17:
+                    consoleTexto += "--- DEMONSTRATIVO DE PAGAMENTO ---\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 18:
+                    consoleTexto += "(+) Salário Base  : R$ " + memoriaRAM.vars.salarioBase.val + "\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 19:
+                    consoleTexto += "(+) Horas Extras  : R$ " + memoriaRAM.vars.valorHE.val + "\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 20:
+                    consoleTexto += "(-) Desconto Faltas: R$ " + memoriaRAM.vars.valorFaltas.val + "\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 21:
+                    consoleTexto += "(=) Salário a Receber: R$ " + memoriaRAM.vars.salarioLiquido.val + "\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 22:
+                    consoleTexto += "\n*** Fim da execução ***";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    document.getElementById('btnProximo').disabled = true;
+                    atualizarExplicacao("Execução Concluída", "Cálculo salarial finalizado com sucesso.");
+                    break;
+            }
+        }
+
+        function solicitarInput(varNome, sugestao) {
+            aguardandoInput = true;
+            document.getElementById('btnProximo').disabled = true;
+
+            const consoleBox = document.getElementById('consoleOutput');
+            
+            const inputWrapper = document.createElement('span');
+            inputWrapper.className = 'input-wrapper';
+
+            const inputEl = document.createElement('input');
+            inputEl.type = 'number';
+            inputEl.step = '0.01';
+            inputEl.min = '0';
+            inputEl.value = sugestao || '';
+            inputEl.className = 'input-inline';
+            inputEl.id = 'inputVar';
+
+            const btnConfirm = document.createElement('button');
+            btnConfirm.className = 'btn-confirm-input';
+            btnConfirm.innerText = 'OK';
+
+            const enterBadge = document.createElement('span');
+            enterBadge.className = 'enter-prompt-badge';
+            enterBadge.innerText = '[ Pressione ENTER ou clique em OK ]';
+
+            inputWrapper.appendChild(inputEl);
+            inputWrapper.appendChild(btnConfirm);
+            inputWrapper.appendChild(enterBadge);
+            consoleBox.appendChild(inputWrapper);
+
+            inputEl.focus();
+            inputEl.select();
+
+            atualizarExplicacao(`Instrução: leia(${varNome})`, `Digite o valor para '${varNome}' e pressione ENTER (ou clique em OK) para confirmar.`);
+
+            const processarEntrada = () => {
+                let valor = inputEl.value.trim();
+                if (valor === "" || isNaN(valor)) valor = "0";
+
+                memoriaRAM.vars[varNome].val = parseFloat(valor).toFixed(2);
+                memoriaRAM.vars[varNome].updated = true;
+
+                inputWrapper.remove();
+                consoleTexto += memoriaRAM.vars[varNome].val + "\n";
+                consoleBox.innerText = consoleTexto;
+
+                renderizarMemoria();
+                aguardandoInput = false;
+                document.getElementById('btnProximo').disabled = false;
+                proximoPasso();
+            };
+
+            inputEl.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    processarEntrada();
+                }
+            });
+
+            btnConfirm.addEventListener('click', processarEntrada);
+        }
+
+        function reiniciarSimulacao() {
+            passoAtual = 0;
+            emExecucao = false;
+            aguardandoInput = false;
+            consoleTexto = "Aguardando início...";
+            
+            memoriaRAM.declarado = false;
+            for (let k in memoriaRAM.vars) {
+                memoriaRAM.vars[k].val = null;
+                memoriaRAM.vars[k].updated = false;
+            }
+
+            document.getElementById('btnIniciar').disabled = false;
+            document.getElementById('btnProximo').disabled = true;
+            document.getElementById('consoleOutput').innerText = consoleTexto;
+
+            renderizarCodigo();
+            renderizarMemoria();
+            atualizarExplicacao("Explicação da Instrução", "Clique no botão \"Iniciar Execução\" para avançar linha a linha pelo algoritmo.");
+        }
+
+        // Inicialização na abertura
+        renderizarCodigo();
+    </script>
+</body>
+</html>
