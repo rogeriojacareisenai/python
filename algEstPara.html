@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Estruturas de Repetição - Laços Para, Enquanto e Repita</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f4f4;
+            color: #2b1e20;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        header {
+            background: linear-gradient(135deg, #4a0e17, #2b080d);
+            padding: 20px 15px;
+            padding-top: max(20px, env(safe-area-inset-top));
+            text-align: center;
+            border-bottom: 3px solid #721c24;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .btn-voltar {
+            position: absolute;
+            left: 15px;
+            top: max(18px, env(safe-area-inset-top));
+            background-color: rgba(255, 255, 255, 0.12);
+            color: #f8c0c8;
+            border: 1px solid #721c24;
+            padding: 6px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .btn-voltar:hover {
+            background-color: #721c24;
+            color: #ffffff;
+        }
+
+        header h1 {
+            font-size: 1.6rem;
+            color: #f8c0c8;
+            margin-bottom: 6px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        header p {
+            color: #e2c0c5;
+            font-size: 0.9rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .container {
+            width: 94%;
+            max-width: 1200px;
+            margin: 20px auto;
+            flex-grow: 1;
+            padding-bottom: 20px;
+        }
+
+        .grid-aulas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #e8dadc;
+            border-radius: 10px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 2px 8px rgba(74, 14, 23, 0.05);
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            border-color: #801b2c;
+            box-shadow: 0 6px 14px rgba(128, 27, 44, 0.12);
+        }
+
+        .card-badge {
+            align-self: flex-start;
+            background-color: #fcebeb;
+            color: #721c24;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.68rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .card h2 {
+            font-size: 1.05rem;
+            color: #3b0b12;
+            margin-bottom: 6px;
+            line-height: 1.25;
+        }
+
+        .card p {
+            color: #5a4b4e;
+            font-size: 0.82rem;
+            line-height: 1.4;
+            margin-bottom: 12px;
+            flex-grow: 1;
+        }
+
+        .card-btn {
+            display: inline-block;
+            text-align: center;
+            background-color: #6b1120;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 7px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-family: inherit;
+            width: 100%;
+        }
+
+        .card-btn:hover {
+            background-color: #85182a;
+            box-shadow: 0 3px 8px rgba(107, 17, 32, 0.25);
+        }
+
+        .btn-secundario {
+            background-color: #e8dadc;
+            color: #4a0e17;
+        }
+
+        .btn-secundario:hover {
+            background-color: #d8c2c4;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #ebdada;
+            color: #5c3a3e;
+            border-top: 1px solid #d8c2c4;
+            font-size: 0.8rem;
+            margin-top: auto;
+            padding-bottom: calc(15px + env(safe-area-inset-bottom));
+        }
+
+        /* MODAIS */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.65);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+            padding: 15px;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 1100px;
+            max-height: 92vh;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+            border: 1px solid #e8dadc;
+            margin-bottom: env(safe-area-inset-bottom);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #4a0e17, #2b080d);
+            color: #ffffff;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #721c24;
+        }
+
+        .modal-header h2 {
+            font-size: 1.3rem;
+            color: #f8c0c8;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #f8c0c8;
+            font-size: 1.8rem;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.2s ease;
+        }
+
+        .modal-close:hover {
+            color: #ffffff;
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            color: #3b0b12;
+            line-height: 1.5;
+        }
+
+        .topic-group {
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px dashed #e8dadc;
+        }
+
+        .topic-group:last-child {
+            border-bottom: none;
+        }
+
+        .topic-title {
+            font-size: 1.15rem;
+            color: #6b1120;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .topic-desc {
+            margin-left: 10px;
+            color: #5a4b4e;
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+
+        .code-example {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin: 8px 0;
+            white-space: pre;
+            overflow-x: auto;
+        }
+
+        /* TABELA COMPARATIVA */
+        .table-comparativa {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.88rem;
+        }
+
+        .table-comparativa th, .table-comparativa td {
+            border: 1px solid #e8dadc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .table-comparativa th {
+            background-color: #4a0e17;
+            color: #f8c0c8;
+            font-weight: bold;
+        }
+
+        .table-comparativa tr:nth-child(even) {
+            background-color: #fdf8f8;
+        }
+
+        .modal-footer {
+            padding: 12px 20px;
+            background-color: #f7f4f4;
+            border-top: 1px solid #e8dadc;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* PAINEL DE SIMULAÇÃO VISUALG */
+        .visualg-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sim {
+            background-color: #4a0e17;
+            color: #ffffff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 0.85rem;
+        }
+
+        .btn-sim:hover:not(:disabled) {
+            background-color: #85182a;
+        }
+
+        .btn-sim:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+
+        .visualg-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .code-box {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            height: 320px;
+            overflow-y: auto;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+            width: 100%;
+        }
+
+        .code-line {
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            display: flex;
+            align-items: center;
+        }
+
+        .code-pointer {
+            display: inline-block;
+            width: 20px;
+            color: #ff4d6d;
+            font-weight: bold;
+            visibility: hidden;
+            user-select: none;
+        }
+
+        .code-line.active .code-pointer {
+            visibility: visible;
+        }
+
+        .code-line.active {
+            background-color: #4a0e17;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .kw-instruction { color: #569cd6; font-weight: bold; }
+        .kw-type { color: #4ec9b0; font-weight: bold; }
+
+        .vertical-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .vertical-panel {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                padding-top: max(45px, env(safe-area-inset-top));
+            }
+
+            .btn-voltar {
+                top: max(10px, env(safe-area-inset-top));
+            }
+        }
+
+        .console-box {
+            background-color: #0c0c0c;
+            color: #00ff66;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            height: 180px;
+            overflow-y: auto;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            color: #888;
+            border-bottom: 1px solid #333;
+            padding-bottom: 4px;
+            margin-bottom: 6px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: bold;
+        }
+
+        .console-output {
+            flex-grow: 1;
+            white-space: pre;
+            font-family: 'Consolas', 'Courier New', monospace;
+        }
+
+        .memory-box {
+            background-color: #181818;
+            border-radius: 8px;
+            padding: 10px 12px;
+            height: 180px;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .memory-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            overflow-y: auto;
+        }
+
+        .memory-cell {
+            display: grid;
+            grid-template-columns: 80px 1fr 1fr;
+            background: #252526;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.8rem;
+            align-items: center;
+            border-left: 3px solid #555;
+            transition: all 0.3s ease;
+        }
+
+        .memory-cell.updated {
+            border-left-color: #00ff66;
+            background: #2a3a2e;
+            transform: scale(1.01);
+        }
+
+        .mem-addr { color: #888; font-size: 0.7rem; }
+        .mem-name { color: #f8c0c8; font-weight: bold; }
+        .mem-val { color: #ffffff; text-align: right; font-weight: bold; }
+        .mem-unassigned { color: #666; font-style: italic; }
+
+        .input-wrapper {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .input-inline {
+            background: #111;
+            border: 1px solid #00ff66;
+            color: #00ff66;
+            font-family: inherit;
+            font-size: 0.9rem;
+            width: 100px;
+            outline: none;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .btn-confirm-input {
+            background: #00ff66;
+            color: #000;
+            border: none;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .explanation-box {
+            background-color: #fcebeb;
+            border-left: 4px solid #6b1120;
+            padding: 12px;
+            border-radius: 6px;
+            color: #4a0e17;
+            font-size: 0.9rem;
+            min-height: 70px;
+        }
+
+        .explanation-box h4 {
+            margin-bottom: 4px;
+            color: #6b1120;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <button class="btn-voltar" onclick="voltarPagina()">
+            &#8592; Voltar
+        </button>
+        <h1>ESTRUTURAS DE REPETIÇÃO</h1>
+        <p>Domine o funcionamento dos laços Para, Enquanto e Repita no VisuAlg.</p>
+    </header>
+
+    <div class="container">
+        <div class="grid-aulas">
+
+            <!-- Card 1 -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Módulo 01</span>
+                    <h2>Teoria das Repetições</h2>
+                    <p>Estruturas com controle de fluxo: Para, Enquanto e Repita..Até.</p>
+                </div>
+                <button class="card-btn" onclick="openModal('modalTeoria')">Acessar Teoria →</button>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Módulo 02</span>
+                    <h2>Contagem Crescente</h2>
+                    <p>Contagem simples de 1 até 4 usando o laço Para.</p>
+                </div>
+                <button class="card-btn" onclick="openModalSimulador('crescente')">Simular Passo a Passo →</button>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Módulo 03</span>
+                    <h2>Com Acumulador</h2>
+                    <p>Soma progressiva dos valores dentro do laço Para.</p>
+                </div>
+                <button class="card-btn" onclick="openModalSimulador('acumulador')">Simular Passo a Passo →</button>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Módulo 04</span>
+                    <h2>Passo Negativo</h2>
+                    <p>Decremento com PASSO -1 (3 até 1) no laço Para.</p>
+                </div>
+                <button class="card-btn" onclick="openModalSimulador('regressivo')">Simular Passo a Passo →</button>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Módulo 05</span>
+                    <h2>Tabuada Fixa (do 4)</h2>
+                    <p>Geração alinhada da tabuada do 4 multiplicando a constante pelo contador.</p>
+                </div>
+                <button class="card-btn" onclick="openModalSimulador('tabuadaFixa')">Simular Passo a Passo →</button>
+            </div>
+
+            <!-- Card 6 -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Módulo 06</span>
+                    <h2>Tabuada Dinâmica</h2>
+                    <p>Tabuada alinhada onde o usuário define qual número deseja calcular.</p>
+                </div>
+                <button class="card-btn" onclick="openModalSimulador('tabuadaUsuario')">Simular Passo a Passo →</button>
+            </div>
+
+            <!-- Card 7 -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Módulo 07</span>
+                    <h2>Laço Enquanto</h2>
+                    <p>Executa o bloco de código enquanto a condição for verdadeira.</p>
+                </div>
+                <button class="card-btn" onclick="openModalSimulador('enquantoTabuada')">Simular Passo a Passo →</button>
+            </div>
+
+            <!-- Card 8 -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Módulo 08</span>
+                    <h2>Laço Repita..Até</h2>
+                    <p>Garante ao menos uma execução e repete até a condição ser satisfeita.</p>
+                </div>
+                <button class="card-btn" onclick="openModalSimulador('repitaTabuada')">Simular Passo a Passo →</button>
+            </div>
+
+            <!-- Card 9 (NOVO) -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Módulo 09</span>
+                    <h2>Comparativo dos Laços</h2>
+                    <p>Veja as principais diferenças práticas entre Para, Enquanto e Repita.</p>
+                </div>
+                <button class="card-btn" onclick="openModal('modalComparativo')">Ver Comparativo →</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL TEORIA -->
+    <div class="modal-overlay" id="modalTeoria">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Conceito: Laços de Repetição</h2>
+                <button class="modal-close" onclick="closeModal('modalTeoria')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="topic-group">
+                    <div class="topic-title">1. Estrutura PARA</div>
+                    <div class="topic-desc">
+                        Ideal quando se sabe antecipadamente o número de repetições. O controle do contador e incremento ocorre automaticamente.
+                    </div>
+                </div>
+
+                <div class="topic-group">
+                    <div class="topic-title">2. Estrutura ENQUANTO</div>
+                    <div class="topic-desc">
+                        Testa a condição <strong>antes</strong> de entrar no bloco. Se for falsa logo no início, o código interno nem é executado. Requer incremento manual do contador.
+<div class="code-example">i <- 1
+enquanto i <= 10 faca
+   escreval(num, " x ", i, " = ", num * i)
+   i <- i + 1
+fimenquanto</div>
+                    </div>
+                </div>
+
+                <div class="topic-group">
+                    <div class="topic-title">3. Estrutura REPITA...ATÉ</div>
+                    <div class="topic-desc">
+                        Testa a condição <strong>no final</strong>. O bloco é executado pelo menos uma vez e continua enquanto a condição for falsa, encerrando assim que ela se tornar verdadeira.
+<div class="code-example">i <- 1
+repita
+   escreval(num, " x ", i, " = ", num * i)
+   i <- i + 1
+ate i > 10</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="card-btn btn-secundario" style="width: auto;" onclick="closeModal('modalTeoria')">&#8592; Voltar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL COMPARATIVO (NOVO) -->
+    <div class="modal-overlay" id="modalComparativo">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Diferenças entre as Estruturas de Repetição</h2>
+                <button class="modal-close" onclick="closeModal('modalComparativo')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 12px; font-size: 0.95rem;">
+                    Embora todos os laços sirvam para repetir um bloco de instruções, cada um possui características específicas de teste, incremento e número de execuções:
+                </p>
+
+                <table class="table-comparativa">
+                    <thead>
+                        <tr>
+                            <th>Estrutura</th>
+                            <th>Momento da Testagem</th>
+                            <th>Incremento/Passo</th>
+                            <th>Mínimo de Execuções</th>
+                            <th>Melhor Aplicação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>PARA</strong></td>
+                            <td>No início de cada volta</td>
+                            <td>Automático (definido pelo laço)</td>
+                            <td>0 vezes</td>
+                            <td>Quando o número exato de repetições é pré-conhecido (ex: de 1 a 10).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ENQUANTO</strong></td>
+                            <td>No início (pré-testado)</td>
+                            <td>Manual (dentro do bloco)</td>
+                            <td>0 vezes</td>
+                            <td>Quando não sabemos quantas repetições teremos e a condição pode ser falsa de início.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>REPITA..ATÉ</strong></td>
+                            <td>No final (pós-testado)</td>
+                            <td>Manual (dentro do bloco)</td>
+                            <td>1 vez</td>
+                            <td>Quando o bloco precisa ser executado obrigatoriamente ao menos uma vez (ex: validação de menus).</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="card-btn btn-secundario" style="width: auto;" onclick="closeModal('modalComparativo')">&#8592; Voltar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DO SIMULADOR (COMPARTILHADO) -->
+    <div class="modal-overlay" id="modalSimulador">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="simuladorTitulo">Simulador VisuAlg</h2>
+                <button class="modal-close" onclick="closeModal('modalSimulador')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="visualg-controls">
+                    <button class="btn-sim" id="btnIniciar" onclick="iniciarSimulacao()">▶ Iniciar Execução</button>
+                    <button class="btn-sim" id="btnProximo" onclick="proximoPasso()" disabled>⏭ Próximo Passo</button>
+                    <button class="btn-sim" id="btnReiniciar" onclick="reiniciarSimulacao()">🔄 Reiniciar</button>
+                </div>
+
+                <div class="visualg-layout">
+                    <div class="code-box" id="codeEditor"></div>
+
+                    <div class="vertical-panel">
+                        <div class="console-box">
+                            <div class="panel-header">Console de Saída</div>
+                            <div class="console-output" id="consoleOutput">Aguardando início...</div>
+                        </div>
+
+                        <div class="memory-box">
+                            <div class="panel-header">Memória RAM (Variáveis)</div>
+                            <div class="memory-grid" id="memoryGrid">
+                                <div style="color: #666; font-size: 0.8rem; font-style: italic;">Nenhuma variável declarada.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="explanation-box">
+                    <h4 id="expTitle">Explicação da Instrução</h4>
+                    <p id="expText">Clique no botão "Iniciar Execução" para avançar linha a linha pelo algoritmo.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="card-btn btn-secundario" style="width: auto;" onclick="closeModal('modalSimulador')">&#8592; Voltar</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Curso de Algoritmos & Programação • Módulo de Estruturas de Repetição
+    </footer>
+
+    <script>
+        function voltarPagina() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = '#';
+            }
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function formatarLinhaTabuada(n1, n2, res) {
+            const strN1 = String(n1).padStart(2, ' ');
+            const strN2 = String(n2).padStart(2, ' ');
+            const strRes = String(res).padStart(3, ' ');
+            return `${strN1} x ${strN2} = ${strRes}\n`;
+        }
+
+        // DADOS DOS ALGORITMOS DE LAÇO
+        const algoritmos = {
+            crescente: {
+                titulo: "Laço Para (Contagem Crescente de 1 a 4)",
+                vars: { i: { addr: '0x00A1', val: null, updated: false } },
+                linhas: [
+                    { id: 1, text: 'algoritmo "ContagemSimples"', expTitle: 'algoritmo', expText: 'Nome do programa.' },
+                    { id: 2, text: 'var i : inteiro', expTitle: 'var', expText: 'Declara a variável de controle "i" do tipo inteiro.' },
+                    { id: 3, text: 'inicio', expTitle: 'inicio', expText: 'Início do bloco de execução.' },
+                    { id: 4, text: '   para i de 1 ate 4 faca', expTitle: 'para...de...ate', expText: 'Inicializa i com 1 e verifica se i <= 4.' },
+                    { id: 5, text: '      escreval("Número: ", i)', expTitle: 'escreval', expText: 'Imprime o valor atual de i no console.' },
+                    { id: 6, text: '   fimpara', expTitle: 'fimpara', expText: 'Incrementa i (+1) e retorna para o teste do laço.' },
+                    { id: 7, text: '   escreval("Fim da contagem!")', expTitle: 'Fim do Laço', expText: 'Executado quando i passa de 4.' },
+                    { id: 8, text: 'fimalgoritmo', expTitle: 'fimalgoritmo', expText: 'Fim do algoritmo.' }
+                ]
+            },
+            acumulador: {
+                titulo: "Laço Para (Soma de Valores 1 a 3)",
+                vars: { 
+                    i: { addr: '0x00A1', val: null, updated: false },
+                    soma: { addr: '0x00B2', val: null, updated: false }
+                },
+                linhas: [
+                    { id: 1, text: 'algoritmo "SomaAcumulada"', expTitle: 'algoritmo', expText: 'Nome do programa.' },
+                    { id: 2, text: 'var i, soma : inteiro', expTitle: 'var', expText: 'Declara "i" (contador) e "soma" (acumulador).' },
+                    { id: 3, text: 'inicio', expTitle: 'inicio', expText: 'Início do algoritmo.' },
+                    { id: 4, text: '   soma <- 0', expTitle: 'Atribuição', expText: 'Inicializa o acumulador soma com 0.' },
+                    { id: 5, text: '   para i de 1 ate 3 faca', expTitle: 'para', expText: 'Inicia o laço com i de 1 até 3.' },
+                    { id: 6, text: '      soma <- soma + i', expTitle: 'Acumulador', expText: 'Adiciona o valor atual de i à variável soma.' },
+                    { id: 7, text: '      escreval("i=", i, " | soma=", soma)', expTitle: 'escreval', expText: 'Exibe os valores no console.' },
+                    { id: 8, text: '   fimpara', expTitle: 'fimpara', expText: 'Incrementa i (+1) e volta ao início do laço.' },
+                    { id: 9, text: '   escreval("Soma Total: ", soma)', expTitle: 'Resultado Final', expText: 'Exibe a soma final acumulada.' },
+                    { id: 10, text: 'fimalgoritmo', expTitle: 'fimalgoritmo', expText: 'Fim do programa.' }
+                ]
+            },
+            regressivo: {
+                titulo: "Laço Para com Passo Negativo (3 ate 1)",
+                vars: { i: { addr: '0x00A1', val: null, updated: false } },
+                linhas: [
+                    { id: 1, text: 'algoritmo "ContagemRegressiva"', expTitle: 'algoritmo', expText: 'Nome do programa.' },
+                    { id: 2, text: 'var i : inteiro', expTitle: 'var', expText: 'Declara o contador i.' },
+                    { id: 3, text: 'inicio', expTitle: 'inicio', expText: 'Início do bloco.' },
+                    { id: 4, text: '   para i de 3 ate 1 passo -1 faca', expTitle: 'passo -1', expText: 'Inicializa i com 3. Decrementa 1 a cada volta até atingir 1.' },
+                    { id: 5, text: '      escreval("Lançamento em: ", i)', expTitle: 'escreval', expText: 'Exibe a contagem no console.' },
+                    { id: 6, text: '   fimpara', expTitle: 'fimpara', expText: 'Aplica o passo -1 e testa se i >= 1.' },
+                    { id: 7, text: '   escreval("Decolar!")', expTitle: 'Fim do Laço', expText: 'Executado após encerrar a contagem.' },
+                    { id: 8, text: 'fimalgoritmo', expTitle: 'fimalgoritmo', expText: 'Fim do algoritmo.' }
+                ]
+            },
+            tabuadaFixa: {
+                titulo: "Tabuada Fixa do 4",
+                vars: { 
+                    i: { addr: '0x00A1', val: null, updated: false },
+                    res: { addr: '0x00C3', val: null, updated: false }
+                },
+                linhas: [
+                    { id: 1, text: 'algoritmo "TabuadaDo4"', expTitle: 'algoritmo', expText: 'Nome do programa.' },
+                    { id: 2, text: 'var i, res : inteiro', expTitle: 'var', expText: 'Declara "i" (contador) e "res" (resultado).' },
+                    { id: 3, text: 'inicio', expTitle: 'inicio', expText: 'Início do programa.' },
+                    { id: 4, text: '   escreval("--- TABUADA DO 4 ---")', expTitle: 'escreval', expText: 'Imprime o cabeçalho no console.' },
+                    { id: 5, text: '   para i de 1 ate 10 faca', expTitle: 'para i de 1 ate 10', expText: 'O laço vai repetir 10 vezes, com i variando de 1 a 10.' },
+                    { id: 6, text: '      res <- 4 * i', expTitle: 'Multiplicação', expText: 'Calcula o produto de 4 pelo contador atual (i).' },
+                    { id: 7, text: '      escreval(4, " x ", i:2, " = ", res:3)', expTitle: 'escreval', expText: 'Mostra a linha formatada com colunas alinhadas.' },
+                    { id: 8, text: '   fimpara', expTitle: 'fimpara', expText: 'Incrementa i (+1) e testa se i <= 10.' },
+                    { id: 9, text: 'fimalgoritmo', expTitle: 'fimalgoritmo', expText: 'Fim do programa.' }
+                ]
+            },
+            tabuadaUsuario: {
+                titulo: "Tabuada Fornecida pelo Usuário",
+                vars: { 
+                    num: { addr: '0x00D4', val: null, updated: false },
+                    i: { addr: '0x00A1', val: null, updated: false },
+                    res: { addr: '0x00C3', val: null, updated: false }
+                },
+                linhas: [
+                    { id: 1, text: 'algoritmo "TabuadaDinamica"', expTitle: 'algoritmo', expText: 'Nome do programa.' },
+                    { id: 2, text: 'var num, i, res : inteiro', expTitle: 'var', expText: 'Declara num (número base), i (contador) e res (resultado).' },
+                    { id: 3, text: 'inicio', expTitle: 'inicio', expText: 'Início do programa.' },
+                    { id: 4, text: '   escreva("Digite um número para a tabuada: ")', expTitle: 'escreva', expText: 'Pede ao usuário que informe o número.' },
+                    { id: 5, text: '   leia(num)', expTitle: 'leia', expText: 'Guarda o número digitado na memória.', inputVar: 'num' },
+                    { id: 6, text: '   para i de 1 ate 10 faca', expTitle: 'para i de 1 ate 10', expText: 'Inicia o laço de 1 a 10 para o número lido.' },
+                    { id: 7, text: '      res <- num * i', expTitle: 'Cálculo', expText: 'Multiplica o número escolhido pelo contador i.' },
+                    { id: 8, text: '      escreval(num:2, " x ", i:2, " = ", res:3)', expTitle: 'escreval', expText: 'Exibe a linha da tabuada com alinhamento vertical.' },
+                    { id: 9, text: '   fimpara', expTitle: 'fimpara', expText: 'Incrementa i (+1) e verifica se prossegue.' },
+                    { id: 10, text: 'fimalgoritmo', expTitle: 'fimalgoritmo', expText: 'Fim do algoritmo.' }
+                ]
+            },
+            enquantoTabuada: {
+                titulo: "Tabuada com Laço Enquanto",
+                vars: { 
+                    num: { addr: '0x00D4', val: null, updated: false },
+                    i: { addr: '0x00A1', val: null, updated: false },
+                    res: { addr: '0x00C3', val: null, updated: false }
+                },
+                linhas: [
+                    { id: 1, text: 'algoritmo "TabuadaEnquanto"', expTitle: 'algoritmo', expText: 'Nome do programa.' },
+                    { id: 2, text: 'var num, i, res : inteiro', expTitle: 'var', expText: 'Declara variáveis num, i e res.' },
+                    { id: 3, text: 'inicio', expTitle: 'inicio', expText: 'Início do programa.' },
+                    { id: 4, text: '   escreva("Qual tabuada deseja? ")', expTitle: 'escreva', expText: 'Solicita a entrada do usuário.' },
+                    { id: 5, text: '   leia(num)', expTitle: 'leia', expText: 'Armazena o número digitado.', inputVar: 'num' },
+                    { id: 6, text: '   i <- 1', expTitle: 'Inicialização', expText: 'Inicializa manualmente o contador i com 1.' },
+                    { id: 7, text: '   enquanto i <= 10 faca', expTitle: 'enquanto', expText: 'Testa se i <= 10 antes de executar o bloco.' },
+                    { id: 8, text: '      res <- num * i', expTitle: 'Cálculo', expText: 'Calcula o resultado.' },
+                    { id: 9, text: '      escreval(num:2, " x ", i:2, " = ", res:3)', expTitle: 'escreval', expText: 'Exibe a linha formatada e alinhada.' },
+                    { id: 10, text: '      i <- i + 1', expTitle: 'Incremento', expText: 'Soma 1 a i manualmente (indispensável no enquanto).' },
+                    { id: 11, text: '   fimenquanto', expTitle: 'fimenquanto', expText: 'Retorna ao teste do enquanto.' },
+                    { id: 12, text: 'fimalgoritmo', expTitle: 'fimalgoritmo', expText: 'Fim do algoritmo.' }
+                ]
+            },
+            repitaTabuada: {
+                titulo: "Tabuada com Laço Repita..Até",
+                vars: { 
+                    num: { addr: '0x00D4', val: null, updated: false },
+                    i: { addr: '0x00A1', val: null, updated: false },
+                    res: { addr: '0x00C3', val: null, updated: false }
+                },
+                linhas: [
+                    { id: 1, text: 'algoritmo "TabuadaRepita"', expTitle: 'algoritmo', expText: 'Nome do programa.' },
+                    { id: 2, text: 'var num, i, res : inteiro', expTitle: 'var', expText: 'Declara num, i e res.' },
+                    { id: 3, text: 'inicio', expTitle: 'inicio', expText: 'Início do bloco.' },
+                    { id: 4, text: '   escreva("Qual tabuada deseja? ")', expTitle: 'escreva', expText: 'Solicita a entrada do usuário.' },
+                    { id: 5, text: '   leia(num)', expTitle: 'leia', expText: 'Armazena o número digitado.', inputVar: 'num' },
+                    { id: 6, text: '   i <- 1', expTitle: 'Inicialização', expText: 'Inicializa o contador i com 1.' },
+                    { id: 7, text: '   repita', expTitle: 'repita', expText: 'Marca o início do bloco executado pelo menos uma vez.' },
+                    { id: 8, text: '      res <- num * i', expTitle: 'Cálculo', expText: 'Efetua a multiplicação.' },
+                    { id: 9, text: '      escreval(num:2, " x ", i:2, " = ", res:3)', expTitle: 'escreval', expText: 'Exibe a linha formatada e alinhada.' },
+                    { id: 10, text: '      i <- i + 1', expTitle: 'Incremento', expText: 'Incrementa o contador i (+1).' },
+                    { id: 11, text: '   ate i > 10', expTitle: 'ate', expText: 'Testa se i > 10. Se verdadeiro, encerra o laço.' },
+                    { id: 12, text: 'fimalgoritmo', expTitle: 'fimalgoritmo', expText: 'Fim do programa.' }
+                ]
+            }
+        };
+
+        let modoAtual = 'crescente';
+        let passoAtual = 0;
+        let memoriaRAM = {};
+
+        function openModalSimulador(tipo) {
+            modoAtual = tipo;
+            document.getElementById('simuladorTitulo').innerText = algoritmos[tipo].titulo;
+            openModal('modalSimulador');
+            reiniciarSimulacao();
+        }
+
+        function renderEditor() {
+            const editor = document.getElementById('codeEditor');
+            editor.innerHTML = '';
+            const codigo = algoritmos[modoAtual].linhas;
+            codigo.forEach((linha, index) => {
+                const lineDiv = document.createElement('div');
+                lineDiv.className = `code-line ${index === passoAtual - 1 ? 'active' : ''}`;
+                lineDiv.id = `line-${index + 1}`;
+                
+                let textHtml = linha.text
+                    .replace(/(algoritmo|var|inicio|fimalgoritmo|escreva|escreval|leia|para|de|ate|passo|faca|fimpara|enquanto|fimenquanto|repita)/g, '<span class="kw-instruction">$1</span>')
+                    .replace(/(inteiro)/g, '<span class="kw-type">$1</span>');
+
+                lineDiv.innerHTML = `<span class="code-pointer">➔</span> <span>${textHtml}</span>`;
+                editor.appendChild(lineDiv);
+            });
+        }
+
+        function renderMemory() {
+            const memoryGrid = document.getElementById('memoryGrid');
+            if (passoAtual < 2) {
+                memoryGrid.innerHTML = `<div style="color: #666; font-size: 0.8rem; font-style: italic;">Nenhuma variável declarada.</div>`;
+                return;
+            }
+
+            memoryGrid.innerHTML = '';
+            for (const [key, item] of Object.entries(memoriaRAM.vars)) {
+                const cell = document.createElement('div');
+                cell.className = `memory-cell ${item.updated ? 'updated' : ''}`;
+                const valDisplay = item.val !== null ? item.val : '<span class="mem-unassigned">indefinido</span>';
+                cell.innerHTML = `
+                    <span class="mem-addr">${item.addr}</span>
+                    <span class="mem-name">${key}</span>
+                    <span class="mem-val">${valDisplay}</span>
+                `;
+                memoryGrid.appendChild(cell);
+            }
+        }
+
+        function reiniciarSimulacao() {
+            passoAtual = 0;
+            memoriaRAM = JSON.parse(JSON.stringify(algoritmos[modoAtual]));
+            document.getElementById('btnIniciar').disabled = false;
+            document.getElementById('btnProximo').disabled = true;
+            document.getElementById('consoleOutput').innerText = 'Aguardando início...';
+            document.getElementById('expTitle').innerText = 'Explicação da Instrução';
+            document.getElementById('expText').innerText = 'Clique no botão "Iniciar Execução" para avançar linha a linha pelo algoritmo.';
+            renderEditor();
+            renderMemory();
+        }
+
+        function iniciarSimulacao() {
+            passoAtual = 1;
+            document.getElementById('btnIniciar').disabled = true;
+            document.getElementById('btnProximo').disabled = false;
+            document.getElementById('consoleOutput').innerText = '';
+            executarPasso();
+        }
+
+        function proximoPasso() {
+            const codigo = algoritmos[modoAtual].linhas;
+
+            // Controle de fluxo por algoritmo
+            if (modoAtual === 'crescente') {
+                if (passoAtual === 4) {
+                    if (memoriaRAM.vars.i.val === null) {
+                        memoriaRAM.vars.i.val = 1;
+                        memoriaRAM.vars.i.updated = true;
+                    }
+                    if (memoriaRAM.vars.i.val <= 4) passoAtual = 5;
+                    else passoAtual = 7;
+                } else if (passoAtual === 5) {
+                    passoAtual = 6;
+                } else if (passoAtual === 6) {
+                    memoriaRAM.vars.i.val += 1;
+                    memoriaRAM.vars.i.updated = true;
+                    passoAtual = 4;
+                } else {
+                    passoAtual++;
+                }
+            } 
+            else if (modoAtual === 'acumulador') {
+                if (passoAtual === 4) {
+                    memoriaRAM.vars.soma.val = 0;
+                    memoriaRAM.vars.soma.updated = true;
+                    passoAtual = 5;
+                } else if (passoAtual === 5) {
+                    if (memoriaRAM.vars.i.val === null) {
+                        memoriaRAM.vars.i.val = 1;
+                        memoriaRAM.vars.i.updated = true;
+                    }
+                    if (memoriaRAM.vars.i.val <= 3) passoAtual = 6;
+                    else passoAtual = 9;
+                } else if (passoAtual === 6) {
+                    memoriaRAM.vars.soma.val += memoriaRAM.vars.i.val;
+                    memoriaRAM.vars.soma.updated = true;
+                    passoAtual = 7;
+                } else if (passoAtual === 7) {
+                    passoAtual = 8;
+                } else if (passoAtual === 8) {
+                    memoriaRAM.vars.i.val += 1;
+                    memoriaRAM.vars.i.updated = true;
+                    passoAtual = 5;
+                } else {
+                    passoAtual++;
+                }
+            } 
+            else if (modoAtual === 'regressivo') {
+                if (passoAtual === 4) {
+                    if (memoriaRAM.vars.i.val === null) {
+                        memoriaRAM.vars.i.val = 3;
+                        memoriaRAM.vars.i.updated = true;
+                    }
+                    if (memoriaRAM.vars.i.val >= 1) passoAtual = 5;
+                    else passoAtual = 7;
+                } else if (passoAtual === 5) {
+                    passoAtual = 6;
+                } else if (passoAtual === 6) {
+                    memoriaRAM.vars.i.val -= 1;
+                    memoriaRAM.vars.i.updated = true;
+                    passoAtual = 4;
+                } else {
+                    passoAtual++;
+                }
+            }
+            else if (modoAtual === 'tabuadaFixa') {
+                if (passoAtual === 5) {
+                    if (memoriaRAM.vars.i.val === null) {
+                        memoriaRAM.vars.i.val = 1;
+                        memoriaRAM.vars.i.updated = true;
+                    }
+                    if (memoriaRAM.vars.i.val <= 10) passoAtual = 6;
+                    else passoAtual = 9;
+                } else if (passoAtual === 6) {
+                    memoriaRAM.vars.res.val = 4 * memoriaRAM.vars.i.val;
+                    memoriaRAM.vars.res.updated = true;
+                    passoAtual = 7;
+                } else if (passoAtual === 7) {
+                    passoAtual = 8;
+                } else if (passoAtual === 8) {
+                    memoriaRAM.vars.i.val += 1;
+                    memoriaRAM.vars.i.updated = true;
+                    passoAtual = 5;
+                } else {
+                    passoAtual++;
+                }
+            }
+            else if (modoAtual === 'tabuadaUsuario') {
+                if (passoAtual === 6) {
+                    if (memoriaRAM.vars.i.val === null) {
+                        memoriaRAM.vars.i.val = 1;
+                        memoriaRAM.vars.i.updated = true;
+                    }
+                    if (memoriaRAM.vars.i.val <= 10) passoAtual = 7;
+                    else passoAtual = 10;
+                } else if (passoAtual === 7) {
+                    const n = parseInt(memoriaRAM.vars.num.val) || 0;
+                    memoriaRAM.vars.res.val = n * memoriaRAM.vars.i.val;
+                    memoriaRAM.vars.res.updated = true;
+                    passoAtual = 8;
+                } else if (passoAtual === 8) {
+                    passoAtual = 9;
+                } else if (passoAtual === 9) {
+                    memoriaRAM.vars.i.val += 1;
+                    memoriaRAM.vars.i.updated = true;
+                    passoAtual = 6;
+                } else {
+                    passoAtual++;
+                }
+            }
+            else if (modoAtual === 'enquantoTabuada') {
+                if (passoAtual === 6) {
+                    memoriaRAM.vars.i.val = 1;
+                    memoriaRAM.vars.i.updated = true;
+                    passoAtual = 7;
+                } else if (passoAtual === 7) {
+                    if (memoriaRAM.vars.i.val <= 10) passoAtual = 8;
+                    else passoAtual = 12;
+                } else if (passoAtual === 8) {
+                    const n = parseInt(memoriaRAM.vars.num.val) || 0;
+                    memoriaRAM.vars.res.val = n * memoriaRAM.vars.i.val;
+                    memoriaRAM.vars.res.updated = true;
+                    passoAtual = 9;
+                } else if (passoAtual === 9) {
+                    passoAtual = 10;
+                } else if (passoAtual === 10) {
+                    memoriaRAM.vars.i.val += 1;
+                    memoriaRAM.vars.i.updated = true;
+                    passoAtual = 11;
+                } else if (passoAtual === 11) {
+                    passoAtual = 7;
+                } else {
+                    passoAtual++;
+                }
+            }
+            else if (modoAtual === 'repitaTabuada') {
+                if (passoAtual === 6) {
+                    memoriaRAM.vars.i.val = 1;
+                    memoriaRAM.vars.i.updated = true;
+                    passoAtual = 7;
+                } else if (passoAtual === 7) {
+                    passoAtual = 8;
+                } else if (passoAtual === 8) {
+                    const n = parseInt(memoriaRAM.vars.num.val) || 0;
+                    memoriaRAM.vars.res.val = n * memoriaRAM.vars.i.val;
+                    memoriaRAM.vars.res.updated = true;
+                    passoAtual = 9;
+                } else if (passoAtual === 9) {
+                    passoAtual = 10;
+                } else if (passoAtual === 10) {
+                    memoriaRAM.vars.i.val += 1;
+                    memoriaRAM.vars.i.updated = true;
+                    passoAtual = 11;
+                } else if (passoAtual === 11) {
+                    if (memoriaRAM.vars.i.val > 10) passoAtual = 12;
+                    else passoAtual = 7;
+                } else {
+                    passoAtual++;
+                }
+            }
+
+            if (passoAtual > codigo.length) {
+                document.getElementById('btnProximo').disabled = true;
+                document.getElementById('expTitle').innerText = 'Fim do Algoritmo';
+                document.getElementById('expText').innerText = 'A execução foi concluída com sucesso.';
+                return;
+            }
+
+            executarPasso();
+        }
+
+        function executarPasso() {
+            const codigo = algoritmos[modoAtual].linhas;
+            const linha = codigo.find(l => l.id === passoAtual);
+
+            if (!linha) return;
+
+            renderEditor();
+
+            const activeElem = document.getElementById(`line-${passoAtual}`);
+            if (activeElem) activeElem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            document.getElementById('expTitle').innerText = linha.expTitle;
+            document.getElementById('expText').innerText = linha.expText;
+
+            for (let v in memoriaRAM.vars) {
+                memoriaRAM.vars[v].updated = false;
+            }
+
+            const consoleBox = document.getElementById('consoleOutput');
+
+            if (linha.text.includes('escreva(')) {
+                const msg = linha.text.match(/\("(.*?)"\)/)?.[1] || '';
+                consoleBox.innerText += msg;
+            } 
+            else if (linha.text.includes('escreval(')) {
+                if (modoAtual === 'crescente' && passoAtual === 5) {
+                    consoleBox.innerText += `Número: ${memoriaRAM.vars.i.val}\n`;
+                } else if (modoAtual === 'crescente' && passoAtual === 7) {
+                    consoleBox.innerText += `Fim da contagem!\n`;
+                } else if (modoAtual === 'acumulador' && passoAtual === 7) {
+                    consoleBox.innerText += `i=${memoriaRAM.vars.i.val} | soma=${memoriaRAM.vars.soma.val}\n`;
+                } else if (modoAtual === 'acumulador' && passoAtual === 9) {
+                    consoleBox.innerText += `Soma Total: ${memoriaRAM.vars.soma.val}\n`;
+                } else if (modoAtual === 'regressivo' && passoAtual === 5) {
+                    consoleBox.innerText += `Lançamento em: ${memoriaRAM.vars.i.val}\n`;
+                } else if (modoAtual === 'regressivo' && passoAtual === 7) {
+                    consoleBox.innerText += `Decolar!\n`;
+                } else if (modoAtual === 'tabuadaFixa' && passoAtual === 4) {
+                    consoleBox.innerText += `--- TABUADA DO 4 ---\n`;
+                } else if (modoAtual === 'tabuadaFixa' && passoAtual === 7) {
+                    consoleBox.innerText += formatarLinhaTabuada(4, memoriaRAM.vars.i.val, memoriaRAM.vars.res.val);
+                } else if ((modoAtual === 'tabuadaUsuario' || modoAtual === 'enquantoTabuada' || modoAtual === 'repitaTabuada') && (passoAtual === 8 || passoAtual === 9)) {
+                    consoleBox.innerText += formatarLinhaTabuada(memoriaRAM.vars.num.val, memoriaRAM.vars.i.val, memoriaRAM.vars.res.val);
+                }
+            }
+            else if (linha.inputVar) {
+                document.getElementById('btnProximo').disabled = true;
+                const vName = linha.inputVar;
+                
+                const inputHtml = `
+                    <div class="input-wrapper" id="activeInputArea">
+                        <input type="number" id="userInputVal" class="input-inline" autofocus placeholder="0">
+                        <button class="btn-confirm-input" onclick="confirmarLeitura('${vName}')">OK</button>
+                    </div>
+                `;
+                consoleBox.innerHTML += inputHtml;
+            }
+
+            renderMemory();
+        }
+
+        function confirmarLeitura(varName) {
+            const inputVal = document.getElementById('userInputVal').value;
+            const finalVal = inputVal !== '' ? parseInt(inputVal) : 0;
+
+            memoriaRAM.vars[varName].val = finalVal;
+            memoriaRAM.vars[varName].updated = true;
+
+            const inputArea = document.getElementById('activeInputArea');
+            if (inputArea) {
+                // Substitui a área de input apenas pelo valor inserido e um salto de linha limpo
+                inputArea.outerHTML = `<span style="color: #00ff66; font-weight: bold;">${finalVal}</span>\n`;
+            }
+
+            renderMemory();
+            document.getElementById('btnProximo').disabled = false;
+            proximoPasso();
+        }
+    </script>
+</body>
+</html>

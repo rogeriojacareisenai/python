@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Simulador VisuAlg - Tabuada do 5 (Laço Para)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f4f4;
+            color: #2b1e20;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-top: max(12px, env(safe-area-inset-top));
+            padding-bottom: max(12px, env(safe-area-inset-bottom));
+            padding-left: max(12px, env(safe-area-inset-left));
+            padding-right: max(12px, env(safe-area-inset-right));
+        }
+
+        header {
+            background: linear-gradient(135deg, #4a0e17, #2b080d);
+            padding: 18px 15px;
+            text-align: center;
+            border-bottom: 3px solid #721c24;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 8px 8px 0 0;
+        }
+
+        header h1 {
+            font-size: 1.6rem;
+            color: #f8c0c8;
+            margin-bottom: 4px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        header p {
+            color: #e2c0c5;
+            font-size: 0.9rem;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 15px auto;
+            flex-grow: 1;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 6px 18px rgba(74, 14, 23, 0.08);
+            border: 1px solid #e8dadc;
+        }
+
+        /* CONTROLES DO SIMULADOR (FIXOS NO TOPO) */
+        .visualg-controls {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background-color: #ffffff;
+            display: flex;
+            gap: 10px;
+            padding: 10px 0 15px 0;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e8dadc;
+            flex-wrap: wrap;
+        }
+
+        .btn-sim {
+            background-color: #4a0e17;
+            color: #ffffff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        .btn-sim:hover:not(:disabled) {
+            background-color: #85182a;
+        }
+
+        .btn-sim:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .btn-sim:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+
+        .btn-nav {
+            background-color: #333333;
+        }
+
+        .btn-nav:hover:not(:disabled) {
+            background-color: #555555;
+        }
+
+        /* LAYOUT LADO A LADO: CÓDIGO E FLUXOGRAMA */
+        .visualg-main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 850px) {
+            .visualg-main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .code-box {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 14px;
+            border-radius: 0 0 8px 8px;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            height: 480px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+            width: 100%;
+        }
+
+        .code-line {
+            padding: 4px 6px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .code-line:hover {
+            background-color: #2a2a2a;
+        }
+
+        .code-pointer {
+            display: inline-block;
+            width: 20px;
+            color: #ff4d6d;
+            font-weight: bold;
+            visibility: hidden;
+            user-select: none;
+        }
+
+        .code-line.active .code-pointer {
+            visibility: visible;
+        }
+
+        .code-line.active {
+            background-color: #4a0e17 !important;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        /* Destaque de sintaxe */
+        .kw-instruction { color: #569cd6; font-weight: bold; }
+        .kw-type { color: #4ec9b0; font-weight: bold; }
+        .kw-comment { color: #6a9955; }
+        .kw-operator { color: #d8a0df; font-weight: bold; }
+
+        /* PAINEL DO FLUXOGRAMA */
+        .flowchart-container {
+            background-color: #181818;
+            border-radius: 8px;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            height: 512px;
+            position: relative;
+        }
+
+        .panel-header {
+            color: #888;
+            border-bottom: 1px solid #333;
+            padding: 8px 12px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: bold;
+            background: #111;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .flowchart-canvas-wrapper {
+            flex-grow: 1;
+            overflow: auto;
+            scroll-behavior: smooth;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 15px 10px;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        /* PAINEIS INFERIORES: CONSOLE E RAM */
+        .vertical-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .vertical-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .console-box {
+            background-color: #0c0c0c;
+            color: #00ff66;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            height: 160px;
+            overflow-y: auto;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .console-output {
+            flex-grow: 1;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        /* PAINEL DE MEMÓRIA (RAM) */
+        .memory-box {
+            background-color: #181818;
+            border-radius: 8px;
+            padding: 10px 12px;
+            height: 160px;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .memory-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            overflow-y: auto;
+        }
+
+        .memory-cell {
+            display: grid;
+            grid-template-columns: 75px 1fr 1fr;
+            background: #252526;
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.78rem;
+            align-items: center;
+            border-left: 3px solid #555;
+            transition: all 0.3s ease;
+        }
+
+        .memory-cell.updated {
+            border-left-color: #00ff66;
+            background: #2a3a2e;
+            transform: scale(1.01);
+        }
+
+        .mem-addr { color: #888; font-size: 0.68rem; }
+        .mem-name { color: #f8c0c8; font-weight: bold; }
+        .mem-val { color: #ffffff; text-align: right; font-weight: bold; }
+        .mem-unassigned { color: #666; font-style: italic; }
+
+        .explanation-box {
+            background-color: #fcebeb;
+            border-left: 4px solid #6b1120;
+            padding: 12px 16px;
+            border-radius: 6px;
+            color: #4a0e17;
+            font-size: 0.9rem;
+            min-height: 70px;
+        }
+
+        .explanation-box h4 {
+            margin-bottom: 4px;
+            color: #6b1120;
+            font-size: 0.95rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #ebdada;
+            color: #5c3a3e;
+            border-top: 1px solid #d8c2c4;
+            font-size: 0.85rem;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Tabuada do 5 (Estrutura de Repetição PARA)</h1>
+        <p>Acompanhe passo a passo a iteração da variável de controle 'i' calculando a tabuada do 5 de 1 a 10.</p>
+    </header>
+
+    <div class="container">
+        
+        <!-- BOTÕES DE CONTROLE -->
+        <div class="visualg-controls">
+            <button class="btn-sim btn-nav" onclick="voltarPaginaAnterior()">⬅ Voltar Página</button>
+            <button class="btn-sim" id="btnIniciar" onclick="iniciarSimulacao()">▶ Iniciar Execução</button>
+            <button class="btn-sim" id="btnProximo" onclick="proximoPasso()" disabled>⏭ Próximo Passo</button>
+            <button class="btn-sim" id="btnReiniciar" onclick="reiniciarSimulacao()">🔄 Reiniciar</button>
+        </div>
+
+        <!-- LAYOUT PRINCIPAL -->
+        <div class="visualg-main-layout">
+            <!-- ALGORITMO -->
+            <div>
+                <div class="panel-header">Algoritmo (VisuAlg)</div>
+                <div class="code-box" id="codeEditor">
+                    <!-- Gerado via JS -->
+                </div>
+            </div>
+
+            <!-- FLUXOGRAMA -->
+            <div class="flowchart-container">
+                <div class="panel-header">Representação em Fluxograma</div>
+                <div class="flowchart-canvas-wrapper" id="canvasWrapper">
+                    <canvas id="flowchartCanvas" width="340" height="520"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAINEIS INFERIORES -->
+        <div class="vertical-panel">
+            <!-- Console -->
+            <div class="console-box">
+                <div class="panel-header">Console de Saída</div>
+                <div class="console-output" id="consoleOutput">Aguardando início...</div>
+            </div>
+
+            <!-- Memória RAM -->
+            <div class="memory-box">
+                <div class="panel-header">Memória RAM (Variáveis)</div>
+                <div class="memory-grid" id="memoryGrid">
+                    <div style="color: #666; font-size: 0.8rem; font-style: italic;">Nenhuma variável declarada na memória.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXPLICAÇÃO -->
+        <div class="explanation-box">
+            <h4 id="expTitle">Explicação da Instrução</h4>
+            <p id="expText">Clique em qualquer linha do código para inspecioná-la ou clique em "Iniciar Execução".</p>
+        </div>
+
+    </div>
+
+    <footer>
+        Algoritmos & Programação • Laço de Repetição 'Para' (For Loop)
+    </footer>
+
+    <script>
+        function voltarPaginaAnterior() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = './index.html'; 
+            }
+        }
+
+        // --- CÓDIGO DO ALGORITMO E NÓS DO FLUXOGRAMA ---
+        const codigoAlgoritmo = [
+            { id: 1, text: 'algoritmo "TabuadaDo5"', node: 'inicio_fim_top', expTitle: 'Declaração do Algoritmo', expText: 'Define o nome do programa. Representado pelo nó Início.' },
+            { id: 2, text: '// Exibe a tabuada do número 5 de 1 até 10 usando laço para', node: null, expTitle: 'Comentário', expText: 'Linha explicativa ignorada pelo compilador.' },
+            { id: 3, text: 'var', node: 'var', expTitle: 'Seção de Variáveis', expText: 'Abre espaço para a declaração de variáveis.' },
+            { id: 4, text: '   i, resultado : inteiro', node: 'var', expTitle: 'Declaração de Variáveis', expText: 'Aloca a variável contadora i e a variável resultado como Inteiros.' },
+            { id: 5, text: 'inicio', node: 'inicio_fim_top', expTitle: 'Início', expText: 'Inicia o bloco de comandos.' },
+            { id: 6, text: '   escrevaL("=== TABUADA DO 5 ===")', node: 'cabecalho', expTitle: 'Cabeçalho no Console', expText: 'Imprime o título no console.' },
+            { id: 7, text: '   para i de 1 ate 10 faca', node: 'cond_loop', expTitle: 'Início do Laço PARA', expText: 'Atribui o próximo valor a "i" e verifica se i <= 10.' },
+            { id: 8, text: '      resultado <- 5 * i', node: 'calc', expTitle: 'Cálculo da Multiplicação', expText: 'Calcula 5 multiplicado pelo valor corrente de i e salva em resultado.' },
+            { id: 9, text: '      escrevaL("5 x ", i, " = ", resultado)', node: 'out', expTitle: 'Saída da Linha da Tabuada', expText: 'Exibe a linha correspondente da tabuada no console.' },
+            { id: 10, text: '   fimpara', node: 'cond_loop', expTitle: 'Fim do Laço', expText: 'Incrementa i em +1 e retorna à checagem do laço PARA.' },
+            { id: 11, text: 'fimalgoritmo', node: 'inicio_fim_bottom', expTitle: 'Fim do Algoritmo', expText: 'Encerra o programa após a conclusão de todas as iterações.' }
+        ];
+
+        // Mapeamento dos blocos do Fluxograma
+        const flowchartNodes = {
+            'inicio_fim_top': { type: 'oval', label: 'INÍCIO', y: 30, h: 36 },
+            'var': { type: 'rect', label: 'VAR: i, resultado', y: 90, h: 36 },
+            'cabecalho': { type: 'io', label: 'EscrevaL("=== TABUADA DO 5 ===")', y: 150, h: 36 },
+            'cond_loop': { type: 'diamond', label: 'i de 1 até 10?', y: 215, h: 46 },
+            'calc': { type: 'rect', label: 'resultado <- 5 * i', y: 290, h: 36 },
+            'out': { type: 'io', label: 'EscrevaL("5 x", i, "=", resultado)', y: 350, h: 36 },
+            'inicio_fim_bottom': { type: 'oval', label: 'FIM', y: 430, h: 36 }
+        };
+
+        // Estado da Memória RAM
+        let memoriaRAM = {
+            declarado: false,
+            vars: {
+                i: { addr: '0x00A1', val: null, updated: false },
+                resultado: { addr: '0x00A2', val: null, updated: false }
+            }
+        };
+
+        let passoAtual = 0;
+        let emExecucao = false;
+        let consoleTexto = "";
+        let nodeSelecionado = null;
+        let valorI = 1;
+
+        function desenharFluxograma() {
+            const canvas = document.getElementById('flowchartCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const nodeKeys = Object.keys(flowchartNodes);
+
+            // Desenho das linhas e setas de fluxo
+            for (let i = 0; i < nodeKeys.length - 1; i++) {
+                const current = flowchartNodes[nodeKeys[i]];
+                const next = flowchartNodes[nodeKeys[i+1]];
+
+                const startY = current.y + current.h;
+                const endY = next.y;
+                const x = canvas.width / 2;
+
+                ctx.beginPath();
+                ctx.strokeStyle = "#666";
+                ctx.lineWidth = 1.5;
+                ctx.moveTo(x, startY);
+                ctx.lineTo(x, endY);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.fillStyle = "#666";
+                ctx.moveTo(x - 4, endY - 5);
+                ctx.lineTo(x + 4, endY - 5);
+                ctx.lineTo(x, endY);
+                ctx.fill();
+            }
+
+            // Seta de Retorno do Loop (de 'out' voltando para 'cond_loop')
+            const outNode = flowchartNodes['out'];
+            const loopNode = flowchartNodes['cond_loop'];
+            
+            ctx.beginPath();
+            ctx.strokeStyle = "#ff9800";
+            ctx.lineWidth = 2;
+            ctx.moveTo(canvas.width / 2 + 110, outNode.y + outNode.h / 2);
+            ctx.lineTo(canvas.width / 2 + 140, outNode.y + outNode.h / 2);
+            ctx.lineTo(canvas.width / 2 + 140, loopNode.y + loopNode.h / 2);
+            ctx.lineTo(canvas.width / 2 + 110, loopNode.y + loopNode.h / 2);
+            ctx.stroke();
+
+            // Cabeça da seta de retorno
+            ctx.beginPath();
+            ctx.fillStyle = "#ff9800";
+            ctx.moveTo(canvas.width / 2 + 115, loopNode.y + loopNode.h / 2 - 4);
+            ctx.lineTo(canvas.width / 2 + 115, loopNode.y + loopNode.h / 2 + 4);
+            ctx.lineTo(canvas.width / 2 + 110, loopNode.y + loopNode.h / 2);
+            ctx.fill();
+
+            // Desenho dos Nós
+            for (let key in flowchartNodes) {
+                const node = flowchartNodes[key];
+                const x = canvas.width / 2;
+                const w = 220;
+                const h = node.h;
+                const y = node.y;
+
+                const isSelected = (nodeSelecionado === key);
+
+                ctx.lineWidth = isSelected ? 3 : 1.5;
+                ctx.strokeStyle = isSelected ? "#ff4d6d" : "#569cd6";
+                ctx.fillStyle = isSelected ? "#4a0e17" : "#252526";
+
+                if (node.type === 'oval') {
+                    ctx.beginPath();
+                    ctx.ellipse(x, y + h/2, w/2, h/2, 0, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.stroke();
+                } else if (node.type === 'io') {
+                    const skew = 15;
+                    ctx.beginPath();
+                    ctx.moveTo(x - w/2 + skew, y);
+                    ctx.lineTo(x + w/2, y);
+                    ctx.lineTo(x + w/2 - skew, y + h);
+                    ctx.lineTo(x - w/2, y + h);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                } else if (node.type === 'diamond') {
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x + w/2, y + h/2);
+                    ctx.lineTo(x, y + h);
+                    ctx.lineTo(x - w/2, y + h/2);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                } else {
+                    ctx.beginPath();
+                    ctx.rect(x - w/2, y, w, h);
+                    ctx.fill();
+                    ctx.stroke();
+                }
+
+                ctx.fillStyle = isSelected ? "#ffffff" : "#d4d4d4";
+                ctx.font = isSelected ? "bold 11px Segoe UI, sans-serif" : "11px Segoe UI, sans-serif";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(node.label, x, y + h/2);
+            }
+        }
+
+        function centralizarElementos() {
+            const activeLine = document.querySelector('.code-line.active');
+            if (activeLine) {
+                activeLine.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            if (nodeSelecionado && flowchartNodes[nodeSelecionado]) {
+                const wrapper = document.getElementById('canvasWrapper');
+                const node = flowchartNodes[nodeSelecionado];
+                const targetY = node.y + (node.h / 2) - (wrapper.clientHeight / 2);
+                wrapper.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
+            }
+        }
+
+        function formatarSintaxe(str) {
+            let res = str;
+            if (res.trim().startsWith('//')) {
+                return `<span class="kw-comment">${res}</span>`;
+            }
+            res = res.replace(/\b(algoritmo|var|inicio|fimalgoritmo|escrevaL|para|de|ate|faca|fimpara)\b/gi, '<span class="kw-instruction">$1</span>');
+            res = res.replace(/\b(inteiro)\b/gi, '<span class="kw-type">$1</span>');
+            return res;
+        }
+
+        function renderizarCodigo() {
+            const editor = document.getElementById('codeEditor');
+            editor.innerHTML = '';
+            codigoAlgoritmo.forEach((linha, index) => {
+                const lineDiv = document.createElement('div');
+                lineDiv.className = 'code-line' + (index === passoAtual - 1 ? ' active' : '');
+                lineDiv.id = `line-${index + 1}`;
+                
+                lineDiv.onclick = () => selecionarLinhaManualmente(index + 1);
+
+                const ptr = document.createElement('span');
+                ptr.className = 'code-pointer';
+                ptr.innerText = '➔';
+                
+                const txt = document.createElement('span');
+                txt.innerHTML = formatarSintaxe(linha.text);
+                
+                lineDiv.appendChild(ptr);
+                lineDiv.appendChild(txt);
+                editor.appendChild(lineDiv);
+            });
+        }
+
+        function selecionarLinhaManualmente(numLinha) {
+            const item = codigoAlgoritmo[numLinha - 1];
+            nodeSelecionado = item.node;
+            desenharFluxograma();
+
+            document.querySelectorAll('.code-line').forEach((el, idx) => {
+                if (idx === numLinha - 1) el.classList.add('active');
+                else if (!emExecucao || idx !== passoAtual - 1) el.classList.remove('active');
+            });
+
+            atualizarExplicacao(item.expTitle, item.expText);
+            centralizarElementos();
+        }
+
+        function renderizarMemoria() {
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = '';
+
+            if (!memoriaRAM.declarado) {
+                grid.innerHTML = '<div style="color: #666; font-size: 0.8rem; font-style: italic;">Nenhuma variável declarada na memória.</div>';
+                return;
+            }
+
+            for (let [nome, dados] of Object.entries(memoriaRAM.vars)) {
+                const cell = document.createElement('div');
+                cell.className = 'memory-cell' + (dados.updated ? ' updated' : '');
+                
+                let valStr = dados.val === null ? '<span class="mem-unassigned">não inicializado</span>' : dados.val;
+
+                cell.innerHTML = `
+                    <span class="mem-addr">${dados.addr}</span>
+                    <span class="mem-name">${nome}</span>
+                    <span class="mem-val">${valStr}</span>
+                `;
+                grid.appendChild(cell);
+            }
+        }
+
+        function atualizarExplicacao(titulo, texto) {
+            document.getElementById('expTitle').innerText = titulo;
+            document.getElementById('expText').innerText = texto;
+        }
+
+        function iniciarSimulacao() {
+            reiniciarSimulacao();
+            emExecucao = true;
+            document.getElementById('btnIniciar').disabled = true;
+            document.getElementById('btnProximo').disabled = false;
+            proximoPasso();
+        }
+
+        function processarPassoAtual() {
+            const instrucao = codigoAlgoritmo[passoAtual - 1];
+            nodeSelecionado = instrucao.node;
+            desenharFluxograma();
+
+            for (let k in memoriaRAM.vars) memoriaRAM.vars[k].updated = false;
+
+            renderizarCodigo();
+            centralizarElementos();
+
+            switch (passoAtual) {
+                case 1:
+                    consoleTexto = "*** Início da execução ***\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    atualizarExplicacao(instrucao.expTitle, instrucao.expText);
+                    break;
+                case 3:
+                case 4:
+                    memoriaRAM.declarado = true;
+                    renderizarMemoria();
+                    atualizarExplicacao(instrucao.expTitle, instrucao.expText);
+                    break;
+                case 6:
+                    consoleTexto += "=== TABUADA DO 5 ===\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    atualizarExplicacao(instrucao.expTitle, instrucao.expText);
+                    break;
+                case 7:
+                    if (valorI <= 10) {
+                        memoriaRAM.vars.i.val = valorI;
+                        memoriaRAM.vars.i.updated = true;
+                        renderizarMemoria();
+                        atualizarExplicacao("Teste do Laço PARA", `Variável i = ${valorI}. Como ${valorI} <= 10 é VERDADEIRO, entra no bloco do laço.`);
+                    } else {
+                        atualizarExplicacao("Laço Finalizado", `Variável i atingiu ${valorI}. Como é maior que 10, o laço encerra e salta para fimalgoritmo.`);
+                    }
+                    break;
+                case 8:
+                    memoriaRAM.vars.resultado.val = 5 * valorI;
+                    memoriaRAM.vars.resultado.updated = true;
+                    renderizarMemoria();
+                    atualizarExplicacao("Cálculo", `5 * ${valorI} = ${memoriaRAM.vars.resultado.val}. Resultado atribuído à variável resultado.`);
+                    break;
+                case 9:
+                    consoleTexto += `5 x ${valorI} = ${memoriaRAM.vars.resultado.val}\n`;
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    atualizarExplicacao("Exibição", `Linha "5 x ${valorI} = ${memoriaRAM.vars.resultado.val}" impressa no console.`);
+                    break;
+                case 10:
+                    valorI++;
+                    atualizarExplicacao("Incremento do Laço", `Chegou em fimpara. Incrementando i para ${valorI} e voltando ao teste do laço.`);
+                    break;
+                case 11:
+                    consoleTexto += "\n*** Fim da execução ***";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    document.getElementById('btnProximo').disabled = true;
+                    atualizarExplicacao("Execução Concluída", "Tabuada concluída com sucesso.");
+                    break;
+            }
+        }
+
+        function proximoPasso() {
+            if (passoAtual >= codigoAlgoritmo.length && valorI > 10) return;
+
+            if (passoAtual === 0) {
+                passoAtual = 1;
+            } else if (passoAtual === 6) {
+                passoAtual = 7; // Entra na verificação do laço
+            } else if (passoAtual === 7) {
+                if (valorI <= 10) {
+                    passoAtual = 8; // Vai para o cálculo
+                } else {
+                    passoAtual = 11; // Laço concluído, vai para fimalgoritmo
+                }
+            } else if (passoAtual === 8) {
+                passoAtual = 9; // Vai para exibição
+            } else if (passoAtual === 9) {
+                passoAtual = 10; // Vai para o fimpara
+            } else if (passoAtual === 10) {
+                passoAtual = 7; // Retorna para a verificação do laço com i incrementado
+            } else {
+                passoAtual++;
+            }
+
+            processarPassoAtual();
+        }
+
+        function reiniciarSimulacao() {
+            passoAtual = 0;
+            valorI = 1;
+            emExecucao = false;
+            consoleTexto = "Aguardando início...";
+            nodeSelecionado = null;
+            
+            memoriaRAM.declarado = false;
+            for (let k in memoriaRAM.vars) {
+                memoriaRAM.vars[k].val = null;
+                memoriaRAM.vars[k].updated = false;
+            }
+
+            document.getElementById('btnIniciar').disabled = false;
+            document.getElementById('btnProximo').disabled = true;
+            document.getElementById('consoleOutput').innerText = consoleTexto;
+
+            renderizarCodigo();
+            renderizarMemoria();
+            desenharFluxograma();
+            atualizarExplicacao("Explicação da Instrução", "Clique em qualquer linha do código para inspecioná-la ou clique em \"Iniciar Execução\".");
+
+            document.getElementById('canvasWrapper').scrollTo({ top: 0, behavior: 'smooth' });
+            document.getElementById('codeEditor').scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        document.getElementById('flowchartCanvas').addEventListener('click', function(e) {
+            const rect = this.getBoundingClientRect();
+            const clickY = e.clientY - rect.top;
+
+            for (let key in flowchartNodes) {
+                const node = flowchartNodes[key];
+                if (clickY >= node.y && clickY <= node.y + node.h) {
+                    const idx = codigoAlgoritmo.findIndex(item => item.node === key);
+                    if (idx !== -1) {
+                        selecionarLinhaManualmente(idx + 1);
+                    }
+                    break;
+                }
+            }
+        });
+
+        // Inicialização
+        renderizarCodigo();
+        desenharFluxograma();
+    </script>
+</body>
+</html>

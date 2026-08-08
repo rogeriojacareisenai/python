@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Estruturas Condicionais - Se / Senão</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f4f4;
+            color: #2b1e20;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        header {
+            background: linear-gradient(135deg, #4a0e17, #2b080d);
+            padding: 20px 15px;
+            padding-top: max(20px, env(safe-area-inset-top));
+            text-align: center;
+            border-bottom: 3px solid #721c24;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        /* ESTILO DO BOTÃO VOLTAR DO HEADER */
+        .btn-voltar {
+            position: absolute;
+            left: 15px;
+            top: max(18px, env(safe-area-inset-top));
+            background-color: rgba(255, 255, 255, 0.12);
+            color: #f8c0c8;
+            border: 1px solid #721c24;
+            padding: 6px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .btn-voltar:hover {
+            background-color: #721c24;
+            color: #ffffff;
+        }
+
+        header h1 {
+            font-size: 1.6rem;
+            color: #f8c0c8;
+            margin-bottom: 6px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        header p {
+            color: #e2c0c5;
+            font-size: 0.9rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .container {
+            width: 94%;
+            max-width: 1200px;
+            margin: 20px auto;
+            flex-grow: 1;
+            padding-bottom: 20px;
+        }
+
+        .grid-aulas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #e8dadc;
+            border-radius: 10px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 2px 8px rgba(74, 14, 23, 0.05);
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            border-color: #801b2c;
+            box-shadow: 0 6px 14px rgba(128, 27, 44, 0.12);
+        }
+
+        .card-badge {
+            align-self: flex-start;
+            background-color: #fcebeb;
+            color: #721c24;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.68rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .card h2 {
+            font-size: 1.05rem;
+            color: #3b0b12;
+            margin-bottom: 6px;
+            line-height: 1.25;
+        }
+
+        .card p {
+            color: #5a4b4e;
+            font-size: 0.82rem;
+            line-height: 1.4;
+            margin-bottom: 12px;
+            flex-grow: 1;
+        }
+
+        .card-btn {
+            display: inline-block;
+            text-align: center;
+            background-color: #6b1120;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 7px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-family: inherit;
+            width: 100%;
+        }
+
+        .card-btn:hover {
+            background-color: #85182a;
+            box-shadow: 0 3px 8px rgba(107, 17, 32, 0.25);
+        }
+
+        .btn-secundario {
+            background-color: #e8dadc;
+            color: #4a0e17;
+        }
+
+        .btn-secundario:hover {
+            background-color: #d8c2c4;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #ebdada;
+            color: #5c3a3e;
+            border-top: 1px solid #d8c2c4;
+            font-size: 0.8rem;
+            margin-top: auto;
+            padding-bottom: calc(15px + env(safe-area-inset-bottom));
+        }
+
+        /* MODAIS */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.65);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+            padding: 15px;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 1100px;
+            max-height: 92vh;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+            border: 1px solid #e8dadc;
+            margin-bottom: env(safe-area-inset-bottom);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #4a0e17, #2b080d);
+            color: #ffffff;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #721c24;
+        }
+
+        .modal-header h2 {
+            font-size: 1.3rem;
+            color: #f8c0c8;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #f8c0c8;
+            font-size: 1.8rem;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.2s ease;
+        }
+
+        .modal-close:hover {
+            color: #ffffff;
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            color: #3b0b12;
+            line-height: 1.5;
+        }
+
+        .topic-group {
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px dashed #e8dadc;
+        }
+
+        .topic-group:last-child {
+            border-bottom: none;
+        }
+
+        .topic-title {
+            font-size: 1.15rem;
+            color: #6b1120;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .topic-desc {
+            margin-left: 10px;
+            color: #5a4b4e;
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+
+        .topic-desc ul {
+            margin-left: 18px;
+            margin-top: 4px;
+        }
+
+        .topic-desc span {
+            font-weight: bold;
+            color: #85182a;
+        }
+
+        .code-example {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin: 8px 0;
+            white-space: pre;
+            overflow-x: auto;
+        }
+
+        .modal-footer {
+            padding: 12px 20px;
+            background-color: #f7f4f4;
+            border-top: 1px solid #e8dadc;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* PAINEL DE SIMULAÇÃO VISUALG */
+        .visualg-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sim {
+            background-color: #4a0e17;
+            color: #ffffff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 0.85rem;
+        }
+
+        .btn-sim:hover:not(:disabled) {
+            background-color: #85182a;
+        }
+
+        .btn-sim:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+
+        .visualg-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .code-box {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            height: 320px;
+            overflow-y: auto;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+            width: 100%;
+        }
+
+        .code-line {
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            display: flex;
+            align-items: center;
+        }
+
+        .code-pointer {
+            display: inline-block;
+            width: 20px;
+            color: #ff4d6d;
+            font-weight: bold;
+            visibility: hidden;
+            user-select: none;
+        }
+
+        .code-line.active .code-pointer {
+            visibility: visible;
+        }
+
+        .code-line.active {
+            background-color: #4a0e17;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .kw-instruction { color: #569cd6; font-weight: bold; }
+        .kw-type { color: #4ec9b0; font-weight: bold; }
+
+        .vertical-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .vertical-panel {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                padding-top: max(45px, env(safe-area-inset-top));
+            }
+
+            .btn-voltar {
+                top: max(10px, env(safe-area-inset-top));
+            }
+        }
+
+        .console-box {
+            background-color: #0c0c0c;
+            color: #00ff66;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            height: 160px;
+            overflow-y: auto;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            color: #888;
+            border-bottom: 1px solid #333;
+            padding-bottom: 4px;
+            margin-bottom: 6px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: bold;
+        }
+
+        .console-output {
+            flex-grow: 1;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .memory-box {
+            background-color: #181818;
+            border-radius: 8px;
+            padding: 10px 12px;
+            height: 160px;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .memory-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            overflow-y: auto;
+        }
+
+        .memory-cell {
+            display: grid;
+            grid-template-columns: 80px 1fr 1fr;
+            background: #252526;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.8rem;
+            align-items: center;
+            border-left: 3px solid #555;
+            transition: all 0.3s ease;
+        }
+
+        .memory-cell.updated {
+            border-left-color: #00ff66;
+            background: #2a3a2e;
+            transform: scale(1.01);
+        }
+
+        .mem-addr { color: #888; font-size: 0.7rem; }
+        .mem-name { color: #f8c0c8; font-weight: bold; }
+        .mem-val { color: #ffffff; text-align: right; font-weight: bold; }
+        .mem-unassigned { color: #666; font-style: italic; }
+
+        .input-wrapper {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-inline {
+            background: #111;
+            border: 1px solid #00ff66;
+            color: #00ff66;
+            font-family: inherit;
+            font-size: 0.9rem;
+            width: 80px;
+            outline: none;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .btn-confirm-input {
+            background: #00ff66;
+            color: #000;
+            border: none;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .explanation-box {
+            background-color: #fcebeb;
+            border-left: 4px solid #6b1120;
+            padding: 12px;
+            border-radius: 6px;
+            color: #4a0e17;
+            font-size: 0.9rem;
+            min-height: 70px;
+        }
+
+        .explanation-box h4 {
+            margin-bottom: 4px;
+            color: #6b1120;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <!-- BOTÃO VOLTAR GLOBAL -->
+        <button class="btn-voltar" onclick="voltarPagina()">
+            &#8592; Voltar
+        </button>
+        <h1>ESTRUTURAS CONDICIONAIS (SE / SENÃO)</h1>
+        <p>Aprenda a controlar o fluxo de um programa com decisões simples, compostas e encadeadas.</p>
+    </header>
+
+    <div class="container">
+        <div class="grid-aulas">
+
+            <!-- Card 1 -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Módulo 01</span>
+                    <h2>Teoria: Estruturas Condicionais</h2>
+                    <p>Conceito de tomada de decisão, operadores relacionais e sintaxe no VisuAlg.</p>
+                </div>
+                <button class="card-btn" onclick="openModal('modalTeoria')">Acessar Teoria →</button>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Módulo 02</span>
+                    <h2> Condicional Simples</h2>
+                    <p>Executa uma ação apenas se a condição for VERDADEIRA.</p>
+                </div>
+                <button class="card-btn" onclick="openModalSimulador('simples')">Simular Passo a Passo →</button>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Módulo 03</span>
+                    <h2> Condicional Composta</h2>
+                    <p>Define um caminho para VERDADEIRO e outro para FALSO (se / senão).</p>
+                </div>
+                <button class="card-btn" onclick="openModalSimulador('composta')">Simular Passo a Passo →</button>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Módulo 04</span>
+                    <h2> Condicional em Cascata</h2>
+                    <p>Múltiplas verificações encadeadas (se / senao se / senao).</p>
+                </div>
+                <button class="card-btn" onclick="openModalSimulador('cascata')">Simular Passo a Passo →</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL TEORIA -->
+    <div class="modal-overlay" id="modalTeoria">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Conceito: Desvio de Fluxo Condicional</h2>
+                <button class="modal-close" onclick="closeModal('modalTeoria')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="topic-group">
+                    <div class="topic-title">1. O que é uma condição?</div>
+                    <div class="topic-desc">
+                        Em programas normais, as linhas são executadas de cima para baixo em ordem sequencial. Uma <strong>Estrutura Condicional</strong> permite desviar esse caminho dependendo do resultado de uma expressão booleana (<span>VERDADEIRO</span> ou <span>FALSO</span>).
+                    </div>
+                </div>
+
+                <div class="topic-group">
+                    <div class="topic-title">2. Condição Simples (se ... entao)</div>
+                    <div class="topic-desc">
+                        Avalia uma expressão. Se for <strong>Verdadeira</strong>, executa o bloco de código interno. Se for <strong>Falsa</strong>, ignora o bloco e continua a execução normalmente.
+<div class="code-example">se (idade >= 18) entao
+   escreval("Você é maior de idade.")
+fimse</div>
+                    </div>
+                </div>
+
+                <div class="topic-group">
+                    <div class="topic-title">3. Condição Composta (se ... entao ... senao)</div>
+                    <div class="topic-desc">
+                        Garante dois caminhos alternativos: um bloco é executado se a condição for <strong>Verdadeira</strong>, e outro bloco totalmente diferente é executado se for <strong>Falsa</strong>.
+<div class="code-example">se (nota >= 7.0) entao
+   escreval("Aluno APROVADO!")
+senao
+   escreval("Aluno REPROVADO!")
+fimse</div>
+                    </div>
+                </div>
+
+                <div class="topic-group">
+                    <div class="topic-title">4. Condição Encadeada / Em Cascata</div>
+                    <div class="topic-desc">
+                        Usada para tratar mais de duas possibilidades. Quando a primeira condição é falsa, o programa faz um novo teste antes de tomar uma decisão final.
+<div class="code-example">se (media >= 7.0) entao
+   escreval("Aprovado")
+senao
+   se (media >= 5.0) entao
+      escreval("Recuperação")
+   senao
+      escreval("Reprovado")
+   fimse
+fimse</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="card-btn btn-secundario" style="width: auto;" onclick="closeModal('modalTeoria')">&#8592; Voltar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DO SIMULADOR (COMPARTILHADO) -->
+    <div class="modal-overlay" id="modalSimulador">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="simuladorTitulo">Simulador VisuAlg</h2>
+                <button class="modal-close" onclick="closeModal('modalSimulador')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="visualg-controls">
+                    <button class="btn-sim" id="btnIniciar" onclick="iniciarSimulacao()">▶ Iniciar Execução</button>
+                    <button class="btn-sim" id="btnProximo" onclick="proximoPasso()" disabled>⏭ Próximo Passo</button>
+                    <button class="btn-sim" id="btnReiniciar" onclick="reiniciarSimulacao()">🔄 Reiniciar</button>
+                </div>
+
+                <div class="visualg-layout">
+                    <div class="code-box" id="codeEditor"></div>
+
+                    <div class="vertical-panel">
+                        <div class="console-box">
+                            <div class="panel-header">Console de Saída</div>
+                            <div class="console-output" id="consoleOutput">Aguardando início...</div>
+                        </div>
+
+                        <div class="memory-box">
+                            <div class="panel-header">Memória RAM (Variáveis)</div>
+                            <div class="memory-grid" id="memoryGrid">
+                                <div style="color: #666; font-size: 0.8rem; font-style: italic;">Nenhuma variável declarada.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="explanation-box">
+                    <h4 id="expTitle">Explicação da Instrução</h4>
+                    <p id="expText">Clique no botão "Iniciar Execução" para avançar linha a linha pelo algoritmo.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="card-btn btn-secundario" style="width: auto;" onclick="closeModal('modalSimulador')">&#8592; Voltar</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Curso de Algoritmos & Programação • Módulo de Estruturas Condicionais
+    </footer>
+
+    <script>
+        function voltarPagina() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = '#';
+            }
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // DADOS DOS TRÊS ALGORITMOS DE CONDIÇÃO
+        const algoritmos = {
+            simples: {
+                titulo: "Condicional Simples (Compra com Desconto)",
+                vars: { valor: { addr: '0x00B1', val: null, updated: false } },
+                linhas: [
+                    { id: 1, text: 'algoritmo "DescontoSimples"', expTitle: 'algoritmo', expText: 'Nome do programa.' },
+                    { id: 2, text: 'var valor : real', expTitle: 'var', expText: 'Aloca a variável "valor" do tipo real na memória.' },
+                    { id: 3, text: 'inicio', expTitle: 'inicio', expText: 'Início do bloco de código.' },
+                    { id: 4, text: '   escreva("Digite o valor da compra: R$ ")', expTitle: 'escreva', expText: 'Imprime a solicitação no console.' },
+                    { id: 5, text: '   leia(valor)', expTitle: 'leia', expText: 'Lê o valor digitado pelo usuário.', inputVar: 'valor' },
+                    { id: 6, text: '   se (valor >= 100.0) entao', expTitle: 'Estrutura SE', expText: 'Avalia se o valor é maior ou igual a 100.' },
+                    { id: 7, text: '      escreval("Você ganhou 10% de desconto!")', expTitle: 'Bloco Verdadeiro', expText: 'Executado apenas se a condição for VERDADEIRA.' },
+                    { id: 8, text: '   fimse', expTitle: 'fimse', expText: 'Fim da estrutura condicional.' },
+                    { id: 9, text: '   escreval("Obrigado pela preferência!")', expTitle: 'Fluxo Normal', expText: 'Esta linha roda SEMPRE, independente da condição.' },
+                    { id: 10, text: 'fimalgoritmo', expTitle: 'fimalgoritmo', expText: 'Fim do programa.' }
+                ]
+            },
+            composta: {
+                titulo: "Condicional Composta (Aprovação de Aluno)",
+                vars: { nota: { addr: '0x00C1', val: null, updated: false } },
+                linhas: [
+                    { id: 1, text: 'algoritmo "AprovacaoComposta"', expTitle: 'algoritmo', expText: 'Nome do programa.' },
+                    { id: 2, text: 'var nota : real', expTitle: 'var', expText: 'Aloca a variável "nota" na memória.' },
+                    { id: 3, text: 'inicio', expTitle: 'inicio', expText: 'Início do bloco.' },
+                    { id: 4, text: '   escreva("Digite a nota do aluno: ")', expTitle: 'escreva', expText: 'Solicita a nota.' },
+                    { id: 5, text: '   leia(nota)', expTitle: 'leia', expText: 'Guarda a nota informada.', inputVar: 'nota' },
+                    { id: 6, text: '   se (nota >= 7.0) entao', expTitle: 'Estrutura SE', expText: 'Testa se a nota é maior ou igual a 7.0.' },
+                    { id: 7, text: '      escreval("Resultado: APROVADO")', expTitle: 'Caminho VERDADEIRO', expText: 'Roda se a nota for >= 7.0.' },
+                    { id: 8, text: '   senao', expTitle: 'SENÃO', expText: 'Desvia para aqui se a nota for menor que 7.0.' },
+                    { id: 9, text: '      escreval("Resultado: REPROVADO")', expTitle: 'Caminho FALSO', expText: 'Roda se a nota for < 7.0.' },
+                    { id: 10, text: '   fimse', expTitle: 'fimse', expText: 'Fim da decisão composta.' },
+                    { id: 11, text: 'fimalgoritmo', expTitle: 'fimalgoritmo', expText: 'Fim do programa.' }
+                ]
+            },
+            cascata: {
+                titulo: "Condicional Encadeada / Cascata (Classificação da Média)",
+                vars: { media: { addr: '0x00D1', val: null, updated: false } },
+                linhas: [
+                    { id: 1, text: 'algoritmo "ClassificacaoCascata"', expTitle: 'algoritmo', expText: 'Nome do programa.' },
+                    { id: 2, text: 'var media : real', expTitle: 'var', expText: 'Aloca variável "media" na memória.' },
+                    { id: 3, text: 'inicio', expTitle: 'inicio', expText: 'Início do programa.' },
+                    { id: 4, text: '   escreva("Digite a média do aluno: ")', expTitle: 'escreva', expText: 'Solicita a média.' },
+                    { id: 5, text: '   leia(media)', expTitle: 'leia', expText: 'Salva a média na memória.', inputVar: 'media' },
+                    { id: 6, text: '   se (media >= 7.0) entao', expTitle: 'Teste 1: media >= 7.0', expText: 'Verifica se está aprovado direto.' },
+                    { id: 7, text: '      escreval("Situação: APROVADO")', expTitle: 'Aprovado', expText: 'Executa se média >= 7.0.' },
+                    { id: 8, text: '   senao', expTitle: 'Primeiro SENÃO', expText: 'Média < 7.0. Passa para a próxima verificação.' },
+                    { id: 9, text: '      se (media >= 5.0) entao', expTitle: 'Teste 2 (Cascata): media >= 5.0', expText: 'Verifica se tem direito à recuperação.' },
+                    { id: 10, text: '         escreval("Situação: RECUPERAÇÃO")', expTitle: 'Recuperação', expText: 'Executa se média entre 5.0 e 6.9.' },
+                    { id: 11, text: '   senao', expTitle: 'Segundo SENÃO', expText: 'Média menor que 5.0.' },
+                    { id: 12, text: '         escreval("Situação: REPROVADO")', expTitle: 'Reprovado', expText: 'Executa se média < 5.0.' },
+                    { id: 13, text: '   fimse', expTitle: 'fimse interno', expText: 'Fecha o segundo SE.' },
+                    { id: 14, text: '   fimse', expTitle: 'fimse externo', expText: 'Fecha o primeiro SE.' },
+                    { id: 15, text: 'fimalgoritmo', expTitle: 'fimalgoritmo', expText: 'Fim do algoritmo.' }
+                ]
+            }
+        };
+
+        let modoAtual = 'simples';
+        let passoAtual = 0;
+        let memoriaRAM = {};
+
+        function openModalSimulador(tipo) {
+            modoAtual = tipo;
+            document.getElementById('simuladorTitulo').innerText = algoritmos[tipo].titulo;
+            openModal('modalSimulador');
+            reiniciarSimulacao();
+        }
+
+        function renderEditor() {
+            const editor = document.getElementById('codeEditor');
+            editor.innerHTML = '';
+            const codigo = algoritmos[modoAtual].linhas;
+            codigo.forEach((linha, index) => {
+                const lineDiv = document.createElement('div');
+                lineDiv.className = `code-line ${index === passoAtual - 1 ? 'active' : ''}`;
+                lineDiv.id = `line-${index + 1}`;
+                
+                let textHtml = linha.text
+                    .replace(/(algoritmo|var|inicio|fimalgoritmo|escreva|escreval|leia|se|entao|senao|fimse)/g, '<span class="kw-instruction">$1</span>')
+                    .replace(/(real)/g, '<span class="kw-type">$1</span>');
+
+                lineDiv.innerHTML = `<span class="code-pointer">➔</span> <span>${textHtml}</span>`;
+                editor.appendChild(lineDiv);
+            });
+        }
+
+        function renderMemory() {
+            const memoryGrid = document.getElementById('memoryGrid');
+            if (passoAtual < 2) {
+                memoryGrid.innerHTML = `<div style="color: #666; font-size: 0.8rem; font-style: italic;">Nenhuma variável declarada.</div>`;
+                return;
+            }
+
+            memoryGrid.innerHTML = '';
+            for (const [key, item] of Object.entries(memoriaRAM.vars)) {
+                const cell = document.createElement('div');
+                cell.className = `memory-cell ${item.updated ? 'updated' : ''}`;
+                const valDisplay = item.val !== null ? item.val : '<span class="mem-unassigned">indefinido</span>';
+                cell.innerHTML = `
+                    <span class="mem-addr">${item.addr}</span>
+                    <span class="mem-name">${key}</span>
+                    <span class="mem-val">${valDisplay}</span>
+                `;
+                memoryGrid.appendChild(cell);
+            }
+        }
+
+        function reiniciarSimulacao() {
+            passoAtual = 0;
+            memoriaRAM = JSON.parse(JSON.stringify(algoritmos[modoAtual]));
+            document.getElementById('btnIniciar').disabled = false;
+            document.getElementById('btnProximo').disabled = true;
+            document.getElementById('consoleOutput').innerText = 'Aguardando início...';
+            document.getElementById('expTitle').innerText = 'Explicação da Instrução';
+            document.getElementById('expText').innerText = 'Clique no botão "Iniciar Execução" para avançar linha a linha pelo algoritmo.';
+            renderEditor();
+            renderMemory();
+        }
+
+        function iniciarSimulacao() {
+            passoAtual = 1;
+            document.getElementById('btnIniciar').disabled = true;
+            document.getElementById('btnProximo').disabled = false;
+            document.getElementById('consoleOutput').innerText = '';
+            executarPasso();
+        }
+
+        function proximoPasso() {
+            const codigo = algoritmos[modoAtual].linhas;
+
+            if (modoAtual === 'simples') {
+                if (passoAtual === 6) {
+                    const v = parseFloat(memoriaRAM.vars.valor.val) || 0;
+                    if (v < 100) {
+                        passoAtual = 8;
+                    } else {
+                        passoAtual = 7;
+                    }
+                } else if (passoAtual === 7) {
+                    passoAtual = 8;
+                } else {
+                    passoAtual++;
+                }
+            } 
+            else if (modoAtual === 'composta') {
+                if (passoAtual === 6) {
+                    const n = parseFloat(memoriaRAM.vars.nota.val) || 0;
+                    if (n >= 7.0) {
+                        passoAtual = 7;
+                    } else {
+                        passoAtual = 8;
+                    }
+                } else if (passoAtual === 7) {
+                    passoAtual = 10;
+                } else if (passoAtual === 8) {
+                    passoAtual = 9;
+                } else {
+                    passoAtual++;
+                }
+            } 
+            else if (modoAtual === 'cascata') {
+                const m = parseFloat(memoriaRAM.vars.media.val) || 0;
+                if (passoAtual === 6) {
+                    if (m >= 7.0) passoAtual = 7;
+                    else passoAtual = 8;
+                } else if (passoAtual === 7) {
+                    passoAtual = 14;
+                } else if (passoAtual === 8) {
+                    passoAtual = 9;
+                } else if (passoAtual === 9) {
+                    if (m >= 5.0) passoAtual = 10;
+                    else passoAtual = 11;
+                } else if (passoAtual === 10) {
+                    passoAtual = 13;
+                } else if (passoAtual === 11) {
+                    passoAtual = 12;
+                } else {
+                    passoAtual++;
+                }
+            }
+
+            if (passoAtual <= codigo.length) {
+                executarPasso();
+            }
+        }
+
+        function executarPasso() {
+            renderEditor();
+            const curr = algoritmos[modoAtual].linhas.find(l => l.id === passoAtual);
+            if (!curr) return;
+
+            document.getElementById('expTitle').innerText = curr.expTitle;
+            document.getElementById('expText').innerText = curr.expText;
+
+            for (let v in memoriaRAM.vars) memoriaRAM.vars[v].updated = false;
+
+            if (curr.inputVar) {
+                document.getElementById('btnProximo').disabled = true;
+                const consoleBox = document.getElementById('consoleOutput');
+                consoleBox.innerHTML += ` <span class="input-wrapper"><input type="number" id="inputSim" class="input-inline" placeholder="valor" autofocus><button class="btn-confirm-input" onclick="confirmarInput('${curr.inputVar}')">OK</button></span>`;
+            } else if (curr.text.includes('escreva')) {
+                const textMatch = curr.text.match(/"([^"]+)"/);
+                if (textMatch) {
+                    const textOut = textMatch[1];
+                    if (curr.text.includes('escreval')) {
+                        document.getElementById('consoleOutput').innerHTML += textOut + '\n';
+                    } else {
+                        document.getElementById('consoleOutput').innerText = textOut;
+                    }
+                }
+            }
+
+            if (passoAtual === algoritmos[modoAtual].linhas.length) {
+                document.getElementById('btnProximo').disabled = true;
+            }
+            renderMemory();
+        }
+
+        function confirmarInput(varName) {
+            const inputEl = document.getElementById('inputSim');
+            const val = parseFloat(inputEl.value) || 0;
+            memoriaRAM.vars[varName].val = val;
+            memoriaRAM.vars[varName].updated = true;
+
+            const consoleBox = document.getElementById('consoleOutput');
+            consoleBox.removeChild(inputEl.parentElement);
+            consoleBox.innerText += val + '\n';
+
+            document.getElementById('btnProximo').disabled = false;
+            proximoPasso();
+        }
+    </script>
+</body>
+</html>

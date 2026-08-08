@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Simulador VisuAlg - Área e Perímetro</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f4f4;
+            color: #2b1e20;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        header {
+            background: linear-gradient(135deg, #4a0e17, #2b080d);
+            padding: 24px 20px;
+            text-align: center;
+            border-bottom: 3px solid #721c24;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            color: #f8c0c8;
+            margin-bottom: 6px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        header p {
+            color: #e2c0c5;
+            font-size: 0.95rem;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1100px;
+            margin: 20px auto;
+            flex-grow: 1;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 6px 18px rgba(74, 14, 23, 0.08);
+            border: 1px solid #e8dadc;
+        }
+
+        /* CONTROLES DO SIMULADOR */
+        .visualg-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sim {
+            background-color: #4a0e17;
+            color: #ffffff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-size: 0.9rem;
+        }
+
+        .btn-sim:hover:not(:disabled) {
+            background-color: #85182a;
+        }
+
+        .btn-sim:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .btn-sim:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+
+        /* LAYOUT VERTICAL DO VISUALG */
+        .visualg-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .code-box {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            height: 350px;
+            overflow-y: auto;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+            width: 100%;
+        }
+
+        .code-line {
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            display: flex;
+            align-items: center;
+        }
+
+        .code-pointer {
+            display: inline-block;
+            width: 20px;
+            color: #ff4d6d;
+            font-weight: bold;
+            visibility: hidden;
+            user-select: none;
+        }
+
+        .code-line.active .code-pointer {
+            visibility: visible;
+        }
+
+        .code-line.active {
+            background-color: #4a0e17;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        /* Destaque de sintaxe */
+        .kw-instruction { color: #569cd6; font-weight: bold; }
+        .kw-type { color: #4ec9b0; font-weight: bold; }
+        .kw-comment { color: #6a9955; }
+
+        .vertical-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .vertical-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .console-box {
+            background-color: #0c0c0c;
+            color: #00ff66;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            height: 180px;
+            overflow-y: auto;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            color: #888;
+            border-bottom: 1px solid #333;
+            padding-bottom: 4px;
+            margin-bottom: 6px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: bold;
+        }
+
+        .console-output {
+            flex-grow: 1;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        /* Destaque para o prompt de confirmação */
+        .enter-prompt-badge {
+            display: inline-block;
+            background-color: #ff9800;
+            color: #000;
+            font-weight: bold;
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 8px;
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        /* PAINEL DE MEMÓRIA (RAM) */
+        .memory-box {
+            background-color: #181818;
+            border-radius: 8px;
+            padding: 10px 12px;
+            height: 180px;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .memory-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            overflow-y: auto;
+        }
+
+        .memory-cell {
+            display: grid;
+            grid-template-columns: 75px 1fr 1fr;
+            background: #252526;
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.78rem;
+            align-items: center;
+            border-left: 3px solid #555;
+            transition: all 0.3s ease;
+        }
+
+        .memory-cell.updated {
+            border-left-color: #00ff66;
+            background: #2a3a2e;
+            transform: scale(1.01);
+        }
+
+        .mem-addr { color: #888; font-size: 0.68rem; }
+        .mem-name { color: #f8c0c8; font-weight: bold; }
+        .mem-val { color: #ffffff; text-align: right; font-weight: bold; }
+        .mem-unassigned { color: #666; font-style: italic; }
+
+        .input-wrapper {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-inline {
+            background: #111;
+            border: 1px solid #00ff66;
+            color: #00ff66;
+            font-family: inherit;
+            font-size: 0.9rem;
+            width: 100px;
+            outline: none;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .btn-confirm-input {
+            background: #00ff66;
+            color: #000;
+            border: none;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .explanation-box {
+            background-color: #fcebeb;
+            border-left: 4px solid #6b1120;
+            padding: 12px 16px;
+            border-radius: 6px;
+            color: #4a0e17;
+            font-size: 0.9rem;
+            min-height: 70px;
+        }
+
+        .explanation-box h4 {
+            margin-bottom: 4px;
+            color: #6b1120;
+            font-size: 0.95rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 18px;
+            background-color: #ebdada;
+            color: #5c3a3e;
+            border-top: 1px solid #d8c2c4;
+            font-size: 0.85rem;
+            margin-top: auto;
+            padding-bottom: calc(18px + env(safe-area-inset-bottom));
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Cálculo de Área e Perímetro (VisuAlg)</h1>
+        <p>Simulação passo a passo do cálculo da área (base x altura) e do perímetro (2 x (base + altura)) de um retângulo.</p>
+    </header>
+
+    <div class="container">
+        
+        <!-- BOTOES DE CONTROLE -->
+        <div class="visualg-controls">
+            <button class="btn-sim" id="btnIniciar" onclick="iniciarSimulacao()">▶ Iniciar Execução</button>
+            <button class="btn-sim" id="btnProximo" onclick="proximoPasso()" disabled>⏭ Próximo Passo</button>
+            <button class="btn-sim" id="btnReiniciar" onclick="reiniciarSimulacao()">🔄 Reiniciar</button>
+        </div>
+
+        <div class="visualg-layout">
+            <!-- EDITOR DE CODIGO -->
+            <div class="code-box" id="codeEditor">
+                <!-- Gerado via JavaScript -->
+            </div>
+
+            <!-- PAINEIS INFERIORES: CONSOLE E RAM -->
+            <div class="vertical-panel">
+                <!-- Console -->
+                <div class="console-box">
+                    <div class="panel-header">Console de Saída</div>
+                    <div class="console-output" id="consoleOutput">Aguardando início...</div>
+                </div>
+
+                <!-- Memória RAM -->
+                <div class="memory-box">
+                    <div class="panel-header">Memória RAM (Variáveis)</div>
+                    <div class="memory-grid" id="memoryGrid">
+                        <div style="color: #666; font-size: 0.8rem; font-style: italic;">Nenhuma variável declarada na memória.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXPLICACAO DO PASSO ATUAL -->
+        <div class="explanation-box">
+            <h4 id="expTitle">Explicação da Instrução</h4>
+            <p id="expText">Clique no botão "Iniciar Execução" para avançar linha a linha pelo algoritmo.</p>
+        </div>
+
+    </div>
+
+    <footer>
+        Algoritmos & Programação • Simulador Interativo VisuAlg
+    </footer>
+
+    <script>
+        // --- CÓDIGO E ETAPAS DO ALGORITMO ---
+        const codigoAlgoritmo = [
+            { id: 1, text: 'algoritmo "CalculoAreaPerimetro"', expTitle: 'Instrução: algoritmo', expText: 'Declara o nome do programa de cálculo de área e perímetro.' },
+            { id: 2, text: '// Area = base * altura | Perimetro = 2 * (base + altura)', expTitle: 'Comentário (//)', expText: 'Exibe as fórmulas geométricas utilizadas para o retângulo.' },
+            { id: 3, text: 'var', expTitle: 'Instrução: var', expText: 'Abre a seção de alocação de variáveis na memória RAM.' },
+            { id: 4, text: '   baseRet, alturaRet, areaRet, perimetroRet : real', expTitle: 'Declaração de Variáveis', expText: 'Aloca memória para armazenar as dimensões de entrada e os resultados calculados.' },
+            { id: 5, text: 'inicio', expTitle: 'Instrução: inicio', expText: 'Marca o início do bloco de execução.' },
+            { id: 6, text: '   escreva("Informe a base do retângulo: ")', expTitle: 'Instrução: escreva', expText: 'Exibe o pedido da medida da base no console.' },
+            { id: 7, text: '   leia(baseRet)', expTitle: 'Instrução: leia', expText: 'Pausa para entrada da base. Digite e pressione ENTER, OK ou Próximo Passo.' },
+            { id: 8, text: '   escreva("Informe a altura do retângulo: ")', expTitle: 'Instrução: escreva', expText: 'Exibe o pedido da medida da altura no console.' },
+            { id: 9, text: '   leia(alturaRet)', expTitle: 'Instrução: leia', expText: 'Pausa para entrada da altura. Digite e pressione ENTER, OK ou Próximo Passo.' },
+            { id: 10, text: '   areaRet <- baseRet * alturaRet', expTitle: 'Cálculo da Área', expText: 'Multiplica a base pela altura para determinar a superfície do retângulo.' },
+            { id: 11, text: '   perimetroRet <- 2 * (baseRet + alturaRet)', expTitle: 'Cálculo do Perímetro', expText: 'Soma a base com a altura e multiplica por 2 para encontrar a soma dos quatro lados.' },
+            { id: 12, text: '   escreval("--- RESULTADOS GEOMÉTRICOS ---")', expTitle: 'Instrução: escreval', expText: 'Exibe o cabeçalho no console de saída.' },
+            { id: 13, text: '   escreval("Área do retângulo: ", areaRet)', expTitle: 'Instrução: escreval', expText: 'Exibe o valor final da área do retângulo.' },
+            { id: 14, text: '   escreval("Perímetro do retângulo: ", perimetroRet)', expTitle: 'Instrução: escreval', expText: 'Exibe o valor final do perímetro do retângulo.' },
+            { id: 15, text: 'fimalgoritmo', expTitle: 'Instrução: fimalgoritmo', expText: 'Encerra o programa.' }
+        ];
+
+        // Estado da Memória RAM
+        let memoriaRAM = {
+            declarado: false,
+            vars: {
+                baseRet: { addr: '0x00E1', val: null, updated: false },
+                alturaRet: { addr: '0x00E2', val: null, updated: false },
+                areaRet: { addr: '0x00E3', val: null, updated: false },
+                perimetroRet: { addr: '0x00E4', val: null, updated: false }
+            }
+        };
+
+        let passoAtual = 0;
+        let emExecucao = false;
+        let aguardandoInput = false;
+        let callbackInputPendente = null;
+        let consoleTexto = "";
+
+        function formatarSintaxe(str) {
+            let res = str;
+            if (res.trim().startsWith('//')) {
+                return `<span class="kw-comment">${res}</span>`;
+            }
+            res = res.replace(/\b(algoritmo|var|inicio|fimalgoritmo|escreva|escreval|leia)\b/gi, '<span class="kw-instruction">$1</span>');
+            res = res.replace(/\b(real|inteiro|caractere|logico)\b/gi, '<span class="kw-type">$1</span>');
+            return res;
+        }
+
+        function renderizarCodigo() {
+            const editor = document.getElementById('codeEditor');
+            editor.innerHTML = '';
+            codigoAlgoritmo.forEach((linha, index) => {
+                const lineDiv = document.createElement('div');
+                lineDiv.className = 'code-line' + (index === passoAtual - 1 ? ' active' : '');
+                lineDiv.id = `line-${index + 1}`;
+                
+                const ptr = document.createElement('span');
+                ptr.className = 'code-pointer';
+                ptr.innerText = '➔';
+                
+                const txt = document.createElement('span');
+                txt.innerHTML = formatarSintaxe(linha.text);
+                
+                lineDiv.appendChild(ptr);
+                lineDiv.appendChild(txt);
+                editor.appendChild(lineDiv);
+            });
+
+            if (passoAtual > 0) {
+                const activeEl = document.getElementById(`line-${passoAtual}`);
+                if (activeEl) {
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+        }
+
+        function renderizarMemoria() {
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = '';
+
+            if (!memoriaRAM.declarado) {
+                grid.innerHTML = '<div style="color: #666; font-size: 0.8rem; font-style: italic;">Nenhuma variável declarada na memória.</div>';
+                return;
+            }
+
+            for (let [nome, dados] of Object.entries(memoriaRAM.vars)) {
+                const cell = document.createElement('div');
+                cell.className = 'memory-cell' + (dados.updated ? ' updated' : '');
+                
+                let valStr = dados.val === null ? '<span class="mem-unassigned">não inicializado</span>' : dados.val;
+
+                cell.innerHTML = `
+                    <span class="mem-addr">${dados.addr}</span>
+                    <span class="mem-name">${nome}</span>
+                    <span class="mem-val">${valStr}</span>
+                `;
+                grid.appendChild(cell);
+            }
+        }
+
+        function atualizarExplicacao(titulo, texto) {
+            document.getElementById('expTitle').innerText = titulo;
+            document.getElementById('expText').innerText = texto;
+        }
+
+        function iniciarSimulacao() {
+            reiniciarSimulacao();
+            emExecucao = true;
+            document.getElementById('btnIniciar').disabled = true;
+            document.getElementById('btnProximo').disabled = false;
+            proximoPasso();
+        }
+
+        function proximoPasso() {
+            // Se estiver aguardando input no 'leia', confirma o valor digitado primeiro
+            if (aguardandoInput && callbackInputPendente) {
+                callbackInputPendente();
+                return;
+            }
+
+            if (passoAtual >= codigoAlgoritmo.length) return;
+
+            passoAtual++;
+            const instrucao = codigoAlgoritmo[passoAtual - 1];
+            
+            // Limpa destaques na RAM
+            for (let k in memoriaRAM.vars) memoriaRAM.vars[k].updated = false;
+
+            renderizarCodigo();
+            atualizarExplicacao(instrucao.expTitle, instrucao.expText);
+
+            switch (passoAtual) {
+                case 1:
+                    consoleTexto = "*** Inicio da execução do algoritmo ***\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 2:
+                case 3:
+                    break;
+                case 4:
+                    memoriaRAM.declarado = true;
+                    renderizarMemoria();
+                    break;
+                case 5:
+                    break;
+                case 6:
+                    consoleTexto += "Informe a base do retângulo: ";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 7:
+                    solicitarInput('baseRet', 8);
+                    break;
+                case 8:
+                    consoleTexto += "Informe a altura do retângulo: ";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 9:
+                    solicitarInput('alturaRet', 5);
+                    break;
+                case 10:
+                    let b = parseFloat(memoriaRAM.vars.baseRet.val);
+                    let h = parseFloat(memoriaRAM.vars.alturaRet.val);
+                    let area = b * h;
+                    memoriaRAM.vars.areaRet.val = area.toFixed(2);
+                    memoriaRAM.vars.areaRet.updated = true;
+                    renderizarMemoria();
+                    break;
+                case 11:
+                    let b2 = parseFloat(memoriaRAM.vars.baseRet.val);
+                    let h2 = parseFloat(memoriaRAM.vars.alturaRet.val);
+                    let perim = 2 * (b2 + h2);
+                    memoriaRAM.vars.perimetroRet.val = perim.toFixed(2);
+                    memoriaRAM.vars.perimetroRet.updated = true;
+                    renderizarMemoria();
+                    break;
+                case 12:
+                    consoleTexto += "--- RESULTADOS GEOMÉTRICOS ---\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 13:
+                    consoleTexto += "Área do retângulo: " + memoriaRAM.vars.areaRet.val + "\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 14:
+                    consoleTexto += "Perímetro do retângulo: " + memoriaRAM.vars.perimetroRet.val + "\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 15:
+                    consoleTexto += "\n*** Fim da execução ***";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    document.getElementById('btnProximo').disabled = true;
+                    atualizarExplicacao("Execução Concluída", "Cálculo de área e perímetro realizado com sucesso.");
+                    break;
+            }
+        }
+
+        function solicitarInput(varNome, sugestao) {
+            aguardandoInput = true;
+
+            const consoleBox = document.getElementById('consoleOutput');
+            
+            const inputWrapper = document.createElement('span');
+            inputWrapper.className = 'input-wrapper';
+
+            const inputEl = document.createElement('input');
+            inputEl.type = 'number';
+            inputEl.step = '0.01';
+            inputEl.min = '0';
+            inputEl.value = sugestao || '';
+            inputEl.className = 'input-inline';
+            inputEl.id = 'inputVar';
+
+            const btnConfirm = document.createElement('button');
+            btnConfirm.className = 'btn-confirm-input';
+            btnConfirm.innerText = 'OK';
+
+            const enterBadge = document.createElement('span');
+            enterBadge.className = 'enter-prompt-badge';
+            enterBadge.innerText = '[ ENTER, OK ou Próximo Passo ]';
+
+            inputWrapper.appendChild(inputEl);
+            inputWrapper.appendChild(btnConfirm);
+            inputWrapper.appendChild(enterBadge);
+            consoleBox.appendChild(inputWrapper);
+
+            inputEl.focus();
+            inputEl.select();
+
+            atualizarExplicacao(`Instrução: leia(${varNome})`, `Informe o valor para '${varNome}'. Você pode pressionar ENTER, clicar em OK ou no botão "Próximo Passo" para continuar.`);
+
+            const processarEntrada = () => {
+                if (!aguardandoInput) return;
+
+                let valor = inputEl.value.trim();
+                if (valor === "" || isNaN(valor)) valor = "0";
+                
+                memoriaRAM.vars[varNome].val = parseFloat(valor).toFixed(2);
+                memoriaRAM.vars[varNome].updated = true;
+
+                inputWrapper.remove();
+                consoleTexto += memoriaRAM.vars[varNome].val + "\n";
+                consoleBox.innerText = consoleTexto;
+
+                renderizarMemoria();
+                aguardandoInput = false;
+                callbackInputPendente = null;
+
+                proximoPasso();
+            };
+
+            callbackInputPendente = processarEntrada;
+
+            inputEl.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    processarEntrada();
+                }
+            });
+
+            btnConfirm.addEventListener('click', processarEntrada);
+        }
+
+        function reiniciarSimulacao() {
+            passoAtual = 0;
+            emExecucao = false;
+            aguardandoInput = false;
+            callbackInputPendente = null;
+            consoleTexto = "Aguardando início...";
+            
+            memoriaRAM.declarado = false;
+            for (let k in memoriaRAM.vars) {
+                memoriaRAM.vars[k].val = null;
+                memoriaRAM.vars[k].updated = false;
+            }
+
+            document.getElementById('btnIniciar').disabled = false;
+            document.getElementById('btnProximo').disabled = true;
+            document.getElementById('consoleOutput').innerText = consoleTexto;
+
+            renderizarCodigo();
+            renderizarMemoria();
+            atualizarExplicacao("Explicação da Instrução", "Clique no botão \"Iniciar Execução\" para avançar linha a linha pelo algoritmo.");
+        }
+
+        // Inicialização na abertura
+        renderizarCodigo();
+    </script>
+</body>
+</html>

@@ -23,115 +23,122 @@
 
         header {
             background: linear-gradient(135deg, #4a0e17, #2b080d);
-            padding: 30px 20px;
+            padding: 20px 15px;
             text-align: center;
             border-bottom: 3px solid #721c24;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
         header h1 {
-            font-size: 2rem;
+            font-size: 1.6rem;
             color: #f8c0c8;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         header p {
             color: #e2c0c5;
-            font-size: 1rem;
+            font-size: 0.9rem;
             max-width: 600px;
             margin: 0 auto;
         }
 
         .container {
-            width: 92%;
+            width: 94%;
             max-width: 1200px;
-            margin: 30px auto;
+            margin: 20px auto;
             flex-grow: 1;
-            padding-bottom: 30px;
+            padding-bottom: 20px;
         }
 
+        /* AJUSTADO: Reduzida a largura mínima de 300px para 220px para caberem mais colunas */
         .grid-aulas {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
         }
 
+        /* AJUSTADO: Padding interno e sombras reduzidos */
         .card {
             background-color: #ffffff;
             border: 1px solid #e8dadc;
-            border-radius: 12px;
-            padding: 20px;
+            border-radius: 10px;
+            padding: 14px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-            box-shadow: 0 4px 12px rgba(74, 14, 23, 0.05);
+            box-shadow: 0 2px 8px rgba(74, 14, 23, 0.05);
         }
 
         .card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-3px);
             border-color: #801b2c;
-            box-shadow: 0 8px 20px rgba(128, 27, 44, 0.12);
+            box-shadow: 0 6px 14px rgba(128, 27, 44, 0.12);
         }
 
+        /* AJUSTADO: Badge menor e mais discreta */
         .card-badge {
             align-self: flex-start;
             background-color: #fcebeb;
             color: #721c24;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.68rem;
             font-weight: bold;
             text-transform: uppercase;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             border: 1px solid #f5c6cb;
         }
 
+        /* AJUSTADO: Título e texto do card com fontes ligeiramente menores */
         .card h2 {
-            font-size: 1.25rem;
+            font-size: 1.05rem;
             color: #3b0b12;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+            line-height: 1.25;
         }
 
         .card p {
             color: #5a4b4e;
-            font-size: 0.9rem;
-            line-height: 1.5;
-            margin-bottom: 16px;
+            font-size: 0.82rem;
+            line-height: 1.4;
+            margin-bottom: 12px;
             flex-grow: 1;
         }
 
+        /* AJUSTADO: Botão mais compacto */
         .card-btn {
             display: inline-block;
             text-align: center;
             background-color: #6b1120;
             color: #ffffff;
             text-decoration: none;
-            padding: 10px 16px;
-            border-radius: 8px;
+            padding: 7px 12px;
+            border-radius: 6px;
             font-weight: bold;
             transition: background-color 0.2s ease, box-shadow 0.2s ease;
             border: none;
             cursor: pointer;
-            font-size: 0.95rem;
+            font-size: 0.82rem;
             font-family: inherit;
+            width: 100%;
         }
 
         .card-btn:hover {
             background-color: #85182a;
-            box-shadow: 0 4px 12px rgba(107, 17, 32, 0.25);
+            box-shadow: 0 3px 8px rgba(107, 17, 32, 0.25);
         }
 
         footer {
             text-align: center;
-            padding: 20px;
+            padding: 15px;
             background-color: #ebdada;
             color: #5c3a3e;
             border-top: 1px solid #d8c2c4;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             margin-top: auto;
-            padding-bottom: calc(20px + env(safe-area-inset-bottom));
+            padding-bottom: calc(15px + env(safe-area-inset-bottom));
         }
 
         /* ESTILOS DOS MODAIS */
@@ -290,7 +297,6 @@
             cursor: not-allowed;
         }
 
-        /* REORGANIZAÇÃO EM COLUNA VERTICAL */
         .visualg-layout {
             display: flex;
             flex-direction: column;
@@ -339,7 +345,6 @@
             font-weight: bold;
         }
 
-        /* Syntax highlighting para INSTRUÇÕES do VisuAlg */
         .kw-instruction { color: #569cd6; font-weight: bold; }
         .kw-type { color: #4ec9b0; font-weight: bold; }
         .kw-comment { color: #6a9955; }
@@ -387,7 +392,6 @@
             word-break: break-all;
         }
 
-        /* Destaque para o prompt de Enter */
         .enter-prompt-badge {
             display: inline-block;
             background-color: #ff9800;
@@ -405,7 +409,6 @@
             100% { opacity: 1; }
         }
 
-        /* REPRESENTAÇÃO DE MEMÓRIA (RAM) */
         .memory-box {
             background-color: #181818;
             border-radius: 8px;
@@ -520,7 +523,7 @@
                 <div>
                     <span class="card-badge">Aula 01</span>
                     <h2>Fundamentos da Computação</h2>
-                    <p>Visão geral sobre o funcionamento dos computadores, programas, algoritmos e classificação de linguagens de programação.</p>
+                    <p>Visão geral sobre computadores, programas, algoritmos e linguagens.</p>
                 </div>
                 <button class="card-btn" onclick="openModal('modalFundamentos')">Acessar Aula →</button>
             </div>
@@ -530,17 +533,17 @@
                 <div>
                     <span class="card-badge">Aula 02</span>
                     <h2>Lógica de Programação</h2>
-                    <p>Conceitos essenciais de abstração, álgebra booleana, fluxogramas, operadores, testes de mesa e refatoração.</p>
+                    <p>Abstração, álgebra booleana, fluxogramas, operadores e refatoração.</p>
                 </div>
                 <button class="card-btn" onclick="openModal('modalLogica')">Acessar Aula →</button>
             </div>
 
-            <!-- Card 3 (Simulador VisuAlg - Soma) -->
+            <!-- Card 3 -->
             <div class="card">
                 <div>
                     <span class="card-badge">Aula 03</span>
-                    <h2>Algoritmo de Soma no VisuAlg</h2>
-                    <p>Simulador interativo do VisuAlg com execução linha a linha, ponteiro de execução e representação de memória RAM.</p>
+                    <h2>Algoritmo de Soma (VisuAlg)</h2>
+                    <p>Simulador interativo com execução linha a linha e memória RAM.</p>
                 </div>
                 <button class="card-btn" onclick="openModal('modalVisualg')">Acessar Aula →</button>
             </div>
@@ -549,8 +552,8 @@
             <div class="card">
                 <div>
                     <span class="card-badge">Aula 04</span>
-                    <h2>Algorito média de aluno</h2>
-                    <p>Exemplo de algoritmo que solicita nota de atividade e avaliação e calcula média.</p>
+                    <h2>Média de Aluno</h2>
+                    <p>Calcula a média a partir da nota de atividade e avaliação.</p>
                 </div>
                 <a href="algmedia.html" class="card-btn">Acessar Aula →</a>
             </div>
@@ -559,8 +562,8 @@
             <div class="card">
                 <div>
                     <span class="card-badge">Aula 05</span>
-                    <h2>Algoritmo calculo de salário</h2>
-                    <p>Calculo de salário com desconto de faltas e acréscimo de horas extras</p>
+                    <h2>Cálculo de Salário</h2>
+                    <p>Desconto de faltas e acréscimo de horas extras.</p>
                 </div>
                 <a href="algcalsal.html" class="card-btn">Acessar Aula →</a>
             </div>
@@ -569,10 +572,66 @@
             <div class="card">
                 <div>
                     <span class="card-badge">Aula 06</span>
-                    <h2>Algoritmo calculo de frequência</h2>
-                    <p>Calcula a frequência de um aluno em uma disciplina.</p>
+                    <h2>Cálculo de Frequência</h2>
+                    <p>Calcula a frequência do aluno na disciplina.</p>
                 </div>
                 <a href="algfreq.html" class="card-btn">Acessar Aula →</a>
+            </div>
+
+            <!-- Card 7 -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Aula 07</span>
+                    <h2>Área e Perímetro</h2>
+                    <p>Calcula a área e o perímetro de um terreno.</p>
+                </div>
+                <a href="algfreq.html" class="card-btn">Acessar Aula →</a>
+            </div>
+
+            <!-- Card 8 -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Aula 07</span>
+                    <h2>Estrutura condicional Se</h2>
+                    <p>Demonstra o uso de instruções condicionais em Algoritmos.</p>
+                </div>
+                <a href="algEstSe.html" class="card-btn">Acessar Aula →</a>
+            </div>
+            <!-- Card 9 -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Aula 07</span>
+                    <h2>Laço de repetição Para</h2>
+                    <p>Demonstra o uso de instrução Para (laço) em Algoritmos.</p>
+                </div>
+                <a href="algEstPara.html" class="card-btn">Acessar Aula →</a>
+            </div>
+            <!-- Card 10 -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Aula 07</span>
+                    <h2>Simulador de Fluxograma</h2>
+                    <p>Fluxograma para somar dois números.</p>
+                </div>
+                <a href="fluxograma.html" class="card-btn">Acessar Aula →</a>
+            </div>
+            <!-- Card 11 -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Aula 07</span>
+                    <h2>Simulador de Fluxograma</h2>
+                    <p>Fluxograma para identificar o maior entre 3 números.</p>
+                </div>
+                <a href="fluxoEnadeada.html" class="card-btn">Acessar Aula →</a>
+            </div>
+            <!-- Card 12 -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Aula 07</span>
+                    <h2>Simulador de Fluxograma</h2>
+                    <p>Fluxograma tabuada do 5.</p>
+                </div>
+                <a href="fluxoTabuada.html" class="card-btn">Acessar Aula →</a>
             </div>
 
         </div>
@@ -586,7 +645,6 @@
                 <button class="modal-close" onclick="closeModal('modalFundamentos')">&times;</button>
             </div>
             <div class="modal-body">
-                
                 <div class="topic-group">
                     <div class="topic-title">1.1. Funcionamento de um computador</div>
                     <div class="topic-desc">
@@ -596,12 +654,10 @@
 
                 <div class="topic-group">
                     <div class="topic-title">1.2. Programas de computador</div>
-                    
                     <div class="subtopic-title">1.2.1. Definição</div>
                     <div class="topic-desc">
                         Um programa de computador é uma sequência lógica e estruturada de instruções escritas em uma linguagem específica, projetada para ser executada pelo hardware a fim de realizar uma tarefa ou resolver um problema.
                     </div>
-
                     <div class="subtopic-title">1.2.2. Tipos</div>
                     <div class="topic-desc">
                         Os programas dividem-se principalmente em:
@@ -611,7 +667,6 @@
                             <li><span>Utilitários e Ferramentas:</span> Auxiliam na manutenção do sistema ou no desenvolvimento (ex: antivírus, compiladores, IDEs).</li>
                         </ul>
                     </div>
-
                     <div class="subtopic-title">1.2.3. Algoritmos</div>
                     <div class="topic-desc">
                         Um algoritmo é uma sequência finita de passos claros, bem definidos e não ambíguos para a solução de um problema (semelhante a uma receita de bolo). É a base conceitual antes de escrever o código em qualquer linguagem.
@@ -620,31 +675,26 @@
 
                 <div class="topic-group">
                     <div class="topic-title">1.3. Linguagens de programação</div>
-                    
                     <div class="subtopic-title">1.3.1. Baixo nível</div>
                     <div class="topic-desc">
                         Linguagens próximas da arquitetura física da máquina (como <span>Código de Máquina</span> e <span>Assembly</span>). Oferecem alto controle de hardware e rápida execução, mas são difíceis de ler, escrever e não são portáveis.
                     </div>
-
                     <div class="subtopic-title">1.3.2. Alto nível</div>
                     <div class="topic-desc">
                         Linguagens com sintaxe próxima da linguagem humana (geralmente em inglês), como <span>Python</span>, <span>C#</span> ou <span>Java</span>. São fáceis de aprender, portáveis e abstraem a complexidade do hardware.
                     </div>
-
                     <div class="subtopic-title">1.3.3. Interpretada</div>
                     <div class="topic-desc">
                         O código-fonte é traduzido e executado linha a linha em tempo real por um <span>Interpretador</span>. Exemplo principal: <strong>Python</strong> e JavaScript.
                     </div>
-
                     <div class="subtopic-title">1.3.4. Compilada</div>
                     <div class="topic-desc">
                         Todo o código-fonte é traduzido de uma só vez por um <span>Compilador</span>, gerando um arquivo executável direto na linguagem de máquina (ex: C, C++, Go).
                     </div>
                 </div>
-
             </div>
             <div class="modal-footer">
-                <button class="card-btn" onclick="closeModal('modalFundamentos')">Fechar</button>
+                <button class="card-btn" style="width: auto;" onclick="closeModal('modalFundamentos')">Fechar</button>
             </div>
         </div>
     </div>
@@ -657,7 +707,6 @@
                 <button class="modal-close" onclick="closeModal('modalLogica')">&times;</button>
             </div>
             <div class="modal-body">
-                
                 <div class="topic-group">
                     <div class="topic-title">2.1. Abstração lógica</div>
                     <div class="topic-desc">
@@ -681,7 +730,6 @@
 
                 <div class="topic-group">
                     <div class="topic-title">2.4. Operadores</div>
-                    
                     <div class="subtopic-title">2.4.1. Aritméticos</div>
                     <div class="topic-desc">
                         Símbolos usados para realizar cálculos matemáticos:
@@ -691,7 +739,6 @@
                             <li><span>Exponenciação (**)</span></li>
                         </ul>
                     </div>
-
                     <div class="subtopic-title">2.4.2. Relacionais</div>
                     <div class="topic-desc">
                         Utilizados para comparar dois valores, retornando um resultado booleano (True ou False):
@@ -701,7 +748,6 @@
                             <li><span>Maior ou igual (>=), Menor ou igual (<=)</span></li>
                         </ul>
                     </div>
-
                     <div class="subtopic-title">2.4.3. Lógicos</div>
                     <div class="topic-desc">
                         Combinam ou invertem expressões booleanas:
@@ -711,7 +757,6 @@
                             <li><span>not (NÃO):</span> Inverte o valor lógico (True vira False e vice-versa).</li>
                         </ul>
                     </div>
-
                     <div class="subtopic-title">2.4.4. Expressões</div>
                     <div class="topic-desc">
                         Combinações de variáveis, constantes e operadores que são avaliadas pelo computador para produzir um único valor final. Podem ser aritméticas (resultam em número) ou lógicas/booleanas (resultam em True/False).
@@ -721,7 +766,7 @@
                 <div class="topic-group">
                     <div class="topic-title">2.5. Teste de mesa</div>
                     <div class="topic-desc">
-                        Processo manual (geralmente feito no papel ou em planilha) no qual o programador segue passo a passo as instruções do algoritmo, anotando o valor de cada variável a cada linha executada. Serve para validar a lógica e encontrar erros (bugs) sem precisar rodar o código.
+                        Processo manual no qual o programador segue passo a passo as instruções do algoritmo, anotando o valor de cada variável a cada linha executada. Serve para validar a lógica e encontrar erros (bugs) sem precisar rodar o código.
                     </div>
                 </div>
 
@@ -731,15 +776,14 @@
                         Prática de reestruturar e melhorar a organização interna do código existente (tornando-o mais limpo, legível e eficiente) <strong>sem alterar seu comportamento externo</strong> ou seu resultado final.
                     </div>
                 </div>
-
             </div>
             <div class="modal-footer">
-                <button class="card-btn" onclick="closeModal('modalLogica')">Fechar</button>
+                <button class="card-btn" style="width: auto;" onclick="closeModal('modalLogica')">Fechar</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL 3: SIMULADOR VISUALG (SOMA DE DOIS NÚMEROS) -->
+    <!-- MODAL 3: SIMULADOR VISUALG -->
     <div class="modal-overlay" id="modalVisualg">
         <div class="modal-content">
             <div class="modal-header">
@@ -747,7 +791,6 @@
                 <button class="modal-close" onclick="closeModal('modalVisualg')">&times;</button>
             </div>
             <div class="modal-body">
-                
                 <div class="visualg-controls">
                     <button class="btn-sim" id="btnIniciar" onclick="iniciarSimulacao()">▶ Iniciar Execução</button>
                     <button class="btn-sim" id="btnProximo" onclick="proximoPasso()" disabled>⏭ Próximo Passo</button>
@@ -755,20 +798,14 @@
                 </div>
 
                 <div class="visualg-layout">
-                    <!-- Editor de Código VisuAlg (Expandido para 100% de largura) -->
-                    <div class="code-box" id="codeEditor">
-                        <!-- Gerado dinamicamente -->
-                    </div>
+                    <div class="code-box" id="codeEditor"></div>
 
-                    <!-- Coluna Vertical Abaixo do Editor: Console e Memória RAM -->
                     <div class="vertical-panel">
-                        <!-- Console de Saída -->
                         <div class="console-box">
                             <div class="panel-header">Console de Saída</div>
                             <div class="console-output" id="consoleOutput">Aguardando início...</div>
                         </div>
 
-                        <!-- Estado da Memória (RAM) -->
                         <div class="memory-box">
                             <div class="panel-header">Memória RAM (Variáveis)</div>
                             <div class="memory-grid" id="memoryGrid">
@@ -778,15 +815,13 @@
                     </div>
                 </div>
 
-                <!-- Caixa de Explicação da Instrução Atual -->
                 <div class="explanation-box">
                     <h4 id="expTitle">Explicação da Instrução</h4>
                     <p id="expText">Clique no botão "Iniciar Execução" para avançar linha a linha pelo algoritmo.</p>
                 </div>
-
             </div>
             <div class="modal-footer">
-                <button class="card-btn" onclick="closeModal('modalVisualg')">Fechar</button>
+                <button class="card-btn" style="width: auto;" onclick="closeModal('modalVisualg')">Fechar</button>
             </div>
         </div>
     </div>
@@ -796,7 +831,15 @@
     </footer>
 
     <script>
-        // --- ESTRUTURA E ESTADO DO SIMULADOR VISUALG ---
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // Script do simulador VisuAlg
         const codigoAlgoritmo = [
             { id: 1, text: 'algoritmo "SomaDoisNumeros"', expTitle: 'Instrução: algoritmo', expText: 'Palavra reservada que define o nome do programa no VisuAlg.' },
             { id: 2, text: '// Disciplina  : Lógica de Programação', expTitle: 'Comentário (//)', expText: 'Linhas com // são ignoradas pelo interpretador e servem para documentar o código.' },
@@ -812,7 +855,6 @@
             { id: 12, text: 'fimalgoritmo', expTitle: 'Instrução: fimalgoritmo', expText: 'Finaliza a execução do programa.' }
         ];
 
-        // Estado das variáveis na memória RAM
         let memoriaRAM = {
             declarado: false,
             vars: {
@@ -824,240 +866,126 @@
 
         let passoAtual = 0;
         let emExecucao = false;
-        let aguardandoInput = false;
-        let consoleTexto = "";
 
-        function formatarApenasInstrucoesVisuAlg(str) {
-            let res = str;
-            if (res.trim().startsWith('//')) {
-                return `<span class="kw-comment">${res}</span>`;
-            }
-            res = res.replace(/\b(algoritmo|var|inicio|fimalgoritmo|escreva|escreval|leia)\b/gi, '<span class="kw-instruction">$1</span>');
-            res = res.replace(/\b(real|inteiro|caractere|logico)\b/gi, '<span class="kw-type">$1</span>');
-            return res;
-        }
-
-        function renderizarCodigo() {
+        function renderEditor() {
             const editor = document.getElementById('codeEditor');
             editor.innerHTML = '';
             codigoAlgoritmo.forEach((linha, index) => {
                 const lineDiv = document.createElement('div');
-                lineDiv.className = 'code-line' + (index === passoAtual - 1 ? ' active' : '');
+                lineDiv.className = `code-line ${index === passoAtual - 1 ? 'active' : ''}`;
                 lineDiv.id = `line-${index + 1}`;
                 
-                const ptr = document.createElement('span');
-                ptr.className = 'code-pointer';
-                ptr.innerText = '➔';
-                
-                const txt = document.createElement('span');
-                txt.innerHTML = formatarApenasInstrucoesVisuAlg(linha.text);
-                
-                lineDiv.appendChild(ptr);
-                lineDiv.appendChild(txt);
+                let textHtml = linha.text
+                    .replace(/(algoritmo|var|inicio|fimalgoritmo|escreva|escreval|leia)/g, '<span class="kw-instruction">$1</span>')
+                    .replace(/(real)/g, '<span class="kw-type">$1</span>')
+                    .replace(/(\/\/.*)/g, '<span class="kw-comment">$1</span>');
+
+                lineDiv.innerHTML = `<span class="code-pointer">➔</span> <span>${textHtml}</span>`;
                 editor.appendChild(lineDiv);
             });
-
-            if (passoAtual > 0) {
-                const activeEl = document.getElementById(`line-${passoAtual}`);
-                if (activeEl) {
-                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
-            }
         }
 
-        function renderizarMemoria() {
-            const grid = document.getElementById('memoryGrid');
-            grid.innerHTML = '';
-
+        function renderMemory() {
+            const memoryGrid = document.getElementById('memoryGrid');
             if (!memoriaRAM.declarado) {
-                grid.innerHTML = '<div style="color: #666; font-size: 0.8rem; font-style: italic;">Nenhuma variável declarada na memória.</div>';
+                memoryGrid.innerHTML = `<div style="color: #666; font-size: 0.8rem; font-style: italic;">Nenhuma variável declarada na memória.</div>`;
                 return;
             }
 
-            for (let [nome, dados] of Object.entries(memoriaRAM.vars)) {
+            memoryGrid.innerHTML = '';
+            for (const [key, item] of Object.entries(memoriaRAM.vars)) {
                 const cell = document.createElement('div');
-                cell.className = 'memory-cell' + (dados.updated ? ' updated' : '');
-                
-                const valStr = dados.val === null ? '<span class="mem-unassigned">não inicializado</span>' : dados.val;
-                
+                cell.className = `memory-cell ${item.updated ? 'updated' : ''}`;
+                const valDisplay = item.val !== null ? item.val : '<span class="mem-unassigned">indefinido</span>';
                 cell.innerHTML = `
-                    <span class="mem-addr">${dados.addr}</span>
-                    <span class="mem-name">${nome}</span>
-                    <span class="mem-val">${valStr}</span>
+                    <span class="mem-addr">${item.addr}</span>
+                    <span class="mem-name">${key}</span>
+                    <span class="mem-val">${valDisplay}</span>
                 `;
-                grid.appendChild(cell);
+                memoryGrid.appendChild(cell);
             }
-        }
-
-        function atualizarExplicacao(titulo, texto) {
-            document.getElementById('expTitle').innerText = titulo;
-            document.getElementById('expText').innerText = texto;
         }
 
         function iniciarSimulacao() {
-            reiniciarSimulacao();
+            passoAtual = 1;
             emExecucao = true;
             document.getElementById('btnIniciar').disabled = true;
             document.getElementById('btnProximo').disabled = false;
-            proximoPasso();
+            document.getElementById('consoleOutput').innerText = '';
+            executarPasso();
         }
 
         function proximoPasso() {
-            if (aguardandoInput || passoAtual >= codigoAlgoritmo.length) return;
-
-            passoAtual++;
-            const instrucao = codigoAlgoritmo[passoAtual - 1];
-            
-            // Limpar destaques da memória
-            for (let k in memoriaRAM.vars) memoriaRAM.vars[k].updated = false;
-
-            renderizarCodigo();
-            atualizarExplicacao(instrucao.expTitle, instrucao.expText);
-
-            // Lógica de execução por linha
-            switch (passoAtual) {
-                case 1:
-                    consoleTexto = "*** Inicio da execução do algoritmo ***\n";
-                    document.getElementById('consoleOutput').innerText = consoleTexto;
-                    break;
-                case 2:
-                    break;
-                case 3:
-                    break;
-                case 4:
-                    memoriaRAM.declarado = true;
-                    renderizarMemoria();
-                    break;
-                case 5:
-                    break;
-                case 6:
-                    consoleTexto += "Digite o primeiro número: ";
-                    document.getElementById('consoleOutput').innerText = consoleTexto;
-                    break;
-                case 7:
-                    solicitarInput('n1');
-                    break;
-                case 8:
-                    consoleTexto += "Digite o segundo número: ";
-                    document.getElementById('consoleOutput').innerText = consoleTexto;
-                    break;
-                case 9:
-                    solicitarInput('n2');
-                    break;
-                case 10:
-                    let v1 = parseFloat(memoriaRAM.vars.n1.val);
-                    let v2 = parseFloat(memoriaRAM.vars.n2.val);
-                    memoriaRAM.vars.soma.val = (v1 + v2).toString();
-                    memoriaRAM.vars.soma.updated = true;
-                    renderizarMemoria();
-                    break;
-                case 11:
-                    consoleTexto += "A soma dos dois números é: " + memoriaRAM.vars.soma.val + "\n";
-                    document.getElementById('consoleOutput').innerText = consoleTexto;
-                    break;
-                case 12:
-                    consoleTexto += "\n*** Fim da execução ***";
-                    document.getElementById('consoleOutput').innerText = consoleTexto;
-                    document.getElementById('btnProximo').disabled = true;
-                    atualizarExplicacao("Execução Concluída", "O algoritmo foi finalizado com sucesso.");
-                    break;
+            if (passoAtual < codigoAlgoritmo.length) {
+                passoAtual++;
+                executarPasso();
             }
         }
 
-        function solicitarInput(varNome) {
-            aguardandoInput = true;
-            document.getElementById('btnProximo').disabled = true;
+        function executarPasso() {
+            renderEditor();
+            const curr = codigoAlgoritmo[passoAtual - 1];
+            document.getElementById('expTitle').innerText = curr.expTitle;
+            document.getElementById('expText').innerText = curr.expText;
 
-            const consoleBox = document.getElementById('consoleOutput');
-            
-            const inputWrapper = document.createElement('span');
-            inputWrapper.className = 'input-wrapper';
+            for (let v in memoriaRAM.vars) memoriaRAM.vars[v].updated = false;
 
-            const inputEl = document.createElement('input');
-            inputEl.type = 'number';
-            inputEl.className = 'input-inline';
-            inputEl.id = 'inputVar';
+            if (curr.id === 4) {
+                memoriaRAM.declarado = true;
+            } else if (curr.id === 7) {
+                document.getElementById('btnProximo').disabled = true;
+                const consoleBox = document.getElementById('consoleOutput');
+                consoleBox.innerHTML += ` <span class="input-wrapper"><input type="number" id="inputN1" class="input-inline" placeholder="num" autofocus><button class="btn-confirm-input" onclick="confirmarInput('n1')">OK</button></span>`;
+            } else if (curr.id === 9) {
+                document.getElementById('btnProximo').disabled = true;
+                const consoleBox = document.getElementById('consoleOutput');
+                consoleBox.innerHTML += ` <span class="input-wrapper"><input type="number" id="inputN2" class="input-inline" placeholder="num" autofocus><button class="btn-confirm-input" onclick="confirmarInput('n2')">OK</button></span>`;
+            } else if (curr.id === 10) {
+                const res = (parseFloat(memoriaRAM.vars.n1.val) || 0) + (parseFloat(memoriaRAM.vars.n2.val) || 0);
+                memoriaRAM.vars.soma.val = res;
+                memoriaRAM.vars.soma.updated = true;
+            } else if (curr.id === 6) {
+                document.getElementById('consoleOutput').innerText = 'Digite o primeiro número: ';
+            } else if (curr.id === 8) {
+                document.getElementById('consoleOutput').innerHTML += '\nDigite o segundo número: ';
+            } else if (curr.id === 11) {
+                document.getElementById('consoleOutput').innerHTML += `\nA soma dos dois números é: ${memoriaRAM.vars.soma.val}\n`;
+            } else if (curr.id === 12) {
+                document.getElementById('btnProximo').disabled = true;
+            }
 
-            const btnConfirm = document.createElement('button');
-            btnConfirm.className = 'btn-confirm-input';
-            btnConfirm.innerText = 'OK';
+            renderMemory();
+        }
 
-            const enterBadge = document.createElement('span');
-            enterBadge.className = 'enter-prompt-badge';
-            enterBadge.innerText = '[ Pressione ENTER ou clique em OK ]';
+        function confirmarInput(varName) {
+            const inputEl = document.getElementById(varName === 'n1' ? 'inputN1' : 'inputN2');
+            const val = inputEl.value !== '' ? inputEl.value : '0';
+            memoriaRAM.vars[varName].val = val;
+            memoriaRAM.vars[varName].updated = true;
 
-            inputWrapper.appendChild(inputEl);
-            inputWrapper.appendChild(btnConfirm);
-            inputWrapper.appendChild(enterBadge);
-            consoleBox.appendChild(inputWrapper);
+            const parent = inputEl.parentElement;
+            parent.outerHTML = `<strong style="color: #fff;">${val}</strong>`;
 
-            inputEl.focus();
-
-            atualizarExplicacao(`Instrução: leia(${varNome})`, `Aguardando entrada. Digite o valor para '${varNome}' e pressione a tecla ENTER no teclado (ou clique em OK) para confirmar.`);
-
-            const processarEntrada = () => {
-                let valor = inputEl.value.trim();
-                if (valor === "") valor = "0";
-
-                memoriaRAM.vars[varNome].val = valor;
-                memoriaRAM.vars[varNome].updated = true;
-
-                inputWrapper.remove();
-                consoleTexto += valor + "\n";
-                consoleBox.innerText = consoleTexto;
-
-                renderizarMemoria();
-                aguardandoInput = false;
-                document.getElementById('btnProximo').disabled = false;
-                proximoPasso();
-            };
-
-            inputEl.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    processarEntrada();
-                }
-            });
-
-            btnConfirm.addEventListener('click', processarEntrada);
+            document.getElementById('btnProximo').disabled = false;
+            renderMemory();
         }
 
         function reiniciarSimulacao() {
             passoAtual = 0;
             emExecucao = false;
-            aguardandoInput = false;
-            consoleTexto = "Aguardando início...";
-            
             memoriaRAM.declarado = false;
-            memoriaRAM.vars.n1.val = null;
-            memoriaRAM.vars.n1.updated = false;
-            memoriaRAM.vars.n2.val = null;
-            memoriaRAM.vars.n2.updated = false;
-            memoriaRAM.vars.soma.val = null;
-            memoriaRAM.vars.soma.updated = false;
-
+            for (let v in memoriaRAM.vars) memoriaRAM.vars[v].val = null;
             document.getElementById('btnIniciar').disabled = false;
             document.getElementById('btnProximo').disabled = true;
-            document.getElementById('consoleOutput').innerText = consoleTexto;
-
-            renderizarCodigo();
-            renderizarMemoria();
-            atualizarExplicacao("Explicação da Instrução", "Clique no botão \"Iniciar Execução\" para avançar linha a linha pelo algoritmo.");
+            document.getElementById('consoleOutput').innerText = 'Aguardando início...';
+            document.getElementById('expTitle').innerText = 'Explicação da Instrução';
+            document.getElementById('expText').innerText = 'Clique no botão "Iniciar Execução" para avançar linha a linha pelo algoritmo.';
+            renderEditor();
+            renderMemory();
         }
 
-        // Funções para controle de Modais
-        function openModal(id) {
-            document.getElementById(id).classList.add('active');
-            if (id === 'modalVisualg') {
-                reiniciarSimulacao();
-            }
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
-        }
-
-        // Inicializar a exibição estática do código ao carregar
-        renderizarCodigo();
+        renderEditor();
+        renderMemory();
     </script>
 </body>
 </html>
