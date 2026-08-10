@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Funções em Python - Execução Passo a Passo</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f4f4;
+            color: #2b1e20;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #4a0e17, #2b080d);
+            padding: 18px 15px;
+            text-align: center;
+            border-bottom: 3px solid #721c24;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 8px 8px 0 0;
+        }
+
+        header h1 {
+            font-size: 1.6rem;
+            color: #f8c0c8;
+            margin-bottom: 4px;
+        }
+
+        header p {
+            color: #e2c0c5;
+            font-size: 0.9rem;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 15px auto;
+            flex-grow: 1;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 6px 18px rgba(74, 14, 23, 0.08);
+            border: 1px solid #e8dadc;
+        }
+
+        .visualg-controls {
+            display: flex;
+            gap: 10px;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e8dadc;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn-sim {
+            background-color: #4a0e17;
+            color: #ffffff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-size: 0.9rem;
+        }
+
+        .btn-sim:hover:not(:disabled) {
+            background-color: #85182a;
+        }
+
+        .btn-sim:disabled {
+            background-color: #a8a8a8;
+            cursor: not-allowed;
+        }
+
+        .btn-step {
+            background-color: #1e7e34;
+        }
+
+        .btn-step:hover:not(:disabled) {
+            background-color: #145a23;
+        }
+
+        .select-exemplo {
+            background-color: #ffffff;
+            color: #4a0e17;
+            border: 2px solid #4a0e17;
+            padding: 9px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+            outline: none;
+            max-width: 100%;
+        }
+
+        .select-exemplo:focus {
+            border-color: #85182a;
+            box-shadow: 0 0 5px rgba(133, 24, 42, 0.4);
+        }
+
+        .visualg-main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 850px) {
+            .visualg-main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel-header {
+            color: #f8c0c8;
+            padding: 10px 14px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            background: linear-gradient(135deg, #4a0e17, #2b080d);
+            border-radius: 7px 7px 0 0;
+        }
+
+        .code-container {
+            background-color: #1e1e1e;
+            border-radius: 0 0 8px 8px;
+            padding: 12px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.92rem;
+            color: #d4d4d4;
+            height: 480px;
+            overflow-y: auto;
+        }
+
+        .code-line {
+            padding: 3px 8px;
+            border-radius: 4px;
+            white-space: pre;
+            display: flex;
+        }
+
+        .line-num {
+            color: #858585;
+            width: 30px;
+            user-select: none;
+            display: inline-block;
+        }
+
+        .line-content {
+            flex-grow: 1;
+        }
+
+        .code-line.active {
+            background-color: #4a0e17;
+            border-left: 4px solid #ff4d6d;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .kw { color: #569cd6; }
+        .fn { color: #dcdcaa; }
+        .num { color: #b5cea8; }
+        .str { color: #ce9178; }
+
+        .debug-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            height: 480px;
+        }
+
+        .debug-box {
+            background-color: #fcf8f8;
+            border: 1px solid #e8dadc;
+            border-radius: 8px;
+            padding: 12px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .debug-box h4 {
+            color: #6b1120;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #e8dadc;
+            padding-bottom: 4px;
+        }
+
+        .var-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .var-table th, .var-table td {
+            text-align: left;
+            padding: 6px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .var-table th {
+            color: #6b1120;
+        }
+
+        .console-output {
+            background-color: #111;
+            color: #4ec9b0;
+            font-family: monospace;
+            padding: 10px;
+            border-radius: 6px;
+            height: 120px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+        }
+
+        .explanation-box {
+            background-color: #fcebeb;
+            border-left: 4px solid #6b1120;
+            padding: 14px 16px;
+            border-radius: 6px;
+            color: #4a0e17;
+            font-size: 0.92rem;
+        }
+
+        .explanation-box h4 {
+            color: #6b1120;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Funções em Python - Do Básico ao Avançado</h1>
+        <p>Aprenda a evolução de funções em Python com 20 exemplos ordenados por nível de complexidade.</p>
+    </header>
+
+    <div class="container">
+        
+        <div class="visualg-controls">
+            <label for="selectExemplo" style="font-weight: bold; color: #4a0e17;">Selecione o Exemplo:</label>
+            <select id="selectExemplo" class="select-exemplo" onchange="selecionarExemploViaMenu(this.value)">
+            </select>
+
+            <button class="btn-sim btn-step" id="btnPasso" onclick="executarPasso()">⏭ Próximo Passo</button>
+            <button class="btn-sim" id="btnReiniciar" onclick="reiniciarSimulacao()">🔄 Reiniciar</button>
+        </div>
+
+        <div class="visualg-main-layout">
+            <div>
+                <div class="panel-header" id="codigoTitulo">Código Fonte Python</div>
+                <div class="code-container" id="codeDisplay"></div>
+            </div>
+
+            <div class="debug-container">
+                <div class="debug-box">
+                    <h4>📊 Variáveis e Pilha de Execução (Memória)</h4>
+                    <table class="var-table">
+                        <thead>
+                            <tr>
+                                <th>Escopo</th>
+                                <th>Variável</th>
+                                <th>Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody id="varTableBody">
+                            <tr><td colspan="3">Nenhuma variável alocada ainda.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="debug-box" style="flex-grow: 0;">
+                    <h4>🖥️ Console de Saída (Output)</h4>
+                    <div class="console-output" id="consoleOutput"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="explanation-box">
+            <h4 id="expTitulo">Instruções</h4>
+            <p id="expTexto">Clique em "Próximo Passo" para iniciar a execução linha por linha do código acima.</p>
+        </div>
+
+    </div>
+
+    <script>
+        const exemplos = [
+            // NÍVEL FÁCIL
+            {
+                id: 0,
+                nome: "🟢 [Fácil 1] Procedimento Sem Parâmetro e Sem Retorno",
+                titulo: "Exemplo 1: Função Simples sem Entrada/Saída",
+                linhasCodigo: [
+                    `<span class="kw">def</span> <span class="fn">exibir_mensagem</span>():`,
+                    `    <span class="fn">print</span>(<span class="str">"Bem-vindo ao curso de Python!"</span>)`,
+                    ``,
+                    `<span class="fn">exibir_mensagem</span>()`,
+                    `<span class="fn">print</span>(<span class="str">"Fim do programa"</span>)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: {}, output: "", explicacao: "Declara a função 'exibir_mensagem' na memória." },
+                    { linha: 3, escopo: "Global", vars: {}, output: "", explicacao: "Chama a função 'exibir_mensagem()'." },
+                    { linha: 1, escopo: "exibir_mensagem()", vars: {}, output: "Bem-vindo ao curso de Python!", explicacao: "Executa print() no corpo da função." },
+                    { linha: 4, escopo: "Global", vars: {}, output: "Fim do programa", explicacao: "Retorna ao escopo global e finaliza." }
+                ]
+            },
+            {
+                id: 1,
+                nome: "🟢 [Fácil 2] Função com 1 Parâmetro",
+                titulo: "Exemplo 2: Passando Parâmetro Simples",
+                linhasCodigo: [
+                    `<span class="kw">def</span> <span class="fn">saudar</span>(nome):`,
+                    `    <span class="fn">print</span>(<span class="str">"Olá,"</span>, nome)`,
+                    ``,
+                    `<span class="fn">saudar</span>(<span class="str">"Maria"</span>)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: {}, output: "", explicacao: "Declara a função 'saudar'." },
+                    { linha: 3, escopo: "Global", vars: {}, output: "", explicacao: "Chama 'saudar' enviando o valor 'Maria'." },
+                    { linha: 1, escopo: "saudar()", vars: { "nome (local)": '"Maria"' }, output: "Olá, Maria", explicacao: "A variável local 'nome' recebe 'Maria' e imprime a saudação." }
+                ]
+            },
+            {
+                id: 2,
+                nome: "🟢 [Fácil 3] Função com Retorno Simples",
+                titulo: "Exemplo 3: Retornando um Valor Calculado",
+                linhasCodigo: [
+                    `<span class="kw">def</span> <span class="fn">calcular_dobro</span>(numero):`,
+                    `    resultado = numero * <span class="num">2</span>`,
+                    `    <span class="kw">return</span> resultado`,
+                    ``,
+                    `val = <span class="num">5</span>`,
+                    `res = <span class="fn">calcular_dobro</span>(val)`,
+                    `<span class="fn">print</span>(<span class="str">"O dobro é:"</span>, res)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: {}, output: "", explicacao: "Declara 'calcular_dobro'." },
+                    { linha: 4, escopo: "Global", vars: { "val": 5 }, output: "", explicacao: "Define val = 5 no escopo global." },
+                    { linha: 5, escopo: "Global", vars: { "val": 5 }, output: "", explicacao: "Chama calcular_dobro(5)." },
+                    { linha: 1, escopo: "calcular_dobro()", vars: { "val": 5, "numero (local)": 5, "resultado (local)": 10 }, output: "", explicacao: "Calcula 5 * 2 = 10." },
+                    { linha: 2, escopo: "calcular_dobro()", vars: { "val": 5, "numero (local)": 5, "resultado (local)": 10 }, output: "", explicacao: "Retorna o valor 10." },
+                    { linha: 5, escopo: "Global", vars: { "val": 5, "res": 10 }, output: "", explicacao: "A variável 'res' recebe o retorno (10)." },
+                    { linha: 6, escopo: "Global", vars: { "val": 5, "res": 10 }, output: "O dobro é: 10", explicacao: "Imprime o resultado no console." }
+                ]
+            },
+            {
+                id: 3,
+                nome: "🟢 [Fácil 4] Múltiplos Parâmetros",
+                titulo: "Exemplo 4: Somando Dois Números",
+                linhasCodigo: [
+                    `<span class="kw">def</span> <span class="fn">somar</span>(a, b):`,
+                    `    <span class="kw">return</span> a + b`,
+                    ``,
+                    `total = <span class="fn">somar</span>(<span class="num">12</span>, <span class="num">8</span>)`,
+                    `<span class="fn">print</span>(<span class="str">"Soma:"</span>, total)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: {}, output: "", explicacao: "Declara 'somar'." },
+                    { linha: 3, escopo: "Global", vars: {}, output: "", explicacao: "Chama somar(12, 8)." },
+                    { linha: 1, escopo: "somar()", vars: { "a (local)": 12, "b (local)": 8 }, output: "", explicacao: "Retorna a + b (20)." },
+                    { linha: 3, escopo: "Global", vars: { "total": 20 }, output: "", explicacao: "Guarda 20 na variável global 'total'." },
+                    { linha: 4, escopo: "Global", vars: { "total": 20 }, output: "Soma: 20", explicacao: "Exibe a soma no console." }
+                ]
+            },
+            {
+                id: 4,
+                nome: "🟢 [Fácil 5] Parâmetros Opcionais (Default)",
+                titulo: "Exemplo 5: Valoração Padrão",
+                linhasCodigo: [
+                    `<span class="kw">def</span> <span class="fn">saudacao</span>(nome, msg=<span class="str">"Olá"</span>):`,
+                    `    <span class="kw">return</span> msg + <span class="str">", "</span> + nome`,
+                    ``,
+                    `t1 = <span class="fn">saudacao</span>(<span class="str">"Ana"</span>)`,
+                    `t2 = <span class="fn">saudacao</span>(<span class="str">"Pedro"</span>, <span class="str">"Bom dia"</span>)`,
+                    `<span class="fn">print</span>(t1)`,
+                    `<span class="fn">print</span>(t2)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: {}, output: "", explicacao: "Declara 'saudacao' com padrão msg='Olá'." },
+                    { linha: 3, escopo: "Global", vars: {}, output: "", explicacao: "Chama sem passar 'msg'." },
+                    { linha: 1, escopo: "saudacao()", vars: { "nome (local)": '"Ana"', "msg (local)": '"Olá"' }, output: "", explicacao: "Usa o valor padrão 'Olá'." },
+                    { linha: 3, escopo: "Global", vars: { "t1": '"Olá, Ana"' }, output: "", explicacao: "Guarda o resultado em t1." },
+                    { linha: 4, escopo: "Global", vars: { "t1": '"Olá, Ana"' }, output: "", explicacao: "Chama passando msg='Bom dia'." },
+                    { linha: 1, escopo: "saudacao()", vars: { "t1": '"Olá, Ana"', "nome (local)": '"Pedro"', "msg (local)": '"Bom dia"' }, output: "", explicacao: "Sobrescreve o padrão com 'Bom dia'." },
+                    { linha: 4, escopo: "Global", vars: { "t1": '"Olá, Ana"', "t2": '"Bom dia, Pedro"' }, output: "", explicacao: "Guarda o resultado em t2." },
+                    { linha: 5, escopo: "Global", vars: { "t1": '"Olá, Ana"', "t2": '"Bom dia, Pedro"' }, output: "Olá, Ana", explicacao: "Imprime t1." },
+                    { linha: 6, escopo: "Global", vars: { "t1": '"Olá, Ana"', "t2": '"Bom dia, Pedro"' }, output: "Bom dia, Pedro", explicacao: "Imprime t2." }
+                ]
+            },
+
+            // NÍVEL MÉDIO
+            {
+                id: 5,
+                nome: "🟡 [Médio 6] Estrutura Condicional Interna",
+                titulo: "Exemplo 6: Verificação Par/Ímpar",
+                linhasCodigo: [
+                    `<span class="kw">def</span> <span class="fn">eh_par</span>(numero):`,
+                    `    <span class="kw">if</span> numero % <span class="num">2</span> == <span class="num">0</span>:`,
+                    `        <span class="kw">return</span> <span class="kw">True</span>`,
+                    `    <span class="kw">return</span> <span class="kw">False</span>`,
+                    ``,
+                    `res = <span class="fn">eh_par</span>(<span class="num">7</span>)`,
+                    `<span class="fn">print</span>(<span class="str">"7 é par?"</span>, res)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: {}, output: "", explicacao: "Define a função 'eh_par'." },
+                    { linha: 5, escopo: "Global", vars: {}, output: "", explicacao: "Chama eh_par(7)." },
+                    { linha: 1, escopo: "eh_par()", vars: { "numero (local)": 7 }, output: "", explicacao: "Avalia 7 % 2 == 0 (Falso)." },
+                    { linha: 3, escopo: "eh_par()", vars: { "numero (local)": 7 }, output: "", explicacao: "Executa a linha de retorno False." },
+                    { linha: 5, escopo: "Global", vars: { "res": false }, output: "", explicacao: "Atribui False a 'res'." },
+                    { linha: 6, escopo: "Global", vars: { "res": false }, output: "7 é par? False", explicacao: "Imprime o resultado." }
+                ]
+            },
+            {
+                id: 6,
+                nome: "🟡 [Médio 7] Múltiplos Retornos (Tuplas)",
+                titulo: "Exemplo 7: Retornando Mais de Um Valor",
+                linhasCodigo: [
+                    `<span class="kw">def</span> <span class="fn">min_max</span>(a, b):`,
+                    `    <span class="kw">if</span> a < b:`,
+                    `        <span class="kw">return</span> a, b`,
+                    `    <span class="kw">return</span> b, a`,
+                    ``,
+                    `menor, maior = <span class="fn">min_max</span>(<span class="num">15</span>, <span class="num">9</span>)`,
+                    `<span class="fn">print</span>(<span class="str">"Menor:"</span>, menor, <span class="str">"Maior:"</span>, maior)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: {}, output: "", explicacao: "Define a função 'min_max'." },
+                    { linha: 5, escopo: "Global", vars: {}, output: "", explicacao: "Chama min_max(15, 9)." },
+                    { linha: 1, escopo: "min_max()", vars: { "a (local)": 15, "b (local)": 9 }, output: "", explicacao: "Compara 15 < 9 (Falso)." },
+                    { linha: 3, escopo: "min_max()", vars: { "a (local)": 15, "b (local)": 9 }, output: "", explicacao: "Retorna a tupla (9, 15)." },
+                    { linha: 5, escopo: "Global", vars: { "menor": 9, "maior": 15 }, output: "", explicacao: "Desempacota o retorno nas variáveis 'menor' e 'maior'." },
+                    { linha: 6, escopo: "Global", vars: { "menor": 9, "maior": 15 }, output: "Menor: 9 Maior: 15", explicacao: "Exibe no console." }
+                ]
+            },
+            {
+                id: 7,
+                nome: "🟡 [Médio 8] Escopo Local vs Escopo Global",
+                titulo: "Exemplo 8: Modificação de Escopo",
+                linhasCodigo: [
+                    `x = <span class="num">100</span>`,
+                    ``,
+                    `<span class="kw">def</span> <span class="fn">alterar</span>():`,
+                    `    x = <span class="num">10</span>`,
+                    `    <span class="fn">print</span>(<span class="str">"Local:"</span>, x)`,
+                    ``,
+                    `<span class="fn">alterar</span>()`,
+                    `<span class="fn">print</span>(<span class="str">"Global:"</span>, x)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: { "x (global)": 100 }, output: "", explicacao: "Define a variável global x = 100." },
+                    { linha: 2, escopo: "Global", vars: { "x (global)": 100 }, output: "", explicacao: "Define a função 'alterar'." },
+                    { linha: 6, escopo: "Global", vars: { "x (global)": 100 }, output: "", explicacao: "Chama alterar()." },
+                    { linha: 3, escopo: "alterar()", vars: { "x (global)": 100, "x (local)": 10 }, output: "", explicacao: "Cria uma nova variável local 'x' = 10 sem alterar a global." },
+                    { linha: 4, escopo: "alterar()", vars: { "x (global)": 100, "x (local)": 10 }, output: "Local: 10", explicacao: "Imprime o x local." },
+                    { linha: 6, escopo: "Global", vars: { "x (global)": 100 }, output: "", explicacao: "Destrói o escopo local." },
+                    { linha: 7, escopo: "Global", vars: { "x (global)": 100 }, output: "Global: 100", explicacao: "O x global se manteve 100." }
+                ]
+            },
+            {
+                id: 8,
+                nome: "🟡 [Médio 9] Loop Acumulador em Função",
+                titulo: "Exemplo 9: Fatorial com Loop 'for'",
+                linhasCodigo: [
+                    `<span class="kw">def</span> <span class="fn">fatorial</span>(n):`,
+                    `    fat = <span class="num">1</span>`,
+                    `    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, n + <span class="num">1</span>):`,
+                    `        fat = fat * i`,
+                    `    <span class="kw">return</span> fat`,
+                    ``,
+                    `res = <span class="fn">fatorial</span>(<span class="num">3</span>)`,
+                    `<span class="fn">print</span>(<span class="str">"Fat(3):"</span>, res)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: {}, output: "", explicacao: "Define a função 'fatorial'." },
+                    { linha: 6, escopo: "Global", vars: {}, output: "", explicacao: "Chama fatorial(3)." },
+                    { linha: 1, escopo: "fatorial()", vars: { "n (local)": 3, "fat (local)": 1 }, output: "", explicacao: "Inicia fat = 1." },
+                    { linha: 3, escopo: "fatorial()", vars: { "n (local)": 3, "fat (local)": 1, "i (local)": 1 }, output: "", explicacao: "fat = 1 * 1 = 1." },
+                    { linha: 3, escopo: "fatorial()", vars: { "n (local)": 3, "fat (local)": 2, "i (local)": 2 }, output: "", explicacao: "fat = 1 * 2 = 2." },
+                    { linha: 3, escopo: "fatorial()", vars: { "n (local)": 3, "fat (local)": 6, "i (local)": 3 }, output: "", explicacao: "fat = 2 * 3 = 6." },
+                    { linha: 4, escopo: "fatorial()", vars: { "n (local)": 3, "fat (local)": 6 }, output: "", explicacao: "Retorna 6." },
+                    { linha: 6, escopo: "Global", vars: { "res": 6 }, output: "", explicacao: "Guarda 6 em 'res'." },
+                    { linha: 7, escopo: "Global", vars: { "res": 6 }, output: "Fat(3): 6", explicacao: "Exibe o resultado no console." }
+                ]
+            },
+            {
+                id: 9,
+                nome: "🟡 [Médio 10] Processando Listas",
+                titulo: "Exemplo 10: Média de Elementos em uma Lista",
+                linhasCodigo: [
+                    `<span class="kw">def</span> <span class="fn">media_lista</span>(nums):`,
+                    `    soma = <span class="num">0</span>`,
+                    `    <span class="kw">for</span> n <span class="kw">in</span> nums:`,
+                    `        soma += n`,
+                    `    <span class="kw">return</span> soma / <span class="fn">len</span>(nums)`,
+                    ``,
+                    `notas = [<span class="num">7</span>, <span class="num">8</span>, <span class="num">9</span>]`,
+                    `m = <span class="fn">media_lista</span>(notas)`,
+                    `<span class="fn">print</span>(<span class="str">"Média:"</span>, m)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: {}, output: "", explicacao: "Define a função 'media_lista'." },
+                    { linha: 6, escopo: "Global", vars: { "notas": "[7, 8, 9]" }, output: "", explicacao: "Cria a lista de notas." },
+                    { linha: 7, escopo: "Global", vars: { "notas": "[7, 8, 9]" }, output: "", explicacao: "Chama media_lista(notas)." },
+                    { linha: 1, escopo: "media_lista()", vars: { "notas": "[7, 8, 9]", "soma (local)": 0 }, output: "", explicacao: "Inicializa soma = 0." },
+                    { linha: 3, escopo: "media_lista()", vars: { "notas": "[7, 8, 9]", "soma (local)": 24 }, output: "", explicacao: "Soma todos os elementos (7 + 8 + 9 = 24)." },
+                    { linha: 4, escopo: "media_lista()", vars: { "notas": "[7, 8, 9]", "soma (local)": 24 }, output: "", explicacao: "Divide a soma pelo tamanho da lista (24 / 3 = 8.0)." },
+                    { linha: 7, escopo: "Global", vars: { "notas": "[7, 8, 9]", "m": 8.0 }, output: "", explicacao: "Guarda 8.0 na variável 'm'." },
+                    { linha: 8, escopo: "Global", vars: { "notas": "[7, 8, 9]", "m": 8.0 }, output: "Média: 8.0", explicacao: "Exibe no console." }
+                ]
+            },
+
+            // NÍVEL INTERMEDIÁRIO
+            {
+                id: 10,
+                nome: "🟧 [Intermediário 11] Modificação de Objetos Mutáveis",
+                titulo: "Exemplo 11: Alterando Listas por Referência",
+                linhasCodigo: [
+                    `<span class="kw">def</span> <span class="fn">adicionar_item</span>(lista, item):`,
+                    `    lista.append(item)`,
+                    ``,
+                    `frutas = [<span class="str">"Maçã"</span>]`,
+                    `<span class="fn">adicionar_item</span>(frutas, <span class="str">"Banana"</span>)`,
+                    `<span class="fn">print</span>(frutas)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: {}, output: "", explicacao: "Define a função 'adicionar_item'." },
+                    { linha: 3, escopo: "Global", vars: { "frutas": '["Maçã"]' }, output: "", explicacao: "Cria a lista inicial." },
+                    { linha: 4, escopo: "Global", vars: { "frutas": '["Maçã"]' }, output: "", explicacao: "Passa a lista por referência para a função." },
+                    { linha: 1, escopo: "adicionar_item()", vars: { "frutas": '["Maçã", "Banana"]' }, output: "", explicacao: "Altera o objeto original inserindo 'Banana'." },
+                    { linha: 5, escopo: "Global", vars: { "frutas": '["Maçã", "Banana"]' }, output: "['Maçã', 'Banana']", explicacao: "A alteração persiste na lista global." }
+                ]
+            },
+            {
+                id: 11,
+                nome: "🟧 [Intermediário 12] Argumentos Nomeados (Keyword Arguments)",
+                titulo: "Exemplo 12: Chamada com Nomes Explícitos",
+                linhasCodigo: [
+                    `<span class="kw">def</span> <span class="fn">montar_perfil</span>(nome, idade):`,
+                    `    <span class="kw">return</span> nome + <span class="str">" tem "</span> + <span class="fn">str</span>(idade) + <span class="str">" anos"</span>`,
+                    ``,
+                    `p = <span class="fn">montar_perfil</span>(idade=<span class="num">25</span>, nome=<span class="str">"Lucas"</span>)`,
+                    `<span class="fn">print</span>(p)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: {}, output: "", explicacao: "Define a função 'montar_perfil'." },
+                    { linha: 3, escopo: "Global", vars: {}, output: "", explicacao: "Chama a função invertendo a ordem via chave=valor." },
+                    { linha: 1, escopo: "montar_perfil()", vars: { "nome (local)": '"Lucas"', "idade (local)": 25 }, output: "", explicacao: "O Python associa corretamente nome='Lucas' e idade=25." },
+                    { linha: 3, escopo: "Global", vars: { "p": '"Lucas tem 25 anos"' }, output: "", explicacao: "Guarda o texto formatado." },
+                    { linha: 4, escopo: "Global", vars: { "p": '"Lucas tem 25 anos"' }, output: "Lucas tem 25 anos", explicacao: "Exibe no console." }
+                ]
+            },
+            {
+                id: 12,
+                nome: "🟧 [Intermediário 13] Composição de Funções",
+                titulo: "Exemplo 13: Funções que Chamam Funções",
+                linhasCodigo: [
+                    `<span class="kw">def</span> <span class="fn">quadrado</span>(x):`,
+                    `    <span class="kw">return</span> x * x`,
+                    ``,
+                    `<span class="kw">def</span> <span class="fn">soma_quadrados</span>(a, b):`,
+                    `    <span class="kw">return</span> <span class="fn">quadrado</span>(a) + <span class="fn">quadrado</span>(b)`,
+                    ``,
+                    `res = <span class="fn">soma_quadrados</span>(<span class="num">2</span>, <span class="num">3</span>)`,
+                    `<span class="fn">print</span>(<span class="str">"Resultado:"</span>, res)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: {}, output: "", explicacao: "Define 'quadrado'." },
+                    { linha: 3, escopo: "Global", vars: {}, output: "", explicacao: "Define 'soma_quadrados'." },
+                    { linha: 6, escopo: "Global", vars: {}, output: "", explicacao: "Chama soma_quadrados(2, 3)." },
+                    { linha: 4, escopo: "soma_quadrados()", vars: { "a (local)": 2, "b (local)": 3 }, output: "", explicacao: "Chama quadrado(2)." },
+                    { linha: 1, escopo: "quadrado()", vars: { "x (local)": 2 }, output: "", explicacao: "Retorna 4." },
+                    { linha: 4, escopo: "soma_quadrados()", vars: { "a (local)": 2, "b (local)": 3 }, output: "", explicacao: "Chama quadrado(3)." },
+                    { linha: 1, escopo: "quadrado()", vars: { "x (local)": 3 }, output: "", explicacao: "Retorna 9." },
+                    { linha: 4, escopo: "soma_quadrados()", vars: { "a (local)": 2, "b (local)": 3 }, output: "", explicacao: "Soma 4 + 9 = 13 e retorna." },
+                    { linha: 6, escopo: "Global", vars: { "res": 13 }, output: "", explicacao: "Atribui 13 a 'res'." },
+                    { linha: 7, escopo: "Global", vars: { "res": 13 }, output: "Resultado: 13", explicacao: "Imprime no console." }
+                ]
+            },
+            {
+                id: 13,
+                nome: "🟧 [Intermediário 14] Argumentos Arbitrários Posicionais (*args)",
+                titulo: "Exemplo 14: Recebendo N Parâmetros (*args)",
+                linhasCodigo: [
+                    `<span class="kw">def</span> <span class="fn">somar_tudo</span>(*numeros):`,
+                    `    total = <span class="num">0</span>`,
+                    `    <span class="kw">for</span> n <span class="kw">in</span> numeros:`,
+                    `        total += n`,
+                    `    <span class="kw">return</span> total`,
+                    ``,
+                    `s = <span class="fn">somar_tudo</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>)`,
+                    `<span class="fn">print</span>(<span class="str">"Soma total:"</span>, s)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: {}, output: "", explicacao: "Define 'somar_tudo' que aceita múltiplos argumentos." },
+                    { linha: 6, escopo: "Global", vars: {}, output: "", explicacao: "Passa 4 valores posicionais." },
+                    { linha: 1, escopo: "somar_tudo()", vars: { "numeros (args)": "(1, 2, 3, 4)", "total (local)": 0 }, output: "", explicacao: "Agrupa os valores em uma tupla (1, 2, 3, 4)." },
+                    { linha: 3, escopo: "somar_tudo()", vars: { "numeros (args)": "(1, 2, 3, 4)", "total (local)": 10 }, output: "", explicacao: "Soma todos os itens da tupla (1+2+3+4 = 10)." },
+                    { linha: 4, escopo: "somar_tudo()", vars: { "numeros (args)": "(1, 2, 3, 4)", "total (local)": 10 }, output: "", explicacao: "Retorna 10." },
+                    { linha: 6, escopo: "Global", vars: { "s": 10 }, output: "", explicacao: "Guarda 10 em 's'." },
+                    { linha: 7, escopo: "Global", vars: { "s": 10 }, output: "Soma total: 10", explicacao: "Exibe no console." }
+                ]
+            },
+            {
+                id: 14,
+                nome: "🟧 [Intermediário 15] Argumentos Arbitrários Nomeados (**kwargs)",
+                titulo: "Exemplo 15: Múltiplos Argumentos Chave-Valor (**kwargs)",
+                linhasCodigo: [
+                    `<span class="kw">def</span> <span class="fn">exibir_dados</span>(**dados):`,
+                    `    <span class="kw">return</span> dados[<span class="str">"nome"</span>] + <span class="str">" - "</span> + dados[<span class="str">"cargo"</span>]`,
+                    ``,
+                    `info = <span class="fn">exibir_dados</span>(nome=<span class="str">"Ana"</span>, cargo=<span class="str">"Dev"</span>)`,
+                    `<span class="fn">print</span>(info)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: {}, output: "", explicacao: "Define 'exibir_dados' com **kwargs." },
+                    { linha: 3, escopo: "Global", vars: {}, output: "", explicacao: "Chama enviando pares de chave e valor." },
+                    { linha: 1, escopo: "exibir_dados()", vars: { "dados (kwargs)": "{'nome': 'Ana', 'cargo': 'Dev'}" }, output: "", explicacao: "Empacota os argumentos em um dicionário local." },
+                    { linha: 3, escopo: "Global", vars: { "info": '"Ana - Dev"' }, output: "", explicacao: "Retorna a string concatenada." },
+                    { linha: 4, escopo: "Global", vars: { "info": '"Ana - Dev"' }, output: "Ana - Dev", explicacao: "Exibe o texto formatado." }
+                ]
+            },
+
+            // NÍVEL AVANÇADO
+            {
+                id: 15,
+                nome: "🔴 [Avançado 16] Funções Anônimas (Lambda)",
+                titulo: "Exemplo 16: Expressão Lambda",
+                linhasCodigo: [
+                    `cubo = <span class="kw">lambda</span> x: x ** <span class="num">3</span>`,
+                    ``,
+                    `val = cubo(<span class="num">3</span>)`,
+                    `<span class="fn">print</span>(<span class="str">"Cubo de 3:"</span>, val)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: { "cubo": "<function lambda>" }, output: "", explicacao: "Cria uma função anônima de linha única." },
+                    { linha: 2, escopo: "Global", vars: { "cubo": "<function lambda>" }, output: "", explicacao: "Executa a lambda passando 3." },
+                    { linha: 0, escopo: "lambda()", vars: { "x (local)": 3 }, output: "", explicacao: "Avalia 3 ** 3 = 27." },
+                    { linha: 2, escopo: "Global", vars: { "cubo": "<function lambda>", "val": 27 }, output: "", explicacao: "Atribui 27 a 'val'." },
+                    { linha: 3, escopo: "Global", vars: { "cubo": "<function lambda>", "val": 27 }, output: "Cubo de 3: 27", explicacao: "Imprime a saída no console." }
+                ]
+            },
+            {
+                id: 16,
+                nome: "🔴 [Avançado 17] Recursão Simples",
+                titulo: "Exemplo 17: Função que Chama a Si Mesma",
+                linhasCodigo: [
+                    `<span class="kw">def</span> <span class="fn">contagem_regressiva</span>(n):`,
+                    `    <span class="kw">if</span> n <= <span class="num">0</span>:`,
+                    `        <span class="kw">return</span> <span class="str">"Fim"</span>`,
+                    `    <span class="kw">return</span> <span class="fn">str</span>(n) + <span class="str">" "</span> + <span class="fn">contagem_regressiva</span>(n - <span class="num">1</span>)`,
+                    ``,
+                    `txt = <span class="fn">contagem_regressiva</span>(<span class="num">3</span>)`,
+                    `<span class="fn">print</span>(txt)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: {}, output: "", explicacao: "Define a função recursiva." },
+                    { linha: 5, escopo: "Global", vars: {}, output: "", explicacao: "Chama contagem_regressiva(3)." },
+                    { linha: 3, escopo: "contagem_regressiva(3)", vars: { "n": 3 }, output: "", explicacao: "Pilha 1: Aguarda retorno de contagem_regressiva(2)." },
+                    { linha: 3, escopo: "contagem_regressiva(2)", vars: { "n": 2 }, output: "", explicacao: "Pilha 2: Aguarda retorno de contagem_regressiva(1)." },
+                    { linha: 3, escopo: "contagem_regressiva(1)", vars: { "n": 1 }, output: "", explicacao: "Pilha 3: Aguarda retorno de contagem_regressiva(0)." },
+                    { linha: 2, escopo: "contagem_regressiva(0)", vars: { "n": 0 }, output: "", explicacao: "Caso base! Retorna 'Fim'." },
+                    { linha: 5, escopo: "Global", vars: { "txt": '"3 2 1 Fim"' }, output: "", explicacao: "Desempilha concatenando: 3 2 1 Fim." },
+                    { linha: 6, escopo: "Global", vars: { "txt": '"3 2 1 Fim"' }, output: "3 2 1 Fim", explicacao: "Imprime a contagem encadeada." }
+                ]
+            },
+            {
+                id: 17,
+                nome: "🔴 [Avançado 18] Closures (Funções Aninhadas)",
+                titulo: "Exemplo 18: Retornando uma Função Interna",
+                linhasCodigo: [
+                    `<span class="kw">def</span> <span class="fn">multiplicador</span>(fator):`,
+                    `    <span class="kw">def</span> <span class="fn">calcular</span>(numero):`,
+                    `        <span class="kw">return</span> numero * fator`,
+                    `    <span class="kw">return</span> calcular`,
+                    ``,
+                    `dobrar = <span class="fn">multiplicador</span>(<span class="num">2</span>)`,
+                    `res = dobrar(<span class="num">5</span>)`,
+                    `<span class="fn">print</span>(<span class="str">"Resultado:"</span>, res)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: {}, output: "", explicacao: "Define 'multiplicador'." },
+                    { linha: 5, escopo: "Global", vars: {}, output: "", explicacao: "Chama multiplicador(2)." },
+                    { linha: 3, escopo: "multiplicador()", vars: { "fator (fechamento)": 2 }, output: "", explicacao: "Retorna a função interna 'calcular' guardando fator=2." },
+                    { linha: 5, escopo: "Global", vars: { "dobrar": "<function calcular>" }, output: "", explicacao: "A variável 'dobrar' agora é uma função configurada." },
+                    { linha: 6, escopo: "Global", vars: { "dobrar": "<function calcular>" }, output: "", explicacao: "Chama dobrar(5)." },
+                    { linha: 2, escopo: "calcular()", vars: { "numero (local)": 5, "fator (fechamento)": 2 }, output: "", explicacao: "Calcula 5 * 2 = 10 usando o valor preservado no Closure." },
+                    { linha: 6, escopo: "Global", vars: { "dobrar": "<function calcular>", "res": 10 }, output: "", explicacao: "Guarda 10 em 'res'." },
+                    { linha: 7, escopo: "Global", vars: { "dobrar": "<function calcular>", "res": 10 }, output: "Resultado: 10", explicacao: "Imprime no console." }
+                ]
+            },
+            {
+                id: 18,
+                nome: "🔴 [Avançado 19] Funções como Cidadãs de Primeira Classe",
+                titulo: "Exemplo 19: Passando Função como Argumento",
+                linhasCodigo: [
+                    `<span class="kw">def</span> <span class="fn">executar</span>(funcao, valor):`,
+                    `    <span class="kw">return</span> funcao(valor)`,
+                    ``,
+                    `<span class="kw">def</span> <span class="fn">triplo</span>(n):`,
+                    `    <span class="kw">return</span> n * <span class="num">3</span>`,
+                    ``,
+                    `res = <span class="fn">executar</span>(triplo, <span class="num">4</span>)`,
+                    `<span class="fn">print</span>(<span class="str">"Triplo:"</span>, res)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: {}, output: "", explicacao: "Define 'executar'." },
+                    { linha: 3, escopo: "Global", vars: {}, output: "", explicacao: "Define 'triplo'." },
+                    { linha: 6, escopo: "Global", vars: {}, output: "", explicacao: "Passa a função 'triplo' como argumento." },
+                    { linha: 1, escopo: "executar()", vars: { "funcao": "<function triplo>", "valor": 4 }, output: "", explicacao: "Chama a função recebida no parâmetro enviando 4." },
+                    { linha: 4, escopo: "triplo()", vars: { "n (local)": 4 }, output: "", explicacao: "Calcula 4 * 3 = 12." },
+                    { linha: 6, escopo: "Global", vars: { "res": 12 }, output: "", explicacao: "Guarda 12 na variável 'res'." },
+                    { linha: 7, escopo: "Global", vars: { "res": 12 }, output: "Triplo: 12", explicacao: "Exibe no console." }
+                ]
+            },
+            {
+                id: 19,
+                nome: "🔴 [Avançado 20] Decorador Simples (@decorator)",
+                titulo: "Exemplo 20: Decorando Funções",
+                linhasCodigo: [
+                    `<span class="kw">def</span> <span class="fn">decorador</span>(func):`,
+                    `    <span class="kw">def</span> <span class="fn">envelope</span>():`,
+                    `        <span class="fn">print</span>(<span class="str">"--- Início ---"</span>)`,
+                    `        func()`,
+                    `        <span class="fn">print</span>(<span class="str">"--- Fim ---"</span>)`,
+                    `    <span class="kw">return</span> envelope`,
+                    ``,
+                    `@decorador`,
+                    `<span class="kw">def</span> <span class="fn">minha_funcao</span>():`,
+                    `    <span class="fn">print</span>(<span class="str">"Executando..."</span>)`,
+                    ``,
+                    `<span class="fn">minha_funcao</span>()`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: {}, output: "", explicacao: "Define a estrutura do decorador." },
+                    { linha: 7, escopo: "Global", vars: { "minha_funcao": "<function envelope>" }, output: "", explicacao: "O operador @ envelopa 'minha_funcao' dentro de 'decorador'." },
+                    { linha: 11, escopo: "Global", vars: { "minha_funcao": "<function envelope>" }, output: "", explicacao: "Chama 'minha_funcao()' (que agora executa o envelope)." },
+                    { linha: 2, escopo: "envelope()", vars: {}, output: "--- Início ---", explicacao: "Imprime o topo decorativo." },
+                    { linha: 9, escopo: "minha_funcao()", vars: {}, output: "Executando...", explicacao: "Executa o código original envolvido." },
+                    { linha: 4, escopo: "envelope()", vars: {}, output: "--- Fim ---", explicacao: "Imprime o rodapé decorativo." }
+                ]
+            }
+        ];
+
+        let exemploAtual = 0;
+        let passoAtual = -1;
+
+        function carregarSubmenuExemplos() {
+            const select = document.getElementById('selectExemplo');
+            select.innerHTML = '';
+            exemplos.forEach((ex) => {
+                const opt = document.createElement('option');
+                opt.value = ex.id;
+                opt.innerText = ex.nome;
+                select.appendChild(opt);
+            });
+        }
+
+        function selecionarExemploViaMenu(id) {
+            exemploAtual = parseInt(id, 10);
+            renderizarCodigo();
+            reiniciarSimulacao();
+        }
+
+        function renderizarCodigo() {
+            const container = document.getElementById('codeDisplay');
+            const ex = exemplos[exemploAtual];
+            document.getElementById('codigoTitulo').innerText = ex.titulo;
+            
+            let html = '';
+            ex.linhasCodigo.forEach((linha, idx) => {
+                html += `
+                    <div class="code-line" id="line-${idx}">
+                        <span class="line-num">${idx + 1}</span>
+                        <span class="line-content">${linha}</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function executarPasso() {
+            const ex = exemplos[exemploAtual];
+            
+            if (passoAtual < ex.passos.length - 1) {
+                passoAtual++;
+                const dadosPasso = ex.passos[passoAtual];
+
+                document.querySelectorAll('.code-line').forEach(el => el.classList.remove('active'));
+                const elLinha = document.getElementById(`line-${dadosPasso.linha}`);
+                if (elLinha) elLinha.classList.add('active');
+
+                const tbody = document.getElementById('varTableBody');
+                if (Object.keys(dadosPasso.vars).length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3">Nenhuma variável alocada ainda.</td></tr>';
+                } else {
+                    tbody.innerHTML = '';
+                    for (const [v, val] of Object.entries(dadosPasso.vars)) {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td><code>${dadosPasso.escopo}</code></td>
+                                <td><strong>${v}</strong></td>
+                                <td><code>${val}</code></td>
+                            </tr>
+                        `;
+                    }
+                }
+
+                if (dadosPasso.output) {
+                    const consoleEl = document.getElementById('consoleOutput');
+                    consoleEl.innerHTML += dadosPasso.output + '<br>';
+                }
+
+                document.getElementById('expTitulo').innerText = `Passo ${passoAtual + 1} de ${ex.passos.length} - Linha ${dadosPasso.linha + 1}`;
+                document.getElementById('expTexto').innerText = dadosPasso.explicacao;
+
+                if (passoAtual === ex.passos.length - 1) {
+                    document.getElementById('btnPasso').disabled = true;
+                }
+            }
+        }
+
+        function reiniciarSimulacao() {
+            passoAtual = -1;
+            document.querySelectorAll('.code-line').forEach(el => el.classList.remove('active'));
+            document.getElementById('varTableBody').innerHTML = '<tr><td colspan="3">Nenhuma variável alocada ainda.</td></tr>';
+            document.getElementById('consoleOutput').innerHTML = '';
+            document.getElementById('expTitulo').innerText = 'Instruções';
+            document.getElementById('expTexto').innerText = 'Clique em "Próximo Passo" para iniciar a execução linha por linha do código acima.';
+            document.getElementById('btnPasso').disabled = false;
+        }
+
+        carregarSubmenuExemplos();
+        renderizarCodigo();
+    </script>
+</body>
+</html>

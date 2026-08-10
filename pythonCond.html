@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Condicionais em Python - IF, ELSE e ELIF</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f4f4;
+            color: #2b1e20;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            padding: 18px 15px;
+            text-align: center;
+            border-bottom: 3px solid #102a56;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 8px 8px 0 0;
+        }
+
+        header h1 {
+            font-size: 1.6rem;
+            color: #d0e1fd;
+            margin-bottom: 4px;
+        }
+
+        header p {
+            color: #a2c4f9;
+            font-size: 0.9rem;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 15px auto;
+            flex-grow: 1;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 6px 18px rgba(30, 60, 114, 0.08);
+            border: 1px solid #d0dbe8;
+        }
+
+        .visualg-controls {
+            display: flex;
+            gap: 10px;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e8dadc;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn-sim {
+            background-color: #1e3c72;
+            color: #ffffff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-size: 0.9rem;
+        }
+
+        .btn-sim:hover:not(:disabled) {
+            background-color: #2a5298;
+        }
+
+        .btn-sim:disabled {
+            background-color: #a8a8a8;
+            cursor: not-allowed;
+        }
+
+        .btn-step {
+            background-color: #1e7e34;
+        }
+
+        .btn-step:hover:not(:disabled) {
+            background-color: #145a23;
+        }
+
+        .btn-back {
+            background-color: #d9534f;
+        }
+
+        .btn-back:hover:not(:disabled) {
+            background-color: #c9302c;
+        }
+
+        .select-exemplo {
+            background-color: #ffffff;
+            color: #1e3c72;
+            border: 2px solid #1e3c72;
+            padding: 9px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+            outline: none;
+            max-width: 100%;
+        }
+
+        .select-exemplo:focus {
+            border-color: #2a5298;
+            box-shadow: 0 0 5px rgba(42, 82, 152, 0.4);
+        }
+
+        .visualg-main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 850px) {
+            .visualg-main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel-header {
+            color: #d0e1fd;
+            padding: 10px 14px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            border-radius: 7px 7px 0 0;
+        }
+
+        .code-container {
+            background-color: #1e1e1e;
+            border-radius: 0 0 8px 8px;
+            padding: 12px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.92rem;
+            color: #d4d4d4;
+            height: 460px;
+            overflow-y: auto;
+        }
+
+        .code-line {
+            padding: 3px 8px;
+            border-radius: 4px;
+            white-space: pre;
+            display: flex;
+        }
+
+        .line-num {
+            color: #858585;
+            width: 30px;
+            user-select: none;
+            display: inline-block;
+        }
+
+        .line-content {
+            flex-grow: 1;
+        }
+
+        .code-line.active {
+            background-color: #1e3c72;
+            border-left: 4px solid #4287f5;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .kw { color: #569cd6; }
+        .fn { color: #dcdcaa; }
+        .num { color: #b5cea8; }
+        .str { color: #ce9178; }
+
+        .debug-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            height: 460px;
+        }
+
+        .debug-box {
+            background-color: #f8fafc;
+            border: 1px solid #d0dbe8;
+            border-radius: 8px;
+            padding: 12px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .debug-box h4 {
+            color: #1e3c72;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #d0dbe8;
+            padding-bottom: 4px;
+        }
+
+        .var-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .var-table th, .var-table td {
+            text-align: left;
+            padding: 6px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .var-table th {
+            color: #1e3c72;
+        }
+
+        .console-output {
+            background-color: #111;
+            color: #4ec9b0;
+            font-family: monospace;
+            padding: 10px;
+            border-radius: 6px;
+            height: 120px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+        }
+
+        .explanation-box {
+            background-color: #ebf3fc;
+            border-left: 4px solid #1e3c72;
+            padding: 14px 16px;
+            border-radius: 6px;
+            color: #102a56;
+            font-size: 0.92rem;
+        }
+
+        .explanation-box h4 {
+            color: #1e3c72;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Estruturas Condicionais em Python: IF, ELSE e ELIF</h1>
+        <p>Aprenda a tomada de decisão em Python passo a passo, do básico ao avançado.</p>
+    </header>
+
+    <div class="container">
+        
+        <div class="visualg-controls">
+            <button class="btn-sim btn-back" id="btnVoltar" onclick="" >Voltar</button>
+            <label for="selectExemplo" style="font-weight: bold; color: #1e3c72;">Escolha o Exemplo:</label>
+            <select id="selectExemplo" class="select-exemplo" onchange="selecionarExemploViaMenu(this.value)">
+            </select>
+
+           
+            <button class="btn-sim btn-step" id="btnPasso" onclick="executarPasso()">⏭ Próximo Passo</button>
+            <button class="btn-sim" id="btnReiniciar" onclick="reiniciarSimulacao()">🔄 Reiniciar</button>
+        </div>
+
+        <div class="visualg-main-layout">
+            <div>
+                <div class="panel-header" id="codigoTitulo">Código Fonte Python</div>
+                <div class="code-container" id="codeDisplay"></div>
+            </div>
+
+            <div class="debug-container">
+                <div class="debug-box">
+                    <h4>📊 Estado das Variáveis e Condições</h4>
+                    <table class="var-table">
+                        <thead>
+                            <tr>
+                                <th>Variável</th>
+                                <th>Valor Atual</th>
+                            </tr>
+                        </thead>
+                        <tbody id="varTableBody">
+                            <tr><td colspan="2">Nenhuma variável criada ainda.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="debug-box" style="flex-grow: 0;">
+                    <h4>🖥️ Saída do Console (Output)</h4>
+                    <div class="console-output" id="consoleOutput"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="explanation-box">
+            <h4 id="expTitulo">Instruções</h4>
+            <p id="expTexto">Clique em "Próximo Passo" para iniciar a execução interativa.</p>
+        </div>
+
+    </div>
+
+    <script>
+        const exemplos = [
+            {
+                id: 0,
+                nome: "🟢 [Fácil 1] IF Simples (Condição Verdadeira)",
+                titulo: "Exemplo 1: Teste condicional básico",
+                linhasCodigo: [
+                    `idade = <span class="num">20</span>`,
+                    `<span class="kw">if</span> idade >= <span class="num">18</span>:`,
+                    `    <span class="fn">print</span>(<span class="str">"Você é maior de idade."</span>)`,
+                    `<span class="fn">print</span>(<span class="str">"Fim do programa."</span>)`
+                ],
+                passos: [
+                    { linha: 0, vars: { "idade": 20 }, output: "", explicacao: "Atribui o valor 20 à variável 'idade'." },
+                    { linha: 1, vars: { "idade": 20 }, output: "", explicacao: "Avalia a condição: 20 >= 18? É Verdadeiro (True). O programa entra no bloco IF." },
+                    { linha: 2, vars: { "idade": 20 }, output: "Você é maior de idade.", explicacao: "Executa a instrução dentro do IF." },
+                    { linha: 3, vars: { "idade": 20 }, output: "Fim do programa.", explicacao: "Continua a execução normal fora do bloco condicional." }
+                ]
+            },
+            {
+                id: 1,
+                nome: "🟢 [Fácil 2] IF Simples (Condição Falsa)",
+                titulo: "Exemplo 2: Bloco ignorado quando a condição é falsa",
+                linhasCodigo: [
+                    `idade = <span class="num">15</span>`,
+                    `<span class="kw">if</span> idade >= <span class="num">18</span>:`,
+                    `    <span class="fn">print</span>(<span class="str">"Você é maior de idade."</span>)`,
+                    `<span class="fn">print</span>(<span class="str">"Fim do programa."</span>)`
+                ],
+                passos: [
+                    { linha: 0, vars: { "idade": 15 }, output: "", explicacao: "Atribui o valor 15 à variável 'idade'." },
+                    { linha: 1, vars: { "idade": 15 }, output: "", explicacao: "Avalia a condição: 15 >= 18? É Falso (False)." },
+                    { linha: 3, vars: { "idade": 15 }, output: "Fim do programa.", explicacao: "Como a condição deu False, o bloco indentado (linha 3) é saltado diretamente." }
+                ]
+            },
+            {
+                id: 2,
+                nome: "🟢 [Fácil 3] Estrutura IF-ELSE",
+                titulo: "Exemplo 3: Tomada de decisão com duas alternativas",
+                linhasCodigo: [
+                    `numero = <span class="num">7</span>`,
+                    `<span class="kw">if</span> numero % <span class="num">2</span> == <span class="num">0</span>:`,
+                    `    <span class="fn">print</span>(<span class="str">"O número é PAR"</span>)`,
+                    `<span class="kw">else</span>:`,
+                    `    <span class="fn">print</span>(<span class="str">"O número é ÍMPAR"</span>)`
+                ],
+                passos: [
+                    { linha: 0, vars: { "numero": 7 }, output: "", explicacao: "Cria a variável 'numero' com valor 7." },
+                    { linha: 1, vars: { "numero": 7 }, output: "", explicacao: "Avalia se o resto da divisão por 2 é igual a 0 (7 % 2 == 0). Resultado: Falso (resto 1)." },
+                    { linha: 3, vars: { "numero": 7 }, output: "", explicacao: "O IF falhou, então o fluxo é desviado para a cláusula 'else:'." },
+                    { linha: 4, vars: { "numero": 7 }, output: "O número é ÍMPAR", explicacao: "Executa a instrução contida no bloco ELSE." }
+                ]
+            },
+            {
+                id: 3,
+                nome: "🟡 [Médio 4] Estrutura IF-ELIF-ELSE (3 Caminhos)",
+                titulo: "Exemplo 4: Classificação de temperatura",
+                linhasCodigo: [
+                    `temp = <span class="num">22</span>`,
+                    `<span class="kw">if</span> temp < <span class="num">15</span>:`,
+                    `    <span class="fn">print</span>(<span class="str">"Frio"</span>)`,
+                    `<span class="kw">elif</span> temp <= <span class="num">25</span>:`,
+                    `    <span class="fn">print</span>(<span class="str">"Agradável"</span>)`,
+                    `<span class="kw">else</span>:`,
+                    `    <span class="fn">print</span>(<span class="str">"Quente"</span>)`
+                ],
+                passos: [
+                    { linha: 0, vars: { "temp": 22 }, output: "", explicacao: "Define a temperatura como 22." },
+                    { linha: 1, vars: { "temp": 22 }, output: "", explicacao: "Testa o IF: 22 < 15? Falso. Passa para o ELIF." },
+                    { linha: 3, vars: { "temp": 22 }, output: "", explicacao: "Testa o ELIF: 22 <= 25? Verdadeiro!" },
+                    { linha: 4, vars: { "temp": 22 }, output: "Agradável", explicacao: "Executa o bloco do ELIF. O ELSE final é ignorado completamente." }
+                ]
+            },
+            {
+                id: 4,
+                nome: "🟡 [Médio 5] Operador Lógico AND",
+                titulo: "Exemplo 5: Checagem de duas condições simultâneas",
+                linhasCodigo: [
+                    `nota = <span class="num">8</span>`,
+                    `frequencia = <span class="num">80</span>`,
+                    `<span class="kw">if</span> nota >= <span class="num">7</span> <span class="kw">and</span> frequencia >= <span class="num">75</span>:`,
+                    `    <span class="fn">print</span>(<span class="str">"Aluno Aprovado!"</span>)`,
+                    `<span class="kw">else</span>:`,
+                    `    <span class="fn">print</span>(<span class="str">"Aluno Reprovado."</span>)`
+                ],
+                passos: [
+                    { linha: 0, vars: { "nota": 8 }, output: "", explicacao: "Define nota = 8." },
+                    { linha: 1, vars: { "nota": 8, "frequencia": 80 }, output: "", explicacao: "Define frequencia = 80." },
+                    { linha: 2, vars: { "nota": 8, "frequencia": 80 }, output: "", explicacao: "Avalia: (8 >= 7 é True) AND (80 >= 75 é True). Ambas são True, logo o AND resulta True." },
+                    { linha: 3, vars: { "nota": 8, "frequencia": 80 }, output: "Aluno Aprovado!", explicacao: "Entra no bloco IF e confirma a aprovação." }
+                ]
+            },
+            {
+                id: 5,
+                nome: "🟡 [Médio 6] Operador Lógico OR",
+                titulo: "Exemplo 6: Checagem de acesso com múltiplas permissões",
+                linhasCodigo: [
+                    `eh_admin = <span class="kw">False</span>`,
+                    `possui_chave = <span class="kw">True</span>`,
+                    `<span class="kw">if</span> eh_admin <span class="kw">or</span> possui_chave:`,
+                    `    <span class="fn">print</span>(<span class="str">"Acesso Permitido"</span>)`,
+                    `<span class="kw">else</span>:`,
+                    `    <span class="fn">print</span>(<span class="str">"Acesso Negado"</span>)`
+                ],
+                passos: [
+                    { linha: 0, vars: { "eh_admin": false }, output: "", explicacao: "eh_admin é False." },
+                    { linha: 1, vars: { "eh_admin": false, "possui_chave": true }, output: "", explicacao: "possui_chave é True." },
+                    { linha: 2, vars: { "eh_admin": false, "possui_chave": true }, output: "", explicacao: "Avalia: False OR True. Como pelo menos uma é True, o resultado é True." },
+                    { linha: 3, vars: { "eh_admin": false, "possui_chave": true }, output: "Acesso Permitido", explicacao: "Executa a liberação de acesso." }
+                ]
+            },
+            {
+                id: 6,
+                nome: "🔴 [Avançado 7] Condicionais Aninhadas (IF dentro de IF)",
+                titulo: "Exemplo 7: Múltiplos níveis de decisão",
+                linhasCodigo: [
+                    `conta_ativa = <span class="kw">True</span>`,
+                    `saldo = <span class="num">50</span>`,
+                    `<span class="kw">if</span> conta_ativa:`,
+                    `    <span class="kw">if</span> saldo > <span class="num">0</span>:`,
+                    `        <span class="fn">print</span>(<span class="str">"Saque liberado"</span>)`,
+                    `    <span class="kw">else</span>:`,
+                    `        <span class="fn">print</span>(<span class="str">"Saldo insuficiente"</span>)`,
+                    `<span class="kw">else</span>:`,
+                    `    <span class="fn">print</span>(<span class="str">"Conta bloqueada"</span>)`
+                ],
+                passos: [
+                    { linha: 0, vars: { "conta_ativa": true }, output: "", explicacao: "Define conta_ativa = True." },
+                    { linha: 1, vars: { "conta_ativa": true, "saldo": 50 }, output: "", explicacao: "Define saldo = 50." },
+                    { linha: 2, vars: { "conta_ativa": true, "saldo": 50 }, output: "", explicacao: "Primeira checagem: conta_ativa é True? Sim! Entra no primeiro nível." },
+                    { linha: 3, vars: { "conta_ativa": true, "saldo": 50 }, output: "", explicacao: "Segunda checagem interna: saldo > 0? 50 > 0 é True!" },
+                    { linha: 4, vars: { "conta_ativa": true, "saldo": 50 }, output: "Saque liberado", explicacao: "Imprime 'Saque liberado'." }
+                ]
+            },
+            {
+                id: 7,
+                nome: "🔴 [Avançado 8] Múltiplos ELIFs em Cadeia",
+                titulo: "Exemplo 8: Sistema de notas com conceito (A, B, C, D, F)",
+                linhasCodigo: [
+                    `pontos = <span class="num">85</span>`,
+                    `<span class="kw">if</span> pontos >= <span class="num">90</span>:`,
+                    `    <span class="fn">print</span>(<span class="str">"Conceito A"</span>)`,
+                    `<span class="kw">elif</span> pontos >= <span class="num">80</span>:`,
+                    `    <span class="fn">print</span>(<span class="str">"Conceito B"</span>)`,
+                    `<span class="kw">elif</span> pontos >= <span class="num">70</span>:`,
+                    `    <span class="fn">print</span>(<span class="str">"Conceito C"</span>)`,
+                    `<span class="kw">else</span>:`,
+                    `    <span class="fn">print</span>(<span class="str">"Conceito F"</span>)`
+                ],
+                passos: [
+                    { linha: 0, vars: { "pontos": 85 }, output: "", explicacao: "Define pontos = 85." },
+                    { linha: 1, vars: { "pontos": 85 }, output: "", explicacao: "Testa: 85 >= 90? Falso." },
+                    { linha: 3, vars: { "pontos": 85 }, output: "", explicacao: "Testa primeiro ELIF: 85 >= 80? Verdadeiro!" },
+                    { linha: 4, vars: { "pontos": 85 }, output: "Conceito B", explicacao: "Imprime 'Conceito B'. O Python ignora todos os ELIFs e ELSEs seguintes nesta cadeia." }
+                ]
+            },
+            {
+                id: 8,
+                nome: "🔴 [Avançado 9] Operador Ternário (IF de uma linha)",
+                titulo: "Exemplo 9: Atribuição condicional concisa",
+                linhasCodigo: [
+                    `velocidade = <span class="num">95</span>`,
+                    `status = <span class="str">"Multado"</span> <span class="kw">if</span> velocidade > <span class="num">80</span> <span class="kw">else</span> <span class="str">"OK"</span>`,
+                    `<span class="fn">print</span>(<span class="str">"Status do condutor:"</span>, status)`
+                ],
+                passos: [
+                    { linha: 0, vars: { "velocidade": 95 }, output: "", explicacao: "Define velocidade = 95." },
+                    { linha: 1, vars: { "velocidade": 95, "status": '"Multado"' }, output: "", explicacao: "Avalia a condição em linha única: velocidade > 80? Como 95 > 80 é True, a variável 'status' recebe 'Multado'." },
+                    { linha: 2, vars: { "velocidade": 95, "status": '"Multado"' }, output: "Status do condutor: Multado", explicacao: "Imprime o resultado." }
+                ]
+            },
+            {
+                id: 9,
+                nome: "🔴 [Avançado 10] Validação Negativa com NOT e Operadores Combinados",
+                titulo: "Exemplo 10: Inversão lógica e checagem de regras de negócio",
+                linhasCodigo: [
+                    `bloqueado = <span class="kw">False</span>`,
+                    `tentativas = <span class="num">4</span>`,
+                    `<span class="kw">if</span> <span class="kw">not</span> bloqueado <span class="kw">and</span> tentativas > <span class="num">3</span>:`,
+                    `    <span class="fn">print</span>(<span class="str">"Alerta: Excesso de tentativas!"</span>)`,
+                    `<span class="kw">else</span>:`,
+                    `    <span class="fn">print</span>(<span class="str">"Estado normal."</span>)`
+                ],
+                passos: [
+                    { linha: 0, vars: { "bloqueado": false }, output: "", explicacao: "Define bloqueado = False." },
+                    { linha: 1, vars: { "bloqueado": false, "tentativas": 4 }, output: "", explicacao: "Define tentativas = 4." },
+                    { linha: 2, vars: { "bloqueado": false, "tentativas": 4 }, output: "", explicacao: "Avalia 'not bloqueado': not False vira True. Avalia 'tentativas > 3': 4 > 3 vira True. True AND True resulta em True!" },
+                    { linha: 3, vars: { "bloqueado": false, "tentativas": 4 }, output: "Alerta: Excesso de tentativas!", explicacao: "Dispara o alerta de segurança no console." }
+                ]
+            }
+        ];
+
+        let exemploAtual = 0;
+        let passoAtual = -1;
+
+        function carregarSubmenuExemplos() {
+            const select = document.getElementById('selectExemplo');
+            select.innerHTML = '';
+            exemplos.forEach((ex) => {
+                const opt = document.createElement('option');
+                opt.value = ex.id;
+                opt.innerText = ex.nome;
+                select.appendChild(opt);
+            });
+        }
+
+        function selecionarExemploViaMenu(id) {
+            exemploAtual = parseInt(id, 10);
+            renderizarCodigo();
+            reiniciarSimulacao();
+        }
+
+        function renderizarCodigo() {
+            const container = document.getElementById('codeDisplay');
+            const ex = exemplos[exemploAtual];
+            document.getElementById('codigoTitulo').innerText = ex.titulo;
+            
+            let html = '';
+            ex.linhasCodigo.forEach((linha, idx) => {
+                html += `
+                    <div class="code-line" id="line-${idx}">
+                        <span class="line-num">${idx + 1}</span>
+                        <span class="line-content">${linha}</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function atualizarTela(passoIdx) {
+            const ex = exemplos[exemploAtual];
+
+            if (passoIdx < 0) {
+                reiniciarSimulacao();
+                return;
+            }
+
+            const dadosPasso = ex.passos[passoIdx];
+
+            document.querySelectorAll('.code-line').forEach(el => el.classList.remove('active'));
+            const elLinha = document.getElementById(`line-${dadosPasso.linha}`);
+            if (elLinha) elLinha.classList.add('active');
+
+            const tbody = document.getElementById('varTableBody');
+            if (Object.keys(dadosPasso.vars).length === 0) {
+                tbody.innerHTML = '<tr><td colspan="2">Nenhuma variável criada ainda.</td></tr>';
+            } else {
+                tbody.innerHTML = '';
+                for (const [v, val] of Object.entries(dadosPasso.vars)) {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${v}</strong></td>
+                            <td><code>${val}</code></td>
+                        </tr>
+                    `;
+                }
+            }
+
+            let outputAcumulado = '';
+            for (let i = 0; i <= passoIdx; i++) {
+                if (ex.passos[i].output) {
+                    outputAcumulado += ex.passos[i].output + '<br>';
+                }
+            }
+            document.getElementById('consoleOutput').innerHTML = outputAcumulado;
+
+            document.getElementById('expTitulo').innerText = `Passo ${passoIdx + 1} de ${ex.passos.length} - Linha ${dadosPasso.linha + 1}`;
+            document.getElementById('expTexto').innerText = dadosPasso.explicacao;
+
+            document.getElementById('btnVoltar').disabled = (passoIdx <= 0);
+            document.getElementById('btnPasso').disabled = (passoIdx >= ex.passos.length - 1);
+        }
+
+        function executarPasso() {
+            const ex = exemplos[exemploAtual];
+            if (passoAtual < ex.passos.length - 1) {
+                passoAtual++;
+                atualizarTela(passoAtual);
+            }
+        }
+
+        function executarPassoAnterior() {
+            if (passoAtual > 0) {
+                passoAtual--;
+                atualizarTela(passoAtual);
+            }
+        }
+
+        function reiniciarSimulacao() {
+            passoAtual = -1;
+            document.querySelectorAll('.code-line').forEach(el => el.classList.remove('active'));
+            document.getElementById('varTableBody').innerHTML = '<tr><td colspan="2">Nenhuma variável criada ainda.</td></tr>';
+            document.getElementById('consoleOutput').innerHTML = '';
+            document.getElementById('expTitulo').innerText = 'Instruções';
+            document.getElementById('expTexto').innerText = 'Clique em "Próximo Passo" para iniciar a execução interativa.';
+            document.getElementById('btnPasso').disabled = false;
+            document.getElementById('btnVoltar').disabled = true;
+        }
+
+        carregarSubmenuExemplos();
+        renderizarCodigo();
+    </script>
+</body>
+</html>

@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>3.4. Sintaxe Básica em Python</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f4f4;
+            color: #2b1e20;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-top: max(12px, env(safe-area-inset-top));
+            padding-bottom: max(12px, env(safe-area-inset-bottom));
+            padding-left: max(12px, env(safe-area-inset-left));
+            padding-right: max(12px, env(safe-area-inset-right));
+        }
+
+        header {
+            background: linear-gradient(135deg, #4a0e17, #2b080d);
+            padding: 18px 15px;
+            text-align: center;
+            border-bottom: 3px solid #721c24;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 8px 8px 0 0;
+        }
+
+        header h1 {
+            font-size: 1.6rem;
+            color: #f8c0c8;
+            margin-bottom: 4px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        header p {
+            color: #e2c0c5;
+            font-size: 0.9rem;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 15px auto;
+            flex-grow: 1;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 6px 18px rgba(74, 14, 23, 0.08);
+            border: 1px solid #e8dadc;
+        }
+
+        /* CONTROLES (FIXOS NO TOPO) */
+        .visualg-controls {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background-color: #ffffff;
+            display: flex;
+            gap: 10px;
+            padding: 10px 0 15px 0;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e8dadc;
+            flex-wrap: wrap;
+        }
+
+        .btn-sim {
+            background-color: #4a0e17;
+            color: #ffffff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        .btn-sim:hover:not(:disabled) {
+            background-color: #85182a;
+        }
+
+        .btn-sim:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .btn-nav {
+            background-color: #333333;
+        }
+
+        .btn-nav:hover:not(:disabled) {
+            background-color: #555555;
+        }
+
+        /* LAYOUT LADO A LADO */
+        .visualg-main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 850px) {
+            .visualg-main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .topic-list {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 10px;
+            border-radius: 0 0 8px 8px;
+            height: 520px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .topic-item {
+            background-color: #252526;
+            padding: 12px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            border-left: 4px solid #569cd6;
+            transition: background-color 0.2s, border-color 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .topic-item:hover {
+            background-color: #2a2a2a;
+        }
+
+        .topic-item.active {
+            background-color: #4a0e17;
+            border-left-color: #ff4d6d;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .topic-name {
+            font-size: 0.9rem;
+        }
+
+        .topic-tag {
+            font-size: 0.72rem;
+            background: #333;
+            color: #4ec9b0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: nowrap;
+        }
+
+        .topic-item.active .topic-tag {
+            background: #6b1120;
+            color: #fff;
+        }
+
+        /* PAINEL DE CONTEÚDO EXPLICATIVO */
+        .content-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            border: 1px solid #e8dadc;
+            display: flex;
+            flex-direction: column;
+            height: 552px;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .panel-header {
+            color: #f8c0c8;
+            border-bottom: 1px solid #333;
+            padding: 10px 14px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #4a0e17, #2b080d);
+            border-radius: 7px 7px 0 0;
+        }
+
+        .content-display-wrapper {
+            flex-grow: 1;
+            padding: 22px;
+            overflow-y: auto;
+        }
+
+        /* ANIMAÇÃO COM ZOOM, AVANÇO E RETORNO (POP-IN) */
+        .content-card {
+            opacity: 1;
+            transform: scale(1);
+            transition: transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+            color: #2b1e20;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .content-card.animate-pop {
+            opacity: 0;
+            transform: scale(0.4);
+            transition: none;
+        }
+
+        .content-card h3 {
+            color: #6b1120;
+            font-size: 1.25rem;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #fcebeb;
+            padding-bottom: 6px;
+        }
+
+        .content-card p {
+            margin-bottom: 12px;
+        }
+
+        .content-card ul {
+            margin-left: 20px;
+            margin-bottom: 12px;
+        }
+
+        .content-card li {
+            margin-bottom: 6px;
+        }
+
+        .content-card code {
+            background-color: #f2e6e8;
+            color: #6b1120;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .content-card pre {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.88rem;
+        }
+
+        .content-card pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+        }
+
+        /* PAINEL DE RESUMO RÁPIDO */
+        .explanation-box {
+            background-color: #fcebeb;
+            border-left: 4px solid #6b1120;
+            padding: 14px 16px;
+            border-radius: 6px;
+            color: #4a0e17;
+            font-size: 0.92rem;
+        }
+
+        .explanation-box h4 {
+            color: #6b1120;
+            margin-bottom: 4px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #ebdada;
+            color: #5c3a3e;
+            border-top: 1px solid #d8c2c4;
+            font-size: 0.85rem;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Linguagem Python - Sintaxe Básica</h1>
+        <p>Selecione um tópico para explorar as regras estruturais, indentação, variáveis e entrada/saída de dados.</p>
+    </header>
+
+    <div class="container">
+        
+        <!-- BOTÕES DE CONTROLE -->
+        <div class="visualg-controls">
+            <button class="btn-sim btn-nav" onclick="voltarPaginaAnterior()">⬅ Voltar Página</button>
+            <button class="btn-sim" id="btnAnterior" onclick="mudarTopico(-1)">◀ Anterior</button>
+            <button class="btn-sim" id="btnProximo" onclick="mudarTopico(1)">Próximo ▶</button>
+        </div>
+
+        <!-- LAYOUT PRINCIPAL -->
+        <div class="visualg-main-layout">
+            <!-- LISTA DE TÓPICOS -->
+            <div>
+                <div class="panel-header">Conteúdo Programático</div>
+                <div class="topic-list" id="topicList">
+                    <!-- Gerado via JS -->
+                </div>
+            </div>
+
+            <!-- EXIBIÇÃO DO CONTEÚDO -->
+            <div class="content-container">
+                <div class="panel-header" id="contentHeader">3.4. Sintaxe Básica</div>
+                <div class="content-display-wrapper">
+                    <div class="content-card" id="contentCard">
+                        <!-- Conteúdo Injetado via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAINEL DE RESUMO RÁPIDO -->
+        <div class="explanation-box">
+            <h4 id="expTitle">Título do Tópico</h4>
+            <p id="expResumo">Resumo do tópico selecionado.</p>
+        </div>
+
+    </div>
+
+    <footer>
+        Lógica de Programação • Estrutura e Fundamentos da Sintaxe em Python
+    </footer>
+
+    <script>
+        function voltarPaginaAnterior() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = './index.html'; 
+            }
+        }
+
+        // --- BASE DE DADOS DOS TÓPICOS PROGRAMÁTICOS (SINTAXE BÁSICA) ---
+        const topicos = [
+            {
+                id: 'indentacao_blocos',
+                codigo: '3.4.1',
+                nome: '3.4.1. Indentação e Blocos',
+                tag: 'PEP 8 & Espaços',
+                resumo: 'A indentação é obrigatória em Python e substitui as chaves {} para definir escopos de execução.',
+                conteudoHTML: `
+                    <h3>3.4.1. Indentação e Blocos de Código</h3>
+                    <p>Diferente de C, Java ou JavaScript que utilizam chaves <code>{}</code>, o Python utiliza a <strong>indentação obrigatória</strong> para delimitar blocos de código.</p>
+                    <p><strong>Regras Principais:</strong></p>
+                    <ul>
+                        <li>O padrão recomendado pela <strong>PEP 8</strong> é de <strong>4 espaços</strong> por nível de indentação.</li>
+                        <li>Evite misturar TABs e espaços no mesmo arquivo.</li>
+                        <li>Blocos de instruções iniciam após um caractere de dois-pontos (<code>:</code>).</li>
+                    </ul>
+                    <pre><code>if idade >= 18:
+    print("Acesso permitido.")  # Bloco indentado
+else:
+    print("Acesso negado.")     # Outro bloco</code></pre>
+                `
+            },
+            {
+                id: 'comentarios_docstrings',
+                codigo: '3.4.2',
+                nome: '3.4.2. Comentários e Docstrings',
+                tag: '# e """Docstring"""',
+                resumo: 'Uso da tralha (#) para linhas únicas e aspas triplas para documentação técnica de funções e módulos.',
+                conteudoHTML: `
+                    <h3>3.4.2. Comentários e Docstrings</h3>
+                    <p>Comentários servem para explicar o código e não são executados pelo interpretador Python.</p>
+                    <p><strong>Tipos de Documentação:</strong></p>
+                    <ul>
+                        <li><strong>Linha única:</strong> Utiliza-se o caractere cerquilha/tralha (<code>#</code>).</li>
+                        <li><strong>Docstrings:</strong> Aspas triplas (<code>"""</code> ou <code>'''</code>) usadas logo abaixo de definições de funções, classes ou módulos para gerar documentação oficial.</li>
+                    </ul>
+                    <pre><code># Isto é um comentário de linha única
+
+def somar(a, b):
+    """Calcula a soma de dois números inteiros."""
+    return a + b</code></pre>
+                `
+            },
+            {
+                id: 'variaveis_atribuicao',
+                codigo: '3.4.3',
+                nome: '3.4.3. Variáveis e Tipagem Dinâmica',
+                tag: 'Snake_case & Tipagem',
+                resumo: 'Python utiliza tipagem dinâmica e forte, sem necessidade de declaração prévia do tipo de dado.',
+                conteudoHTML: `
+                    <h3>3.4.3. Variáveis e Tipagem Dinâmica</h3>
+                    <p>Em Python, variáveis são criadas no momento em que um valor lhes é atribuído através do operador <code>=</code>.</p>
+                    <p><strong>Características de Variáveis:</strong></p>
+                    <ul>
+                        <li><strong>Tipagem Dinâmica:</strong> O interpretador infere o tipo automaticamente.</li>
+                        <li><strong>Tipagem Forte:</strong> Operações entre tipos incompatíveis geram erro em tempo de execução.</li>
+                        <li><strong>Nomenclatura (Snake Case):</strong> Nomes em minúsculo separados por underline (ex: <code>total_pontos</code>).</li>
+                    </ul>
+                    <pre><code>nome = "Maria"      # str
+idade = 25          # int
+altura = 1.68       # float
+ativo = True        # bool</code></pre>
+                `
+            },
+            {
+                id: 'entrada_saida_dados',
+                codigo: '3.4.4',
+                nome: '3.4.4. Entrada e Saída (input / print)',
+                tag: 'f-strings & input()',
+                resumo: 'Interação com usuário via terminal com print(), f-strings e conversão de tipos (casting) com input().',
+                conteudoHTML: `
+                    <h3>3.4.4. Entrada e Saída de Dados</h3>
+                    <p>A comunicação com o usuário é feita principalmente através das funções integradas <code>print()</code> e <code>input()</code>.</p>
+                    <p><strong>Principais Conceitos:</strong></p>
+                    <ul>
+                        <li><code>input()</code>: Lê dados sempre como texto (<code>str</code>), exigindo <i>casting</i> para cálculos.</li>
+                        <li><code>f-strings</code>: Interpolação moderna e legível de variáveis dentro de textos.</li>
+                    </ul>
+                    <pre><code>nome = input("Digite seu nome: ")
+idade = int(input("Digite sua idade: ")) # Casting para int
+
+# Exibição formatada com f-string
+print(f"Olá, {nome}! Você terá {idade + 1} anos no próximo ano.")</code></pre>
+                `
+            }
+        ];
+
+        let indiceAtual = 0;
+
+        function triggerAnimacaoConteudo() {
+            const card = document.getElementById('contentCard');
+            card.classList.add('animate-pop');
+
+            const topico = topicos[indiceAtual];
+            document.getElementById('contentHeader').innerText = topico.nome;
+            card.innerHTML = topico.conteudoHTML;
+
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    card.classList.remove('animate-pop');
+                });
+            });
+        }
+
+        function renderizarLista() {
+            const container = document.getElementById('topicList');
+            container.innerHTML = '';
+
+            topicos.forEach((topico, idx) => {
+                const item = document.createElement('div');
+                item.className = 'topic-item' + (idx === indiceAtual ? ' active' : '');
+                item.onclick = () => selecionarTopico(idx);
+
+                item.innerHTML = `
+                    <span class="topic-name">${topico.nome}</span>
+                    <span class="topic-tag">${topico.tag}</span>
+                `;
+
+                container.appendChild(item);
+            });
+        }
+
+        function atualizarPainelResumo() {
+            const topico = topicos[indiceAtual];
+            document.getElementById('expTitle').innerText = topico.nome;
+            document.getElementById('expResumo').innerText = topico.resumo;
+        }
+
+        function selecionarTopico(idx) {
+            indiceAtual = idx;
+            renderizarLista();
+            triggerAnimacaoConteudo();
+            atualizarPainelResumo();
+        }
+
+        function mudarTopico(direcao) {
+            indiceAtual += direcao;
+            if (indiceAtual < 0) indiceAtual = topicos.length - 1;
+            if (indiceAtual >= topicos.length) indiceAtual = 0;
+            selecionarTopico(indiceAtual);
+        }
+
+        // Inicialização
+        renderizarLista();
+        triggerAnimacaoConteudo();
+        atualizarPainelResumo();
+    </script>
+</body>
+</html>
