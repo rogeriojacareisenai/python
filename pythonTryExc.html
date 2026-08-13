@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Simulador - Tratamento de Exceções (try / except)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f4f4;
+            color: #2b1e20;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        header {
+            background: linear-gradient(135deg, #0f172a, #581c87);
+            padding: 24px 20px;
+            text-align: center;
+            border-bottom: 3px solid #a855f7;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .btn-back {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .btn-back:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding-top: 55px;
+            }
+
+            .btn-back {
+                top: 15px;
+                transform: none;
+            }
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            color: #e9d5ff;
+            margin-bottom: 6px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        header p {
+            color: #f3e8ff;
+            font-size: 0.95rem;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1100px;
+            margin: 20px auto;
+            flex-grow: 1;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 6px 18px rgba(88, 28, 135, 0.08);
+            border: 1px solid #f3e8ff;
+        }
+
+        .mode-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            background-color: #e2e8f0;
+            color: #334155;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background-color: #7e22ce;
+            color: #ffffff;
+        }
+
+        .visualg-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sim {
+            background-color: #581c87;
+            color: #ffffff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-size: 0.9rem;
+        }
+
+        .btn-sim:hover:not(:disabled) {
+            background-color: #7e22ce;
+        }
+
+        .btn-sim:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .btn-sim:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+
+        .btn-explain {
+            background-color: #0d9488;
+        }
+
+        .btn-explain:hover:not(:disabled) {
+            background-color: #0f766e;
+        }
+
+        .visualg-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .code-box {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            height: 330px;
+            overflow-y: auto;
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5);
+            width: 100%;
+        }
+
+        .code-line {
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            display: flex;
+            align-items: center;
+        }
+
+        .code-pointer {
+            display: inline-block;
+            width: 20px;
+            color: #c084fc;
+            font-weight: bold;
+            visibility: hidden;
+            user-select: none;
+        }
+
+        .code-line.active .code-pointer {
+            visibility: visible;
+        }
+
+        .code-line.active {
+            background-color: #581c87;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .code-line.error-line {
+            background-color: #991b1b !important;
+            color: #ffffff !important;
+        }
+
+        .kw-type {
+            color: #c084fc;
+            font-weight: bold;
+        }
+
+        .kw-comment {
+            color: #6a9955;
+        }
+
+        .kw-string {
+            color: #ce9178;
+        }
+
+        .vertical-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .vertical-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .console-box {
+            background-color: #0c0c0c;
+            color: #00ff66;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            color: #888;
+            border-bottom: 1px solid #333;
+            padding-bottom: 4px;
+            margin-bottom: 6px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: bold;
+        }
+
+        .console-output {
+            flex-grow: 1;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .memory-box {
+            background-color: #181818;
+            border-radius: 8px;
+            padding: 10px 12px;
+            height: 200px;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .memory-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            overflow-y: auto;
+        }
+
+        .memory-cell {
+            display: grid;
+            grid-template-columns: 80px 1fr 100px 1fr;
+            background: #252526;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.8rem;
+            align-items: center;
+            border-left: 3px solid #555;
+            transition: all 0.3s ease;
+        }
+
+        .memory-cell.updated {
+            border-left-color: #00ff66;
+            background: #2a3a2e;
+            transform: scale(1.01);
+        }
+
+        .memory-cell.exception-cell {
+            border-left-color: #ef4444;
+            background: #450a0a;
+        }
+
+        .mem-addr {
+            color: #888;
+            font-size: 0.7rem;
+        }
+
+        .mem-name {
+            color: #e9d5ff;
+            font-weight: bold;
+        }
+
+        .mem-scope {
+            color: #f59e0b;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .mem-val {
+            color: #ffffff;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .explanation-box {
+            background-color: #faf5ff;
+            border-left: 4px solid #7e22ce;
+            padding: 12px 16px;
+            border-radius: 6px;
+            color: #581c87;
+            font-size: 0.9rem;
+            min-height: 70px;
+        }
+
+        .explanation-box h4 {
+            margin-bottom: 4px;
+            color: #581c87;
+            font-size: 0.95rem;
+        }
+
+        /* Estilos do Modal de Explicação Detalhada */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            background-color: #0f172a;
+            color: #ffffff;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #a855f7;
+        }
+
+        .modal-header h2 {
+            font-size: 1.3rem;
+            color: #e9d5ff;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0 5px;
+            line-height: 1;
+        }
+
+        .modal-body {
+            padding: 20px;
+            line-height: 1.6;
+            color: #334155;
+            font-size: 0.95rem;
+        }
+
+        .modal-body h3 {
+            color: #581c87;
+            margin: 16px 0 8px 0;
+            font-size: 1.1rem;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 4px;
+        }
+
+        .modal-body h3:first-child {
+            margin-top: 0;
+        }
+
+        .modal-body ul {
+            margin-left: 20px;
+            margin-bottom: 12px;
+        }
+
+        .modal-body li {
+            margin-bottom: 6px;
+        }
+
+        .modal-body code {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .concept-card {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 18px;
+            background-color: #e2e8f0;
+            color: #334155;
+            border-top: 1px solid #cbd5e1;
+            font-size: 0.85rem;
+            margin-top: auto;
+            padding-bottom: calc(18px + env(safe-area-inset-bottom));
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <button class="btn-back" onclick="voltarPagina()">
+            ⬅ Voltar
+        </button>
+        <h1>Tratamento de Exceções em Python</h1>
+        <p>Aprenda na prática como funcionam os blocos try, except, else e finally.</p>
+    </header>
+
+    <div class="container">
+
+        <div class="mode-tabs">
+            <button class="tab-btn active" id="tabComErro" onclick="trocarModo('com_erro')">1. Capturando Erro (ZeroDivisionError)</button>
+            <button class="tab-btn" id="tabElseFinally" onclick="trocarModo('else_finally')">2. Fluxo Completo (try/else/finally)</button>
+        </div>
+
+        <div class="visualg-controls">
+            <button class="btn-sim" id="btnIniciar" onclick="iniciarSimulacao()">▶ Iniciar Execução</button>
+            <button class="btn-sim" id="btnProximo" onclick="proximoPasso()" disabled>⏭ Próximo Passo</button>
+            <button class="btn-sim" id="btnReiniciar" onclick="reiniciarSimulacao()">🔄 Reiniciar</button>
+            <button class="btn-sim btn-explain" onclick="abrirModalExplicacao()">📖 Explicar Conceito</button>
+        </div>
+
+        <div class="visualg-layout">
+            <div class="code-box" id="codeEditor"></div>
+
+            <div class="vertical-panel">
+                <div class="console-box">
+                    <div class="panel-header">Console de Saída</div>
+                    <div class="console-output" id="consoleOutput">Aguardando início...</div>
+                </div>
+
+                <div class="memory-box">
+                    <div class="panel-header">Memória RAM (Variáveis & Exceções)</div>
+                    <div class="memory-grid" id="memoryGrid">
+                        <div style="color: #666; font-size: 0.8rem; font-style: italic;">Nenhuma variável na memória.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="explanation-box">
+            <h4 id="expTitle">Explicação da Instrução</h4>
+            <p id="expText">Clique em "Iniciar Execução" para acompanhar o tratamento de exceções passo a passo.</p>
+        </div>
+
+    </div>
+
+    <!-- Modal de Explicação Detalhada -->
+    <div class="modal-overlay" id="modalExplicacao">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Tratamento de Exceções em Python (try / except)</h2>
+                <button class="modal-close" onclick="fecharModalExplicacao()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3>O que é uma Exceção?</h3>
+                <p>Uma <strong>exceção</strong> é um erro que ocorre durante a execução do programa (runtime). Quando o Python encontra um erro imprevisto (como dividir por zero ou converter um texto inválido em número), ele "lança" uma exceção. Se o erro não for tratado, o programa é interrompido abruptamente.</p>
+
+                <h3>1. O Bloco <code>try</code></h3>
+                <div class="concept-card">
+                    <p>Contém o código "de risco" — instruções que têm potencial para gerar um erro durante a execução. O Python tenta executar as linhas dentro deste bloco normalmente.</p>
+                </div>
+
+                <h3>2. O Bloco <code>except</code></h3>
+                <div class="concept-card">
+                    <p>Se ocorra algum erro dentro do bloco <code>try</code>, a execução do <code>try</code> é <strong>interrompida imediatamente</strong> e salta para o bloco <code>except</code> correspondente.</p>
+                    <ul>
+                        <li>Você pode capturar erros específicos (ex: <code>except ZeroDivisionError:</code>).</li>
+                        <li>Pode capturar o objeto do erro usando a sintaxe: <code>except ZeroDivisionError as e:</code>.</li>
+                    </ul>
+                </div>
+
+                <h3>3. O Bloco <code>else</code> (Opcional)</h3>
+                <div class="concept-card">
+                    <p>Executado <strong>apenas se NENHUM erro</strong> tiver ocorrido no bloco <code>try</code>. É ideal para ações que só devem acontecer quando a operação do <code>try</code> for bem-sucedida.</p>
+                </div>
+
+                <h3>4. O Bloco <code>finally</code> (Opcional)</h3>
+                <div class="concept-card">
+                    <p>Executado <strong>SEMPRE</strong>, independentemente de ter havido exceção ou não. É muito utilizado para tarefas de limpeza e liberação de recursos (ex: fechar conexão com banco de dados, fechar arquivos abertos).</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Algoritmos & Programação • Simulador Interativo de Exceções
+    </footer>
+
+    <script>
+        function voltarPagina() {
+            window.history.back();
+        }
+
+        const codigoComErro = [
+            { id: 1, text: 'a = 10', expTitle: 'Atribuição', expText: 'Cria a variável "a" com valor 10.' },
+            { id: 2, text: 'b = 0', expTitle: 'Atribuição', expText: 'Cria a variável "b" com valor 0.' },
+            { id: 3, text: 'try:', expTitle: 'Bloco try', expText: 'Inicia o bloco monitorado. Qualquer erro dentro deste bloco será capturado pelo except.' },
+            { id: 4, text: '    print("Iniciando a divisão...")', expTitle: 'Execução Normal', expText: 'Imprime a mensagem no console normalmente.' },
+            { id: 5, text: '    resultado = a / b', expTitle: 'Lançando Exceção!', expText: 'Ocorreu uma divisão por zero! O Python lança a exceção "ZeroDivisionError" e INTERROMPE a execução do bloco try imediatamente.' },
+            { id: 6, text: '    print("Resultado:", resultado)', expTitle: 'Linha Pulada', expText: 'Esta linha NUNCA será executada porque o erro ocorreu na linha anterior!' },
+            { id: 7, text: 'except ZeroDivisionError as e:', expTitle: 'Captura da Exceção', expText: 'O Python encontra o bloco except compatível e guarda os detalhes do erro na variável "e".' },
+            { id: 8, text: '    print("Erro capturado:", e)', expTitle: 'Tratamento do Erro', expText: 'Trata o erro amigavelmente sem interromper o programa.' },
+            { id: 9, text: 'print("Programa continua executando normalmente!")', expTitle: 'Fluxo Normal Resumido', expText: 'Como o erro foi tratado, a aplicação continua a sua execução sem travar.' }
+        ];
+
+        const codigoElseFinally = [
+            { id: 1, text: 'a = 10', expTitle: 'Atribuição', expText: 'Inicializa "a" com 10.' },
+            { id: 2, text: 'b = 2', expTitle: 'Atribuição', expText: 'Inicializa "b" com 2.' },
+            { id: 3, text: 'try:', expTitle: 'Bloco try', expText: 'Inicia o bloco monitorado.' },
+            { id: 4, text: '    resultado = a / b', expTitle: 'Operação Bem-Sucedida', expText: 'A divisão por 2 é realizada com sucesso (resultado = 5.0). Nenhum erro é lançado.' },
+            { id: 5, text: 'except ZeroDivisionError:', expTitle: 'Bloco Ignoado', expText: 'Como não houve erro no try, este bloco é ignorado.' },
+            { id: 6, text: '    print("Erro de divisão por zero!")', expTitle: 'Linha Ignoada', expText: 'Não executa.' },
+            { id: 7, text: 'else:', expTitle: 'Bloco else', expText: 'Como o bloco try executou SEM erros, o bloco else é acionado!' },
+            { id: 8, text: '    print("Divisão realizada com sucesso! Resultado:", resultado)', expTitle: 'Execução do else', expText: 'Exibe o resultado da operação.' },
+            { id: 9, text: 'finally:', expTitle: 'Bloco finally', expText: 'O bloco finally SEMPRE é executado, existindo erro ou não.' },
+            { id: 10, text: '    print("Limpeza realizada. Conexão encerrada.")', expTitle: 'Execução do finally', expText: 'Garante a execução de códigos de limpeza ou fechamento de recursos.' }
+        ];
+
+        // Sequência real de execução passo a passo
+        const sequenciaComErro = [1, 2, 3, 4, 5, 7, 8, 9];
+        const sequenciaElseFinally = [1, 2, 3, 4, 7, 8, 9, 10];
+
+        let modoAtual = 'com_erro';
+        let indiceSequencia = 0;
+        let emExecucao = false;
+        let consoleTexto = "";
+
+        let memoriaRAM = [];
+
+        function abrirModalExplicacao() {
+            document.getElementById('modalExplicacao').classList.add('active');
+        }
+
+        function fecharModalExplicacao() {
+            document.getElementById('modalExplicacao').classList.remove('active');
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('modalExplicacao');
+            if (event.target === modal) {
+                fecharModalExplicacao();
+            }
+        };
+
+        function trocarModo(modo) {
+            if (emExecucao) reiniciarSimulacao();
+            modoAtual = modo;
+
+            document.getElementById('tabComErro').classList.toggle('active', modo === 'com_erro');
+            document.getElementById('tabElseFinally').classList.toggle('active', modo === 'else_finally');
+
+            renderizarCodigo();
+            renderizarMemoria();
+            atualizarExplicacao("Modo Selecionado", "Clique em \"Iniciar Execução\" para acompanhar o tratamento de exceções.");
+        }
+
+        function formatarSintaxe(str) {
+            let res = str;
+            if (res.trim().startsWith('#')) {
+                return `<span class="kw-comment">${res}</span>`;
+            }
+            res = res.replace(/("[^"]*")/g, '<span class="kw-string">$1</span>');
+            return res;
+        }
+
+        function getCodigoAtual() {
+            return modoAtual === 'com_erro' ? codigoComErro : codigoElseFinally;
+        }
+
+        function getSequenciaAtual() {
+            return modoAtual === 'com_erro' ? sequenciaComErro : sequenciaElseFinally;
+        }
+
+        function getLinhaAtiva() {
+            if (indiceSequencia === 0) return 0;
+            const seq = getSequenciaAtual();
+            return seq[indiceSequencia - 1];
+        }
+
+        function renderizarCodigo() {
+            const editor = document.getElementById('codeEditor');
+            editor.innerHTML = '';
+            const lista = getCodigoAtual();
+            const linhaAtiva = getLinhaAtiva();
+
+            lista.forEach((linha, index) => {
+                const lineDiv = document.createElement('div');
+                const numLinha = index + 1;
+                
+                let isError = (modoAtual === 'com_erro' && numLinha === 5 && linhaAtiva === 5);
+                
+                lineDiv.className = 'code-line' + (numLinha === linhaAtiva ? ' active' : '') + (isError ? ' error-line' : '');
+                lineDiv.id = `line-${numLinha}`;
+
+                const ptr = document.createElement('span');
+                ptr.className = 'code-pointer';
+                ptr.innerText = '➔';
+
+                const txt = document.createElement('span');
+                txt.innerHTML = formatarSintaxe(linha.text);
+
+                lineDiv.appendChild(ptr);
+                lineDiv.appendChild(txt);
+                editor.appendChild(lineDiv);
+            });
+
+            if (linhaAtiva > 0) {
+                const activeEl = document.getElementById(`line-${linhaAtiva}`);
+                if (activeEl) {
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+        }
+
+        function renderizarMemoria() {
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = '';
+
+            if (memoriaRAM.length === 0) {
+                grid.innerHTML = '<div style="color: #666; font-size: 0.8rem; font-style: italic;">Nenhuma variável alocada na memória.</div>';
+                return;
+            }
+
+            memoriaRAM.forEach(item => {
+                const cell = document.createElement('div');
+                cell.className = 'memory-cell' + (item.updated ? ' updated' : '') + (item.isException ? ' exception-cell' : '');
+
+                cell.innerHTML = `
+                    <span class="mem-addr">${item.addr}</span>
+                    <span class="mem-name">${item.nome}</span>
+                    <span class="mem-scope">[${item.tipo}]</span>
+                    <span class="mem-val">${item.val}</span>
+                `;
+                grid.appendChild(cell);
+            });
+        }
+
+        function atualizarExplicacao(titulo, texto) {
+            document.getElementById('expTitle').innerText = titulo;
+            document.getElementById('expText').innerText = texto;
+        }
+
+        function iniciarSimulacao() {
+            reiniciarSimulacao();
+            emExecucao = true;
+            document.getElementById('btnIniciar').disabled = true;
+            document.getElementById('btnProximo').disabled = false;
+            proximoPasso();
+        }
+
+        function proximoPasso() {
+            const seq = getSequenciaAtual();
+            if (indiceSequencia >= seq.length) return;
+
+            indiceSequencia++;
+            const numLinha = seq[indiceSequencia - 1];
+            const codigo = getCodigoAtual();
+            const instrucao = codigo.find(item => item.id === numLinha);
+
+            memoriaRAM.forEach(i => i.updated = false);
+
+            renderizarCodigo();
+            if (instrucao) {
+                atualizarExplicacao(instrucao.expTitle, instrucao.expText);
+            }
+
+            if (modoAtual === 'com_erro') {
+                executarPassoComErro(numLinha);
+            } else {
+                executarPassoElseFinally(numLinha);
+            }
+        }
+
+        function executarPassoComErro(linha) {
+            switch (linha) {
+                case 1:
+                    consoleTexto = "*** Modo: Capturando Exceção ***\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    memoriaRAM.push({ addr: '0x01', nome: 'a', tipo: 'int', val: '10', updated: true, isException: false });
+                    renderizarMemoria();
+                    break;
+                case 2:
+                    memoriaRAM.push({ addr: '0x02', nome: 'b', tipo: 'int', val: '0', updated: true, isException: false });
+                    renderizarMemoria();
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    consoleTexto += "Iniciando a divisão...\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 5:
+                    memoriaRAM.push({ addr: '0xERR', nome: 'Exception', tipo: 'Exceção', val: 'ZeroDivisionError', updated: true, isException: true });
+                    renderizarMemoria();
+                    break;
+                case 7:
+                    memoriaRAM.push({ addr: '0x03', nome: 'e', tipo: 'objeto', val: 'division by zero', updated: true, isException: false });
+                    renderizarMemoria();
+                    break;
+                case 8:
+                    consoleTexto += "Erro capturado: division by zero\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 9:
+                    consoleTexto += "Programa continua executando normalmente!\n";
+                    consoleTexto += "\n*** Fim da Execução ***";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    document.getElementById('btnProximo').disabled = true;
+                    atualizarExplicacao("Conclusão do Tratamento", "Graças ao bloco try/except, a exceção foi tratada adequadamente e o programa não travou!");
+                    break;
+            }
+        }
+
+        function executarPassoElseFinally(linha) {
+            switch (linha) {
+                case 1:
+                    consoleTexto = "*** Modo: try / else / finally ***\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    memoriaRAM.push({ addr: '0x01', nome: 'a', tipo: 'int', val: '10', updated: true, isException: false });
+                    renderizarMemoria();
+                    break;
+                case 2:
+                    memoriaRAM.push({ addr: '0x02', nome: 'b', tipo: 'int', val: '2', updated: true, isException: false });
+                    renderizarMemoria();
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    memoriaRAM.push({ addr: '0x03', nome: 'resultado', tipo: 'float', val: '5.0', updated: true, isException: false });
+                    renderizarMemoria();
+                    break;
+                case 7:
+                    break;
+                case 8:
+                    consoleTexto += "Divisão realizada com sucesso! Resultado: 5.0\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 9:
+                    break;
+                case 10:
+                    consoleTexto += "Limpeza realizada. Conexão encerrada.\n";
+                    consoleTexto += "\n*** Fim da Execução ***";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    document.getElementById('btnProximo').disabled = true;
+                    atualizarExplicacao("Conclusão do Fluxo Completo", "Como não ocorreu erro, o bloco else executou normalmente. Em seguida, o bloco finally também foi executado.");
+                    break;
+            }
+        }
+
+        function reiniciarSimulacao() {
+            indiceSequencia = 0;
+            emExecucao = false;
+            consoleTexto = "Aguardando início...";
+            memoriaRAM = [];
+
+            document.getElementById('btnIniciar').disabled = false;
+            document.getElementById('btnProximo').disabled = true;
+            document.getElementById('consoleOutput').innerText = consoleTexto;
+
+            renderizarCodigo();
+            renderizarMemoria();
+            atualizarExplicacao("Explicação da Instrução", "Clique no botão \"Iniciar Execução\" para avançar linha a linha.");
+        }
+
+        renderizarCodigo();
+    </script>
+</body>
+
+</html>

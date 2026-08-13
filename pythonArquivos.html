@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Simulador - Manipulação de Arquivos em Python</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f4f4;
+            color: #2b1e20;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        header {
+            background: linear-gradient(135deg, #0f172a, #0369a1);
+            padding: 24px 20px;
+            text-align: center;
+            border-bottom: 3px solid #38bdf8;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .btn-back {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .btn-back:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding-top: 55px;
+            }
+
+            .btn-back {
+                top: 15px;
+                transform: none;
+            }
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            color: #e0f2fe;
+            margin-bottom: 6px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        header p {
+            color: #bae6fd;
+            font-size: 0.95rem;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1100px;
+            margin: 20px auto;
+            flex-grow: 1;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 6px 18px rgba(3, 105, 161, 0.08);
+            border: 1px solid #e0f2fe;
+        }
+
+        .mode-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background-color: #e2e8f0;
+            color: #334155;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background-color: #0284c7;
+            color: #ffffff;
+        }
+
+        .visualg-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sim {
+            background-color: #0369a1;
+            color: #ffffff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-size: 0.9rem;
+        }
+
+        .btn-sim:hover:not(:disabled) {
+            background-color: #0284c7;
+        }
+
+        .btn-sim:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .btn-sim:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+
+        .btn-explain {
+            background-color: #0d9488;
+        }
+
+        .btn-explain:hover:not(:disabled) {
+            background-color: #0f766e;
+        }
+
+        .visualg-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .code-box {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            height: 330px;
+            overflow-y: auto;
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5);
+            width: 100%;
+        }
+
+        .code-line {
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            display: flex;
+            align-items: center;
+        }
+
+        .code-pointer {
+            display: inline-block;
+            width: 20px;
+            color: #38bdf8;
+            font-weight: bold;
+            visibility: hidden;
+            user-select: none;
+        }
+
+        .code-line.active .code-pointer {
+            visibility: visible;
+        }
+
+        .code-line.active {
+            background-color: #0369a1;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .kw-comment {
+            color: #6a9955;
+        }
+
+        .kw-string {
+            color: #ce9178;
+        }
+
+        .vertical-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .vertical-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .console-box {
+            background-color: #0c0c0c;
+            color: #00ff66;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            height: 220px;
+            overflow-y: auto;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            color: #888;
+            border-bottom: 1px solid #333;
+            padding-bottom: 4px;
+            margin-bottom: 6px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: bold;
+        }
+
+        .console-output {
+            flex-grow: 1;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .memory-box {
+            background-color: #181818;
+            border-radius: 8px;
+            padding: 10px 12px;
+            height: 220px;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .memory-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            overflow-y: auto;
+        }
+
+        .memory-cell {
+            display: grid;
+            grid-template-columns: 70px 1fr 90px 1fr;
+            background: #252526;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.8rem;
+            align-items: center;
+            border-left: 3px solid #555;
+            transition: all 0.3s ease;
+        }
+
+        .memory-cell.updated {
+            border-left-color: #00ff66;
+            background: #2a3a2e;
+            transform: scale(1.01);
+        }
+
+        .memory-cell.disk-cell {
+            border-left-color: #38bdf8;
+            background: #0f2d3e;
+        }
+
+        .mem-addr {
+            color: #888;
+            font-size: 0.7rem;
+        }
+
+        .mem-name {
+            color: #bae6fd;
+            font-weight: bold;
+        }
+
+        .mem-scope {
+            color: #f59e0b;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .mem-val {
+            color: #ffffff;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .explanation-box {
+            background-color: #f0f9ff;
+            border-left: 4px solid #0284c7;
+            padding: 12px 16px;
+            border-radius: 6px;
+            color: #0369a1;
+            font-size: 0.9rem;
+            min-height: 70px;
+        }
+
+        .explanation-box h4 {
+            margin-bottom: 4px;
+            color: #0369a1;
+            font-size: 0.95rem;
+        }
+
+        /* Estilos do Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            background-color: #0f172a;
+            color: #ffffff;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #38bdf8;
+        }
+
+        .modal-header h2 {
+            font-size: 1.3rem;
+            color: #bae6fd;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0 5px;
+            line-height: 1;
+        }
+
+        .modal-body {
+            padding: 20px;
+            line-height: 1.6;
+            color: #334155;
+            font-size: 0.95rem;
+        }
+
+        .modal-body h3 {
+            color: #0369a1;
+            margin: 16px 0 8px 0;
+            font-size: 1.1rem;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 4px;
+        }
+
+        .modal-body h3:first-child {
+            margin-top: 0;
+        }
+
+        .modal-body ul {
+            margin-left: 20px;
+            margin-bottom: 12px;
+        }
+
+        .modal-body li {
+            margin-bottom: 6px;
+        }
+
+        .modal-body code {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .concept-card {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+        }
+
+        table.mode-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        table.mode-table th, table.mode-table td {
+            border: 1px solid #cbd5e1;
+            padding: 8px 12px;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        table.mode-table th {
+            background-color: #f1f5f9;
+            color: #0369a1;
+        }
+
+        footer {
+            text-align: center;
+            padding: 18px;
+            background-color: #e2e8f0;
+            color: #334155;
+            border-top: 1px solid #cbd5e1;
+            font-size: 0.85rem;
+            margin-top: auto;
+            padding-bottom: calc(18px + env(safe-area-inset-bottom));
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <button class="btn-back" onclick="voltarPagina()">
+            ⬅ Voltar
+        </button>
+        <h1>Manipulação de Arquivos em Python</h1>
+        <p>Aprenda na prática como funciona a Escrita, Leitura, Gerenciamento e Fechamento Manual (close).</p>
+    </header>
+
+    <div class="container">
+
+        <div class="mode-tabs">
+            <button class="tab-btn active" id="tabEscrita" onclick="trocarModo('escrita')">1. Escrita ('w' e 'a')</button>
+            <button class="tab-btn" id="tabLeitura" onclick="trocarModo('leitura')">2. Leitura ('r')</button>
+            <button class="tab-btn" id="tabRenomearExcluir" onclick="trocarModo('renomear_excluir')">3. Renomear/Excluir (os)</button>
+            <button class="tab-btn" id="tabManual" onclick="trocarModo('manual')">4. Manual (close())</button>
+        </div>
+
+        <div class="visualg-controls">
+            <button class="btn-sim" id="btnIniciar" onclick="iniciarSimulacao()">▶ Iniciar Execução</button>
+            <button class="btn-sim" id="btnProximo" onclick="proximoPasso()" disabled>⏭ Próximo Passo</button>
+            <button class="btn-sim" id="btnReiniciar" onclick="reiniciarSimulacao()">🔄 Reiniciar</button>
+            <button class="btn-sim btn-explain" onclick="abrirModalExplicacao()">📖 Explicar Conceito</button>
+        </div>
+
+        <div class="visualg-layout">
+            <div class="code-box" id="codeEditor"></div>
+
+            <div class="vertical-panel">
+                <div class="console-box">
+                    <div class="panel-header">Console de Saída</div>
+                    <div class="console-output" id="consoleOutput">Aguardando início...</div>
+                </div>
+
+                <div class="memory-box">
+                    <div class="panel-header">Estado do Sistema (Memória RAM & Disco)</div>
+                    <div class="memory-grid" id="memoryGrid">
+                        <div style="color: #666; font-size: 0.8rem; font-style: italic;">Nenhum arquivo ou objeto alocado.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="explanation-box">
+            <h4 id="expTitle">Explicação da Instrução</h4>
+            <p id="expText">Clique em "Iniciar Execução" para acompanhar as operações de arquivo passo a passo.</p>
+        </div>
+
+    </div>
+
+    <!-- Modal de Explicação Detalhada -->
+    <div class="modal-overlay" id="modalExplicacao">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Manipulação de Arquivos em Python</h2>
+                <button class="modal-close" onclick="fecharModalExplicacao()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3>1. Fechamento Automático vs. Manual</h3>
+                <div class="concept-card">
+                    <p><strong>Com <code>with open()</code> (Boa Prática):</strong> O Python cuida do fechamento do recurso assim que o bloco indentado termina, mesmo se ocorrer uma exceção.</p>
+                    <p><strong>Com <code>open()</code> direto (Abordagem Manual):</strong> O arquivo permanece aberto na RAM até que a função <code>.close()</code> seja explicitamente executada pelo código.</p>
+                </div>
+
+                <h3>2. Modos de Abertura de Arquivos</h3>
+                <table class="mode-table">
+                    <thead>
+                        <tr>
+                            <th>Modo</th>
+                            <th>Ação</th>
+                            <th>Comportamento se não existir</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>'w'</code></td>
+                            <td><strong>Escrita:</strong> Sobrescreve todo o conteúdo do arquivo.</td>
+                            <td>Cria o arquivo.</td>
+                        </tr>
+                        <tr>
+                            <td><code>'a'</code></td>
+                            <td><strong>Anexar (Append):</strong> Adiciona novos dados ao final.</td>
+                            <td>Cria o arquivo.</td>
+                        </tr>
+                        <tr>
+                            <td><code>'r'</code></td>
+                            <td><strong>Leitura:</strong> Lê o conteúdo pré-existente.</td>
+                            <td>Gera erro <code>FileNotFoundError</code>.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>3. Por que fechar arquivos é vital?</h3>
+                <div class="concept-card">
+                    <ul>
+                        <li><strong>Evita vazamento de memória:</strong> Arquivos abertos consomem ponteiros do Sistema Operacional.</li>
+                        <li><strong>Garante a gravação (Flush):</strong> Os dados podem ficar presos no buffer da RAM e só serem gravados no disco após o <code>.close()</code>.</li>
+                        <li><strong>Previne bloqueios de arquivo:</strong> Outros processos ou programas não conseguirão acessar/deletar um arquivo mantido aberto.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Algoritmos & Programação • Simulador Interativo de Arquivos
+    </footer>
+
+    <script>
+        function voltarPagina() {
+            window.history.back();
+        }
+
+        const codigoEscrita = [
+            { id: 1, text: '# Modo 1: Sobrescrever / Criar ("w")', expTitle: 'Modo Escrita ("w")', expText: 'O modo "w" cria o arquivo se não existir, ou apaga todo conteúdo prévio se já existir.' },
+            { id: 2, text: 'with open("notas.txt", "w") as arq:', expTitle: 'Abertura com "with"', expText: 'Abre "notas.txt". O bloco "with" gerencia o fechamento automático ao final.' },
+            { id: 3, text: '    arq.write("Linha 1: Python\\n")', expTitle: 'Gravando Linha 1', expText: 'Escreve a primeira linha terminada em \\n (quebra de linha).' },
+            { id: 4, text: '    arq.write("Linha 2: Manipulacao de Arquivos\\n")', expTitle: 'Gravando Linha 2', expText: 'Adiciona a segunda linha ao buffer do arquivo.' },
+            { id: 5, text: '# Modo 2: Anexar dados ao final ("a")', expTitle: 'Modo Anexar ("a")', expText: 'O modo "a" (append) abre o arquivo preservando o conteúdo existente.' },
+            { id: 6, text: 'with open("notas.txt", "a") as arq:', expTitle: 'Abertura para Anexar', expText: 'Reabre "notas.txt" posicionando o ponteiro no final do arquivo.' },
+            { id: 7, text: '    arq.write("Linha 3: Adicionada com modo append!\\n")', expTitle: 'Anexando Nova Linha', expText: 'Insere a Linha 3 sem apagar o conteúdo anterior.' },
+            { id: 8, text: 'print("Gravacao e anexacao concluidas com sucesso!")', expTitle: 'Finalização', expText: 'Arquivo fechado e pronto com 3 linhas em disco.' }
+        ];
+
+        const codigoLeitura = [
+            { id: 1, text: '# Leitura Completa com .read()', expTitle: 'Modo Leitura ("r")', expText: 'Abre o arquivo "notas.txt" exclusivamente para leitura.' },
+            { id: 2, text: 'with open("notas.txt", "r") as arq:', expTitle: 'Abertura para Leitura', expText: 'Gera o objeto leitor associado ao arquivo em disco.' },
+            { id: 3, text: '    conteudo = arq.read()', expTitle: 'Método .read()', expText: 'Lê todo o conteúdo do arquivo de uma só vez para a variável "conteudo".' },
+            { id: 4, text: 'print("--- CONTEUDO LIDO ---")', expTitle: 'Exibição', expText: 'Prepara o console para exibir os dados.' },
+            { id: 5, text: 'print(conteudo)', expTitle: 'Console Output', expText: 'Imprime na tela a string com todas as linhas do arquivo.' },
+            { id: 6, text: '# Leitura linha a linha com .readlines()', expTitle: 'Método .readlines()', expText: 'Converte cada linha em um elemento de uma lista em Python.' },
+            { id: 7, text: 'with open("notas.txt", "r") as arq:', expTitle: 'Reabertura', expText: 'Reinicia o ponteiro de leitura no início do arquivo.' },
+            { id: 8, text: '    linhas = arq.readlines()', expTitle: 'Criando Lista de Linhas', expText: 'Gera a lista contendo todas as linhas do arquivo.' },
+            { id: 9, text: 'print("Total de linhas lidas:", len(linhas))', expTitle: 'Resultado', expText: 'Exibe a contagem de elementos na lista criada.' }
+        ];
+
+        const codigoRenomearExcluir = [
+            { id: 1, text: 'import os', expTitle: 'Importando Módulo OS', expText: 'Carrega as rotinas para interação com o Sistema Operacional.' },
+            { id: 2, text: 'if os.path.exists("notas.txt"):', expTitle: 'Verificando Existência', expText: 'Valida se "notas.txt" está no disco para evitar erros.' },
+            { id: 3, text: '    os.rename("notas.txt", "notas_backup.txt")', expTitle: 'Renomeando Arquivo', expText: 'Muda o nome de "notas.txt" para "notas_backup.txt".' },
+            { id: 4, text: '    print("Arquivo renomeado com sucesso!")', expTitle: 'Console Output', expText: 'Confirmação da alteração de nome.' },
+            { id: 5, text: 'if os.path.exists("notas_backup.txt"):', expTitle: 'Verificando Backup', expText: 'Garante a existência do backup antes de excluí-lo.' },
+            { id: 6, text: '    os.remove("notas_backup.txt")', expTitle: 'Excluindo Arquivo', expText: 'Remove o arquivo "notas_backup.txt" do disco permanentemente.' },
+            { id: 7, text: '    print("Arquivo excluido do disco!")', expTitle: 'Console Output', expText: 'Confirmação de exclusão do arquivo.' }
+        ];
+
+        const codigoManual = [
+            { id: 1, text: '# Abordagem Sem "with": Uso Obrigatorio de .close()', expTitle: 'Abertura Manual', expText: 'Quando não usamos "with", precisamos guardar a referência em uma variável manualmente.' },
+            { id: 2, text: 'arq = open("manual.txt", "w")', expTitle: 'Atribuindo Ponteiro', expText: 'Abre "manual.txt" e reserva um manipulador na memória RAM (status: Aberto).' },
+            { id: 3, text: 'arq.write("Dados gravados manualmente.\\n")', expTitle: 'Escrevendo Dados', expText: 'Os dados entram no buffer de escrita do SO.' },
+            { id: 4, text: 'print("Arquivo aberto e escrito. Status fechado?:", arq.closed)', expTitle: 'Checando Estado', expText: 'A propriedade arq.closed revela que o arquivo permanece ABERTO na memória!' },
+            { id: 5, text: 'arq.close()  # <-- OBRIGATORIO!', expTitle: 'Fechamento Manual', expText: 'A instrução arq.close() desaloca o recurso e descarrega os buffers no disco.' },
+            { id: 6, text: 'print("Arquivo finalizado! Status fechado?:", arq.closed)', expTitle: 'Validação Final', expText: 'Confirma que o arquivo foi encerrado e liberado pelo Python com sucesso.' }
+        ];
+
+        const sequenciaEscrita = [1, 2, 3, 4, 5, 6, 7, 8];
+        const sequenciaLeitura = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+        const sequenciaRenomearExcluir = [1, 2, 3, 4, 5, 6, 7];
+        const sequenciaManual = [1, 2, 3, 4, 5, 6];
+
+        let modoAtual = 'escrita';
+        let indiceSequencia = 0;
+        let emExecucao = false;
+        let consoleTexto = "";
+
+        let memoriaRAM = [];
+
+        function abrirModalExplicacao() {
+            document.getElementById('modalExplicacao').classList.add('active');
+        }
+
+        function fecharModalExplicacao() {
+            document.getElementById('modalExplicacao').classList.remove('active');
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('modalExplicacao');
+            if (event.target === modal) {
+                fecharModalExplicacao();
+            }
+        };
+
+        function trocarModo(modo) {
+            if (emExecucao) reiniciarSimulacao();
+            modoAtual = modo;
+
+            document.getElementById('tabEscrita').classList.toggle('active', modo === 'escrita');
+            document.getElementById('tabLeitura').classList.toggle('active', modo === 'leitura');
+            document.getElementById('tabRenomearExcluir').classList.toggle('active', modo === 'renomear_excluir');
+            document.getElementById('tabManual').classList.toggle('active', modo === 'manual');
+
+            renderizarCodigo();
+            renderizarMemoria();
+            atualizarExplicacao("Modo Selecionado", "Clique em \"Iniciar Execução\" para acompanhar a manipulação de arquivos.");
+        }
+
+        function formatarSintaxe(str) {
+            let res = str;
+            if (res.trim().startsWith('#')) {
+                return `<span class="kw-comment">${res}</span>`;
+            }
+            res = res.replace(/("[^"]*")/g, '<span class="kw-string">$1</span>');
+            return res;
+        }
+
+        function getCodigoAtual() {
+            if (modoAtual === 'escrita') return codigoEscrita;
+            if (modoAtual === 'leitura') return codigoLeitura;
+            if (modoAtual === 'renomear_excluir') return codigoRenomearExcluir;
+            return codigoManual;
+        }
+
+        function getSequenciaAtual() {
+            if (modoAtual === 'escrita') return sequenciaEscrita;
+            if (modoAtual === 'leitura') return sequenciaLeitura;
+            if (modoAtual === 'renomear_excluir') return sequenciaRenomearExcluir;
+            return sequenciaManual;
+        }
+
+        function getLinhaAtiva() {
+            if (indiceSequencia === 0) return 0;
+            const seq = getSequenciaAtual();
+            return seq[indiceSequencia - 1];
+        }
+
+        function renderizarCodigo() {
+            const editor = document.getElementById('codeEditor');
+            editor.innerHTML = '';
+            const lista = getCodigoAtual();
+            const linhaAtiva = getLinhaAtiva();
+
+            lista.forEach((linha, index) => {
+                const lineDiv = document.createElement('div');
+                const numLinha = index + 1;
+                
+                lineDiv.className = 'code-line' + (numLinha === linhaAtiva ? ' active' : '');
+                lineDiv.id = `line-${numLinha}`;
+
+                const ptr = document.createElement('span');
+                ptr.className = 'code-pointer';
+                ptr.innerText = '➔';
+
+                const txt = document.createElement('span');
+                txt.innerHTML = formatarSintaxe(linha.text);
+
+                lineDiv.appendChild(ptr);
+                lineDiv.appendChild(txt);
+                editor.appendChild(lineDiv);
+            });
+
+            if (linhaAtiva > 0) {
+                const activeEl = document.getElementById(`line-${linhaAtiva}`);
+                if (activeEl) {
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+        }
+
+        function renderizarMemoria() {
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = '';
+
+            if (memoriaRAM.length === 0) {
+                grid.innerHTML = '<div style="color: #666; font-size: 0.8rem; font-style: italic;">Nenhum arquivo ou objeto alocado.</div>';
+                return;
+            }
+
+            memoriaRAM.forEach(item => {
+                const cell = document.createElement('div');
+                cell.className = 'memory-cell' + (item.updated ? ' updated' : '') + (item.isDisk ? ' disk-cell' : '');
+
+                cell.innerHTML = `
+                    <span class="mem-addr">${item.addr}</span>
+                    <span class="mem-name">${item.nome}</span>
+                    <span class="mem-scope">[${item.tipo}]</span>
+                    <span class="mem-val">${item.val}</span>
+                `;
+                grid.appendChild(cell);
+            });
+        }
+
+        function atualizarExplicacao(titulo, texto) {
+            document.getElementById('expTitle').innerText = titulo;
+            document.getElementById('expText').innerText = texto;
+        }
+
+        function iniciarSimulacao() {
+            reiniciarSimulacao();
+            emExecucao = true;
+            document.getElementById('btnIniciar').disabled = true;
+            document.getElementById('btnProximo').disabled = false;
+            proximoPasso();
+        }
+
+        function proximoPasso() {
+            const seq = getSequenciaAtual();
+            if (indiceSequencia >= seq.length) return;
+
+            indiceSequencia++;
+            const numLinha = seq[indiceSequencia - 1];
+            const codigo = getCodigoAtual();
+            const instrucao = codigo.find(item => item.id === numLinha);
+
+            memoriaRAM.forEach(i => i.updated = false);
+
+            renderizarCodigo();
+            if (instrucao) {
+                atualizarExplicacao(instrucao.expTitle, instrucao.expText);
+            }
+
+            if (modoAtual === 'escrita') {
+                executarPassoEscrita(numLinha);
+            } else if (modoAtual === 'leitura') {
+                executarPassoLeitura(numLinha);
+            } else if (modoAtual === 'renomear_excluir') {
+                executarPassoRenomearExcluir(numLinha);
+            } else {
+                executarPassoManual(numLinha);
+            }
+        }
+
+        function executarPassoEscrita(linha) {
+            switch (linha) {
+                case 1:
+                    consoleTexto = "*** Modo: Escrita de Arquivos ('w' e 'a') ***\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 2:
+                    memoriaRAM.push({ addr: '0x01', nome: 'arq', tipo: 'TextIOWrapper', val: '<modo "w">', updated: true, isDisk: false });
+                    memoriaRAM.push({ addr: 'DISC_1', nome: 'notas.txt', tipo: 'Arquivo', val: '(vazio)', updated: true, isDisk: true });
+                    renderizarMemoria();
+                    break;
+                case 3:
+                    let f3 = memoriaRAM.find(i => i.nome === 'notas.txt');
+                    if (f3) { f3.val = 'Linha 1'; f3.updated = true; }
+                    renderizarMemoria();
+                    break;
+                case 4:
+                    let f4 = memoriaRAM.find(i => i.nome === 'notas.txt');
+                    if (f4) { f4.val = '2 linhas'; f4.updated = true; }
+                    renderizarMemoria();
+                    break;
+                case 5:
+                    memoriaRAM = memoriaRAM.filter(i => i.nome !== 'arq');
+                    renderizarMemoria();
+                    break;
+                case 6:
+                    memoriaRAM.push({ addr: '0x02', nome: 'arq', tipo: 'TextIOWrapper', val: '<modo "a">', updated: true, isDisk: false });
+                    renderizarMemoria();
+                    break;
+                case 7:
+                    let f7 = memoriaRAM.find(i => i.nome === 'notas.txt');
+                    if (f7) { f7.val = '3 linhas'; f7.updated = true; }
+                    memoriaRAM = memoriaRAM.filter(i => i.nome !== 'arq');
+                    renderizarMemoria();
+                    break;
+                case 8:
+                    consoleTexto += "Gravacao e anexacao concluidas com sucesso!\n";
+                    consoleTexto += "\n*** Operação Concluída ***";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    document.getElementById('btnProximo').disabled = true;
+                    atualizarExplicacao("Conclusão do Bloco de Escrita", "O arquivo notas.txt foi gravado via 'w' e 'a', sendo fechado automaticamente pelo 'with'.");
+                    break;
+            }
+        }
+
+        function executarPassoLeitura(linha) {
+            switch (linha) {
+                case 1:
+                    consoleTexto = "*** Modo: Leitura de Arquivos ('r') ***\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    memoriaRAM.push({ addr: 'DISC_1', nome: 'notas.txt', tipo: 'Arquivo', val: '3 linhas salvas', updated: true, isDisk: true });
+                    renderizarMemoria();
+                    break;
+                case 2:
+                    memoriaRAM.push({ addr: '0x01', nome: 'arq', tipo: 'TextIOWrapper', val: '<modo "r">', updated: true, isDisk: false });
+                    renderizarMemoria();
+                    break;
+                case 3:
+                    memoriaRAM.push({ addr: '0x02', nome: 'conteudo', tipo: 'str', val: '"Linha 1\\nLinha 2..."', updated: true, isDisk: false });
+                    memoriaRAM = memoriaRAM.filter(i => i.nome !== 'arq');
+                    renderizarMemoria();
+                    break;
+                case 4:
+                    consoleTexto += "--- CONTEUDO LIDO ---\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 5:
+                    consoleTexto += "Linha 1: Python\nLinha 2: Manipulacao de Arquivos\nLinha 3: Adicionada com modo append!\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 6:
+                    break;
+                case 7:
+                    memoriaRAM.push({ addr: '0x03', nome: 'arq', tipo: 'TextIOWrapper', val: '<modo "r">', updated: true, isDisk: false });
+                    renderizarMemoria();
+                    break;
+                case 8:
+                    memoriaRAM.push({ addr: '0x04', nome: 'linhas', tipo: 'list', val: '[L1, L2, L3]', updated: true, isDisk: false });
+                    memoriaRAM = memoriaRAM.filter(i => i.nome !== 'arq');
+                    renderizarMemoria();
+                    break;
+                case 9:
+                    consoleTexto += "\nTotal de linhas lidas: 3\n";
+                    consoleTexto += "\n*** Operação Concluída ***";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    document.getElementById('btnProximo').disabled = true;
+                    atualizarExplicacao("Conclusão do Bloco de Leitura", "O conteúdo do arquivo foi lido por completo com .read() e estruturado em lista via .readlines().");
+                    break;
+            }
+        }
+
+        function executarPassoRenomearExcluir(linha) {
+            switch (linha) {
+                case 1:
+                    consoleTexto = "*** Modo: Renomear e Excluir (os) ***\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    memoriaRAM.push({ addr: 'DISC_1', nome: 'notas.txt', tipo: 'Arquivo', val: 'Existe no disco', updated: true, isDisk: true });
+                    renderizarMemoria();
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    let fileObj = memoriaRAM.find(i => i.nome === 'notas.txt');
+                    if (fileObj) {
+                        fileObj.nome = 'notas_backup.txt';
+                        fileObj.val = 'Backup criado';
+                        fileObj.updated = true;
+                    }
+                    renderizarMemoria();
+                    break;
+                case 4:
+                    consoleTexto += "Arquivo renomeado para backup com sucesso!\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 5:
+                    break;
+                case 6:
+                    memoriaRAM = memoriaRAM.filter(i => i.nome !== 'notas_backup.txt');
+                    renderizarMemoria();
+                    break;
+                case 7:
+                    consoleTexto += "Arquivo excluido do disco!\n";
+                    consoleTexto += "\n*** Operação Concluída ***";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    document.getElementById('btnProximo').disabled = true;
+                    atualizarExplicacao("Conclusão do Gerenciamento", "O arquivo foi verificado, renomeado com os.rename() e removido com os.remove().");
+                    break;
+            }
+        }
+
+        function executarPassoManual(linha) {
+            switch (linha) {
+                case 1:
+                    consoleTexto = "*** Modo: Fechamento Manual com arq.close() ***\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 2:
+                    memoriaRAM.push({ addr: '0x05', nome: 'arq', tipo: 'TextIOWrapper', val: '[Aberto]', updated: true, isDisk: false });
+                    memoriaRAM.push({ addr: 'DISC_2', nome: 'manual.txt', tipo: 'Arquivo', val: '(vazio)', updated: true, isDisk: true });
+                    renderizarMemoria();
+                    break;
+                case 3:
+                    let fm3 = memoriaRAM.find(i => i.nome === 'manual.txt');
+                    if (fm3) { fm3.val = '1 linha gravada'; fm3.updated = true; }
+                    renderizarMemoria();
+                    break;
+                case 4:
+                    consoleTexto += "Arquivo aberto e escrito. Status fechado?: False\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 5:
+                    let fRef = memoriaRAM.find(i => i.nome === 'arq');
+                    if (fRef) { fRef.val = '[Fechado]'; fRef.updated = true; }
+                    renderizarMemoria();
+                    break;
+                case 6:
+                    consoleTexto += "Arquivo finalizado! Status fechado?: True\n";
+                    consoleTexto += "\n*** Operação Concluída ***";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    document.getElementById('btnProximo').disabled = true;
+                    atualizarExplicacao("Conclusão da Operação Manual", "Sem a instrução 'with', a chamada manual arq.close() foi INDISPENSÁVEL para liberar o arquivo do SO.");
+                    break;
+            }
+        }
+
+        function reiniciarSimulacao() {
+            indiceSequencia = 0;
+            emExecucao = false;
+            consoleTexto = "Aguardando início...";
+            memoriaRAM = [];
+
+            document.getElementById('btnIniciar').disabled = false;
+            document.getElementById('btnProximo').disabled = true;
+            document.getElementById('consoleOutput').innerText = consoleTexto;
+
+            renderizarCodigo();
+            renderizarMemoria();
+            atualizarExplicacao("Explicação da Instrução", "Clique no botão \"Iniciar Execução\" para avançar linha a linha.");
+        }
+
+        renderizarCodigo();
+    </script>
+</body>
+
+</html>

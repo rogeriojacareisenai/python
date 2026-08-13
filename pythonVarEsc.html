@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Simulador - Escopo de Variáveis (Locais vs Globais)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f4f4;
+            color: #2b1e20;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        header {
+            background: linear-gradient(135deg, #0f172a, #1e3a8a);
+            padding: 24px 20px;
+            text-align: center;
+            border-bottom: 3px solid #3b82f6;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .btn-back {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .btn-back:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding-top: 55px;
+            }
+
+            .btn-back {
+                top: 15px;
+                transform: none;
+            }
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            color: #93c5fd;
+            margin-bottom: 6px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        header p {
+            color: #bfdbfe;
+            font-size: 0.95rem;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1100px;
+            margin: 20px auto;
+            flex-grow: 1;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 6px 18px rgba(30, 58, 138, 0.08);
+            border: 1px solid #dbeafe;
+        }
+
+        .mode-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            background-color: #e2e8f0;
+            color: #334155;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background-color: #2563eb;
+            color: #ffffff;
+        }
+
+        .visualg-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sim {
+            background-color: #1e3a8a;
+            color: #ffffff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-size: 0.9rem;
+        }
+
+        .btn-sim:hover:not(:disabled) {
+            background-color: #2563eb;
+        }
+
+        .btn-sim:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .btn-sim:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+
+        .btn-explain {
+            background-color: #0d9488;
+        }
+
+        .btn-explain:hover:not(:disabled) {
+            background-color: #0f766e;
+        }
+
+        .visualg-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .code-box {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            height: 310px;
+            overflow-y: auto;
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5);
+            width: 100%;
+        }
+
+        .code-line {
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            display: flex;
+            align-items: center;
+        }
+
+        .code-pointer {
+            display: inline-block;
+            width: 20px;
+            color: #38bdf8;
+            font-weight: bold;
+            visibility: hidden;
+            user-select: none;
+        }
+
+        .code-line.active .code-pointer {
+            visibility: visible;
+        }
+
+        .code-line.active {
+            background-color: #1e3a8a;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .kw-type {
+            color: #4ec9b0;
+            font-weight: bold;
+        }
+
+        .kw-comment {
+            color: #6a9955;
+        }
+
+        .kw-string {
+            color: #ce9178;
+        }
+
+        .vertical-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .vertical-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .console-box {
+            background-color: #0c0c0c;
+            color: #00ff66;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            color: #888;
+            border-bottom: 1px solid #333;
+            padding-bottom: 4px;
+            margin-bottom: 6px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: bold;
+        }
+
+        .console-output {
+            flex-grow: 1;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .memory-box {
+            background-color: #181818;
+            border-radius: 8px;
+            padding: 10px 12px;
+            height: 200px;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .memory-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            overflow-y: auto;
+        }
+
+        .memory-cell {
+            display: grid;
+            grid-template-columns: 80px 1fr 80px 1fr;
+            background: #252526;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.8rem;
+            align-items: center;
+            border-left: 3px solid #555;
+            transition: all 0.3s ease;
+        }
+
+        .memory-cell.updated {
+            border-left-color: #00ff66;
+            background: #2a3a2e;
+            transform: scale(1.01);
+        }
+
+        .memory-cell.destroyed {
+            border-left-color: #ef4444;
+            background: #3a2a2a;
+            opacity: 0.6;
+        }
+
+        .mem-addr {
+            color: #888;
+            font-size: 0.7rem;
+        }
+
+        .mem-name {
+            color: #93c5fd;
+            font-weight: bold;
+        }
+
+        .mem-scope {
+            color: #f59e0b;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .mem-val {
+            color: #ffffff;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .explanation-box {
+            background-color: #eff6ff;
+            border-left: 4px solid #1d4ed8;
+            padding: 12px 16px;
+            border-radius: 6px;
+            color: #1e3a8a;
+            font-size: 0.9rem;
+            min-height: 70px;
+        }
+
+        .explanation-box h4 {
+            margin-bottom: 4px;
+            color: #1e3a8a;
+            font-size: 0.95rem;
+        }
+
+        /* Estilos do Modal de Explicação Detalhada */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            background-color: #0f172a;
+            color: #ffffff;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #2563eb;
+        }
+
+        .modal-header h2 {
+            font-size: 1.3rem;
+            color: #93c5fd;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0 5px;
+            line-height: 1;
+        }
+
+        .modal-body {
+            padding: 20px;
+            line-height: 1.6;
+            color: #334155;
+            font-size: 0.95rem;
+        }
+
+        .modal-body h3 {
+            color: #1e3a8a;
+            margin: 16px 0 8px 0;
+            font-size: 1.1rem;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 4px;
+        }
+
+        .modal-body h3:first-child {
+            margin-top: 0;
+        }
+
+        .modal-body ul {
+            margin-left: 20px;
+            margin-bottom: 12px;
+        }
+
+        .modal-body li {
+            margin-bottom: 6px;
+        }
+
+        .modal-body code {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .concept-card {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 18px;
+            background-color: #e2e8f0;
+            color: #334155;
+            border-top: 1px solid #cbd5e1;
+            font-size: 0.85rem;
+            margin-top: auto;
+            padding-bottom: calc(18px + env(safe-area-inset-bottom));
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <button class="btn-back" onclick="voltarPagina()">
+            ⬅ Voltar
+        </button>
+        <h1>Escopo de Variáveis em Python</h1>
+        <p>Aprenda na prática a diferença entre Escopo Global e Escopo Local (Dentro de Funções).</p>
+    </header>
+
+    <div class="container">
+
+        <div class="mode-tabs">
+            <button class="tab-btn active" id="tabBasico" onclick="trocarModo('basico')">1. Escopo Básico (Local vs Global)</button>
+            <button class="tab-btn" id="tabGlobalKw" onclick="trocarModo('globalkw')">2. Modificando Global (Palavra 'global')</button>
+        </div>
+
+        <div class="visualg-controls">
+            <button class="btn-sim" id="btnIniciar" onclick="iniciarSimulacao()">▶ Iniciar Execução</button>
+            <button class="btn-sim" id="btnProximo" onclick="proximoPasso()" disabled>⏭ Próximo Passo</button>
+            <button class="btn-sim" id="btnReiniciar" onclick="reiniciarSimulacao()">🔄 Reiniciar</button>
+            <button class="btn-sim btn-explain" onclick="abrirModalExplicacao()">📖 Explicar Conceito</button>
+        </div>
+
+        <div class="visualg-layout">
+            <div class="code-box" id="codeEditor"></div>
+
+            <div class="vertical-panel">
+                <div class="console-box">
+                    <div class="panel-header">Console de Saída</div>
+                    <div class="console-output" id="consoleOutput">Aguardando início...</div>
+                </div>
+
+                <div class="memory-box">
+                    <div class="panel-header">Memória RAM (Tabela de Símbolos / Escopos)</div>
+                    <div class="memory-grid" id="memoryGrid">
+                        <div style="color: #666; font-size: 0.8rem; font-style: italic;">Nenhuma variável na memória.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="explanation-box">
+            <h4 id="expTitle">Explicação da Instrução</h4>
+            <p id="expText">Clique em "Iniciar Execução" para acompanhar o comportamento dos escopos passo a passo.</p>
+        </div>
+
+    </div>
+
+    <!-- Modal de Explicação Detalhada -->
+    <div class="modal-overlay" id="modalExplicacao">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Entendendo Escopos e Variáveis em Python</h2>
+                <button class="modal-close" onclick="fecharModalExplicacao()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3>O que é Escopo?</h3>
+                <p>O <strong>Escopo</strong> define a região do código onde uma determinada variável é reconhecida e pode ser acessada ou modificada. Variáveis criadas em uma parte do código podem não estar visíveis para outras partes.</p>
+
+                <h3>1. Escopo Global (Variáveis Globais)</h3>
+                <div class="concept-card">
+                    <ul>
+                        <li><strong>Onde nasce:</strong> Criada fora de qualquer função, no corpo principal do programa.</li>
+                        <li><strong>Visibilidade:</strong> Pode ser lida por qualquer função ou bloco de código dentro do mesmo arquivo.</li>
+                        <li><strong>Tempo de vida:</strong> Permanece viva na memória durante toda a execução do programa.</li>
+                    </ul>
+                </div>
+
+                <h3>2. Escopo Local (Variáveis Locais)</h3>
+                <div class="concept-card">
+                    <ul>
+                        <li><strong>Onde nasce:</strong> Criada no bloco interno de uma função (ou recebida como parâmetro).</li>
+                        <li><strong>Visibilidade:</strong> Acessível <em>apenas</em> dentro da função onde foi declarada.</li>
+                        <li><strong>Tempo de vida:</strong> É criada quando a função é executada e <strong>destruída da RAM</strong> assim que a função termina (retorna).</li>
+                    </ul>
+                </div>
+
+                <h3>3. O Sombreamento (Shadowing) e Conflito de Nomes</h3>
+                <p>Se você criar uma variável local com o mesmo nome de uma variável global, o Python criará uma <strong>nova variável</strong> no escopo local. Ela "esconde" a global temporariamente dentro da função, mas <strong>não altera</strong> a variável global original.</p>
+
+                <h3>4. A Regra LEGB de Busca</h3>
+                <p>Quando você usa uma variável, o Python procura seu valor nesta ordem rigorosa:</p>
+                <ul>
+                    <li><strong>L (Local):</strong> Busca dentro da função atual.</li>
+                    <li><strong>E (Enclosing):</strong> Busca em funções externas aninhadas (se houver).</li>
+                    <li><strong>G (Global):</strong> Busca no nível principal do arquivo.</li>
+                    <li><strong>B (Built-in):</strong> Busca nas funções nativas do Python (ex: <code>len</code>, <code>print</code>).</li>
+                </ul>
+
+                <h3>5. A Palavra-Chave <code>global</code></h3>
+                <p>Por padrão, funções podem <em>ler</em> variáveis globais, mas não podem <em>modificá-las</em>. Se você tentar alterar uma variável global dentro de uma função sem aviso prévio, o Python criará uma nova variável local.</p>
+                <p>Para dizer ao Python que você quer alterar a variável global original de dentro da função, deve-se usar a instrução: <code>global nome_da_variavel</code>.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Algoritmos & Programação • Simulador Interativo de Escopo
+    </footer>
+
+    <script>
+        function voltarPagina() {
+            window.history.back();
+        }
+
+        const codigoBasico = [
+            { id: 1, text: '# Variável declarada fora da função', expTitle: 'Comentário', expText: 'Início do script Python.' },
+            { id: 2, text: 'mensagem = "Eu sou GLOBAL"', expTitle: 'Variável Global', expText: 'A variável "mensagem" é criada no Escopo Global. Qualquer parte do código pode lê-la.' },
+            { id: 3, text: 'def minha_funcao():', expTitle: 'Definição da Função', expText: 'Define a função "minha_funcao". O Python registra a função, mas o bloco interno ainda NÃO é executado agora.' },
+            { id: 4, text: '    mensagem = "Eu sou LOCAL"', expTitle: 'Variável Local', expText: 'Dentro da função, cria-se UMA NOVA variável "mensagem" no Escopo Local. Ela NÃO altera a variável global do mesmo nome!' },
+            { id: 5, text: '    numero_local = 100', expTitle: 'Variável Local', expText: 'Cria a variável "numero_local" pertencente exclusivamente a esta função.' },
+            { id: 6, text: '    print("Dentro da função:", mensagem)', expTitle: 'Acesso Local', expText: 'O print busca a variável no escopo Local primeiro. Exibirá: "Eu sou LOCAL".' },
+            { id: 7, text: 'print("Fora da função (Antes):", mensagem)', expTitle: 'Acesso Global', expText: 'Executa no escopo principal (Global). Exibe o valor da variável global.' },
+            { id: 8, text: 'minha_funcao()', expTitle: 'Chamada da Função', expText: 'Invoca a execução do bloco interno da função, saltando a execução para a linha 4 (Escopo Local).' },
+            { id: 9, text: 'print("Fora da função (Depois):", mensagem)', expTitle: 'Checagem Global', expText: 'A variável global permaneceu intacta! A função alterou apenas a sua versão local.' }
+        ];
+
+        const codigoGlobalKw = [
+            { id: 1, text: 'contador = 0  # Variável Global', expTitle: 'Variável Global', expText: 'Inicializa "contador" com valor 0 no Escopo Global.' },
+            { id: 2, text: 'def incrementar():', expTitle: 'Definição da Função', expText: 'Define a função "incrementar". O bloco interno será executado apenas quando a função for chamada.' },
+            { id: 3, text: '    global contador', expTitle: 'Instrução: global', expText: 'A palavra-chave "global" avisa ao Python: "Não crie uma variável local. Use a variável \'contador\' do Escopo Global!"' },
+            { id: 4, text: '    contador = contador + 1', expTitle: 'Modificação Global', expText: 'Modifica diretamente a memória da variável GLOBAL "contador".' },
+            { id: 5, text: 'print("Contador inicial:", contador)', expTitle: 'Print Global', expText: 'Exibe o valor inicial de "contador" (0).' },
+            { id: 6, text: 'incrementar()', expTitle: 'Chamada de Função', expText: 'Chama a função para alterar o contador global, descomponentizando a execução para dentro da função.' },
+            { id: 7, text: 'print("Contador após função:", contador)', expTitle: 'Print Global Alterado', expText: 'Como usamos a palavra "global", a alteração persistiu! Exibirá: 1.' }
+        ];
+
+        const sequenciaBasico = [1, 2, 3, 7, 8, 4, 5, 6, 9];
+        const sequenciaGlobalKw = [1, 2, 5, 6, 3, 4, 7];
+
+        let modoAtual = 'basico';
+        let indiceSequencia = 0;
+        let emExecucao = false;
+        let consoleTexto = "";
+
+        let memoriaRAM = [];
+
+        function abrirModalExplicacao() {
+            document.getElementById('modalExplicacao').classList.add('active');
+        }
+
+        function fecharModalExplicacao() {
+            document.getElementById('modalExplicacao').classList.remove('active');
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('modalExplicacao');
+            if (event.target === modal) {
+                fecharModalExplicacao();
+            }
+        };
+
+        function trocarModo(modo) {
+            if (emExecucao) reiniciarSimulacao();
+            modoAtual = modo;
+
+            document.getElementById('tabBasico').classList.toggle('active', modo === 'basico');
+            document.getElementById('tabGlobalKw').classList.toggle('active', modo === 'globalkw');
+
+            renderizarCodigo();
+            renderizarMemoria();
+            atualizarExplicacao("Modo Selecionado", "Clique em \"Iniciar Execução\" para acompanhar o ciclo de vida das variáveis.");
+        }
+
+        function formatarSintaxe(str) {
+            let res = str;
+            if (res.trim().startsWith('#')) {
+                return `<span class="kw-comment">${res}</span>`;
+            }
+            res = res.replace(/("[^"]*")/g, '<span class="kw-string">$1</span>');
+            return res;
+        }
+
+        function getCodigoAtual() {
+            return modoAtual === 'basico' ? codigoBasico : codigoGlobalKw;
+        }
+
+        function getSequenciaAtual() {
+            return modoAtual === 'basico' ? sequenciaBasico : sequenciaGlobalKw;
+        }
+
+        function getLinhaAtiva() {
+            if (indiceSequencia === 0) return 0;
+            const seq = getSequenciaAtual();
+            return seq[indiceSequencia - 1];
+        }
+
+        function renderizarCodigo() {
+            const editor = document.getElementById('codeEditor');
+            editor.innerHTML = '';
+            const lista = getCodigoAtual();
+            const linhaAtiva = getLinhaAtiva();
+
+            lista.forEach((linha, index) => {
+                const lineDiv = document.createElement('div');
+                const numLinha = index + 1;
+                lineDiv.className = 'code-line' + (numLinha === linhaAtiva ? ' active' : '');
+                lineDiv.id = `line-${numLinha}`;
+
+                const ptr = document.createElement('span');
+                ptr.className = 'code-pointer';
+                ptr.innerText = '➔';
+
+                const txt = document.createElement('span');
+                txt.innerHTML = formatarSintaxe(linha.text);
+
+                lineDiv.appendChild(ptr);
+                lineDiv.appendChild(txt);
+                editor.appendChild(lineDiv);
+            });
+
+            if (linhaAtiva > 0) {
+                const activeEl = document.getElementById(`line-${linhaAtiva}`);
+                if (activeEl) {
+                    activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+        }
+
+        function renderizarMemoria() {
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = '';
+
+            if (memoriaRAM.length === 0) {
+                grid.innerHTML = '<div style="color: #666; font-size: 0.8rem; font-style: italic;">Nenhuma variável alocada na memória.</div>';
+                return;
+            }
+
+            memoriaRAM.forEach(item => {
+                const cell = document.createElement('div');
+                cell.className = 'memory-cell' + (item.updated ? ' updated' : '') + (item.destroyed ? ' destroyed' : '');
+
+                cell.innerHTML = `
+                    <span class="mem-addr">${item.addr}</span>
+                    <span class="mem-name">${item.nome}</span>
+                    <span class="mem-scope">[${item.escopo}]</span>
+                    <span class="mem-val">${item.destroyed ? 'DESTRUÍDA' : item.val}</span>
+                `;
+                grid.appendChild(cell);
+            });
+        }
+
+        function atualizarExplicacao(titulo, texto) {
+            document.getElementById('expTitle').innerText = titulo;
+            document.getElementById('expText').innerText = texto;
+        }
+
+        function iniciarSimulacao() {
+            reiniciarSimulacao();
+            emExecucao = true;
+            document.getElementById('btnIniciar').disabled = true;
+            document.getElementById('btnProximo').disabled = false;
+            proximoPasso();
+        }
+
+        function proximoPasso() {
+            const seq = getSequenciaAtual();
+            if (indiceSequencia >= seq.length) return;
+
+            indiceSequencia++;
+            const numLinha = seq[indiceSequencia - 1];
+            const codigo = getCodigoAtual();
+            const instrucao = codigo.find(item => item.id === numLinha);
+
+            memoriaRAM.forEach(i => i.updated = false);
+
+            renderizarCodigo();
+            if (instrucao) {
+                atualizarExplicacao(instrucao.expTitle, instrucao.expText);
+            }
+
+            if (modoAtual === 'basico') {
+                executarPassoBasico(numLinha);
+            } else {
+                executarPassoGlobalKw(numLinha);
+            }
+        }
+
+        function executarPassoBasico(linha) {
+            switch (linha) {
+                case 1:
+                    consoleTexto = "*** Executando Exemplo: Escopo Local vs Global ***\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 2:
+                    memoriaRAM.push({ addr: '0x00G1', nome: 'mensagem', escopo: 'GLOBAL', val: '"Eu sou GLOBAL"', updated: true, destroyed: false });
+                    renderizarMemoria();
+                    break;
+                case 3:
+                    break;
+                case 7:
+                    consoleTexto += "Fora da função (Antes): Eu sou GLOBAL\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 8:
+                    break;
+                case 4:
+                    memoriaRAM.push({ addr: '0x00L1', nome: 'mensagem', escopo: 'LOCAL', val: '"Eu sou LOCAL"', updated: true, destroyed: false });
+                    renderizarMemoria();
+                    break;
+                case 5:
+                    memoriaRAM.push({ addr: '0x00L2', nome: 'numero_local', escopo: 'LOCAL', val: '100', updated: true, destroyed: false });
+                    renderizarMemoria();
+                    break;
+                case 6:
+                    consoleTexto += "Dentro da função: Eu sou LOCAL\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    memoriaRAM.forEach(item => {
+                        if (item.escopo === 'LOCAL') item.destroyed = true;
+                    });
+                    renderizarMemoria();
+                    break;
+                case 9:
+                    consoleTexto += "Fora da função (Depois): Eu sou GLOBAL\n";
+                    consoleTexto += "\n*** Fim do Programa ***";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    document.getElementById('btnProximo').disabled = true;
+                    atualizarExplicacao("Conclusão do Escopo", "Ao finalizar a função, todas as variáveis do escopo LOCAL são destruídas da RAM. A variável GLOBAL manteve seu valor intacto.");
+                    break;
+            }
+        }
+
+        function executarPassoGlobalKw(linha) {
+            switch (linha) {
+                case 1:
+                    consoleTexto = "*** Executando Exemplo: Modificando Escopo Global ***\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    memoriaRAM.push({ addr: '0x00G1', nome: 'contador', escopo: 'GLOBAL', val: '0', updated: true, destroyed: false });
+                    renderizarMemoria();
+                    break;
+                case 2:
+                    break;
+                case 5:
+                    consoleTexto += "Contador inicial: 0\n";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    break;
+                case 6:
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    let varGlobal = memoriaRAM.find(i => i.nome === 'contador' && i.escopo === 'GLOBAL');
+                    if (varGlobal) {
+                        varGlobal.val = '1';
+                        varGlobal.updated = true;
+                    }
+                    renderizarMemoria();
+                    break;
+                case 7:
+                    consoleTexto += "Contador após função: 1\n";
+                    consoleTexto += "\n*** Fim do Programa ***";
+                    document.getElementById('consoleOutput').innerText = consoleTexto;
+                    document.getElementById('btnProximo').disabled = true;
+                    atualizarExplicacao("Conclusão: Palavra-chave global", "Usando a instrução 'global contador', a função não criou uma nova variável local, mas alterou diretamente a variável do escopo GLOBAL.");
+                    break;
+            }
+        }
+
+        function reiniciarSimulacao() {
+            indiceSequencia = 0;
+            emExecucao = false;
+            consoleTexto = "Aguardando início...";
+            memoriaRAM = [];
+
+            document.getElementById('btnIniciar').disabled = false;
+            document.getElementById('btnProximo').disabled = true;
+            document.getElementById('consoleOutput').innerText = consoleTexto;
+
+            renderizarCodigo();
+            renderizarMemoria();
+            atualizarExplicacao("Explicação da Instrução", "Clique no botão \"Iniciar Execução\" para avançar linha a linha.");
+        }
+
+        renderizarCodigo();
+    </script>
+</body>
+
+</html> 
