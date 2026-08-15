@@ -3,7 +3,7 @@
 <head> 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Hub de Aulas - Algoritmos e VisuAlg</title>
+    <title>Hub de Aulas - Algoritmos e Python</title>
     <style>
         * {
             box-sizing: border-box;
@@ -15,146 +15,176 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f7f4f4;
             color: #2b1e20;
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            padding-bottom: env(safe-area-inset-bottom);
+            overflow: hidden;
         }
 
+        /* HEADER */
         header {
             background: linear-gradient(135deg, #4a0e17, #2b080d);
-            padding: 20px 15px;
+            padding: 8px 15px;
             text-align: center;
-            border-bottom: 3px solid #721c24;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border-bottom: 2px solid #721c24;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            flex-shrink: 0;
         }
 
         header h1 {
-            font-size: 1.6rem;
+            font-size: 1.15rem;
             color: #f8c0c8;
-            margin-bottom: 6px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
         }
 
-        header p {
-            color: #e2c0c5;
-            font-size: 0.9rem;
-            max-width: 600px;
+        /* CONTAINER PRINCIPAL */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 1440px;
+            width: 98%;
             margin: 0 auto;
+            padding: 8px 0;
+            min-height: 0;
         }
 
-        .container {
-            width: 94%;
-            max-width: 1200px;
-            margin: 20px auto;
-            flex-grow: 1;
-            padding-bottom: 20px;
+        /* ABAS DE NAVEGAÇÃO / CATEGORIAS */
+        .category-tabs {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
         }
 
-        /* AJUSTADO: Reduzida a largura mínima de 300px para 220px para caberem mais colunas */
+        .tab-btn {
+            background-color: #ffffff;
+            border: 1px solid #d8c2c4;
+            color: #4a0e17;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            background-color: #fcebeb;
+            border-color: #801b2c;
+        }
+
+        .tab-btn.active {
+            background-color: #6b1120;
+            color: #ffffff;
+            border-color: #6b1120;
+            box-shadow: 0 2px 5px rgba(107, 17, 32, 0.2);
+        }
+
+        /* GRID DE AULAS COMPACTO */
         .grid-aulas {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 14px;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Reduzido para caber mais cards */
+            gap: 8px;
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 4px;
         }
 
-        /* AJUSTADO: Padding interno e sombras reduzidos */
+        /* CARD SUPER COMPACTO (Sem descrição) */
         .card {
             background-color: #ffffff;
             border: 1px solid #e8dadc;
-            border-radius: 10px;
-            padding: 14px;
+            border-radius: 6px;
+            padding: 8px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-            box-shadow: 0 2px 8px rgba(74, 14, 23, 0.05);
+            gap: 6px; /* Espaço uniforme entre badge, título e botão */
+            transition: transform 0.15s ease, border-color 0.15s ease;
+            box-shadow: 0 1px 4px rgba(74, 14, 23, 0.05);
         }
 
         .card:hover {
-            transform: translateY(-3px);
+            transform: translateY(-2px);
             border-color: #801b2c;
-            box-shadow: 0 6px 14px rgba(128, 27, 44, 0.12);
+            box-shadow: 0 4px 10px rgba(128, 27, 44, 0.12);
         }
 
-        /* AJUSTADO: Badge menor e mais discreta */
+        .card-header {
+            display: flex;
+            align-items: center;
+        }
+
         .card-badge {
-            align-self: flex-start;
             background-color: #fcebeb;
             color: #721c24;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.68rem;
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-size: 0.65rem;
             font-weight: bold;
-            text-transform: uppercase;
-            margin-bottom: 8px;
             border: 1px solid #f5c6cb;
         }
 
-        /* AJUSTADO: Título e texto do card com fontes ligeiramente menores */
         .card h2 {
-            font-size: 1.05rem;
+            font-size: 0.8rem;
             color: #3b0b12;
-            margin-bottom: 6px;
-            line-height: 1.25;
+            line-height: 1.2;
+            font-weight: 700;
+            margin: 0;
+            flex: 1; /* Faz o título ocupar o espaço restante, alinhando os botões embaixo */
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
-        .card p {
-            color: #5a4b4e;
-            font-size: 0.82rem;
-            line-height: 1.4;
-            margin-bottom: 12px;
-            flex-grow: 1;
-        }
-
-        /* AJUSTADO: Botão mais compacto */
         .card-btn {
-            display: inline-block;
+            display: block;
             text-align: center;
             background-color: #6b1120;
             color: #ffffff;
             text-decoration: none;
-            padding: 7px 12px;
-            border-radius: 6px;
-            font-weight: bold;
-            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+            padding: 5px 4px;
+            border-radius: 4px;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
             border: none;
             cursor: pointer;
-            font-size: 0.82rem;
-            font-family: inherit;
+            font-size: 0.72rem;
             width: 100%;
         }
 
         .card-btn:hover {
             background-color: #85182a;
-            box-shadow: 0 3px 8px rgba(107, 17, 32, 0.25);
         }
 
+        /* FOOTER */
         footer {
             text-align: center;
-            padding: 15px;
+            padding: 5px;
             background-color: #ebdada;
             color: #5c3a3e;
             border-top: 1px solid #d8c2c4;
-            font-size: 0.8rem;
-            margin-top: auto;
-            padding-bottom: calc(15px + env(safe-area-inset-bottom));
+            font-size: 0.68rem;
+            flex-shrink: 0;
         }
 
-        /* ESTILOS DOS MODAIS */
+        /* MODAIS */
         .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             background-color: rgba(0, 0, 0, 0.65);
             display: flex;
             justify-content: center;
             align-items: center;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.25s ease;
             z-index: 1000;
             padding: 15px;
         }
@@ -167,344 +197,44 @@
         .modal-content {
             background-color: #ffffff;
             width: 100%;
-            max-width: 1100px;
-            max-height: 92vh;
-            border-radius: 12px;
+            max-width: 900px;
+            max-height: 85vh;
+            border-radius: 8px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            transform: translateY(-20px);
-            transition: transform 0.3s ease;
-            border: 1px solid #e8dadc;
-            margin-bottom: env(safe-area-inset-bottom);
-        }
-
-        .modal-overlay.active .modal-content {
-            transform: translateY(0);
         }
 
         .modal-header {
             background: linear-gradient(135deg, #4a0e17, #2b080d);
             color: #ffffff;
-            padding: 16px 20px;
+            padding: 12px 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid #721c24;
         }
 
-        .modal-header h2 {
-            font-size: 1.3rem;
-            color: #f8c0c8;
-        }
+        .modal-header h2 { font-size: 1.1rem; color: #f8c0c8; }
 
         .modal-close {
-            background: none;
-            border: none;
-            color: #f8c0c8;
-            font-size: 1.8rem;
+            background: none; border: none;
+            color: #f8c0c8; font-size: 1.5rem;
             cursor: pointer;
-            line-height: 1;
-            transition: color 0.2s ease;
-        }
-
-        .modal-close:hover {
-            color: #ffffff;
         }
 
         .modal-body {
-            padding: 20px;
+            padding: 15px;
             overflow-y: auto;
+            font-size: 0.85rem;
             color: #3b0b12;
-            line-height: 1.5;
-        }
-
-        .topic-group {
-            margin-bottom: 18px;
-            padding-bottom: 12px;
-            border-bottom: 1px dashed #e8dadc;
-        }
-
-        .topic-group:last-child {
-            border-bottom: none;
-        }
-
-        .topic-title {
-            font-size: 1.15rem;
-            color: #6b1120;
-            margin-bottom: 6px;
-            font-weight: 700;
-        }
-
-        .subtopic-title {
-            font-size: 1rem;
-            color: #4a0e17;
-            margin: 8px 0 4px 12px;
-            font-weight: 600;
-        }
-
-        .topic-desc {
-            margin-left: 15px;
-            color: #5a4b4e;
-            font-size: 0.9rem;
-            margin-bottom: 6px;
-        }
-
-        .topic-desc ul {
-            margin-left: 18px;
-            margin-top: 4px;
-        }
-
-        .topic-desc span {
-            font-weight: bold;
-            color: #85182a;
         }
 
         .modal-footer {
-            padding: 12px 20px;
+            padding: 10px 15px;
             background-color: #f7f4f4;
             border-top: 1px solid #e8dadc;
             text-align: right;
-        }
-
-        /* SIMULADOR VISUALG + LAYOUT VERTICAL */
-        .visualg-controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-
-        .btn-sim {
-            background-color: #4a0e17;
-            color: #ffffff;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            font-size: 0.85rem;
-        }
-
-        .btn-sim:hover:not(:disabled) {
-            background-color: #85182a;
-        }
-
-        .btn-sim:disabled {
-            background-color: #aaa;
-            cursor: not-allowed;
-        }
-
-        .visualg-layout {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .code-box {
-            background-color: #1e1e1e;
-            color: #d4d4d4;
-            font-family: 'Consolas', 'Courier New', monospace;
-            padding: 14px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            line-height: 1.6;
-            height: 320px;
-            overflow-y: auto;
-            box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
-            width: 100%;
-        }
-
-        .code-line {
-            padding: 2px 6px;
-            border-radius: 4px;
-            white-space: pre-wrap;
-            display: flex;
-            align-items: center;
-        }
-
-        .code-pointer {
-            display: inline-block;
-            width: 20px;
-            color: #ff4d6d;
-            font-weight: bold;
-            visibility: hidden;
-            user-select: none;
-        }
-
-        .code-line.active .code-pointer {
-            visibility: visible;
-        }
-
-        .code-line.active {
-            background-color: #4a0e17;
-            color: #ffffff;
-            font-weight: bold;
-        }
-
-        .kw-instruction { color: #569cd6; font-weight: bold; }
-        .kw-type { color: #4ec9b0; font-weight: bold; }
-        .kw-comment { color: #6a9955; }
-
-        .vertical-panel {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        @media (max-width: 768px) {
-            .vertical-panel {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .console-box {
-            background-color: #0c0c0c;
-            color: #00ff66;
-            font-family: 'Consolas', 'Courier New', monospace;
-            padding: 10px 12px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            height: 160px;
-            overflow-y: auto;
-            border: 1px solid #333;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .panel-header {
-            color: #888;
-            border-bottom: 1px solid #333;
-            padding-bottom: 4px;
-            margin-bottom: 6px;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: bold;
-        }
-
-        .console-output {
-            flex-grow: 1;
-            white-space: pre-wrap;
-            word-break: break-all;
-        }
-
-        .enter-prompt-badge {
-            display: inline-block;
-            background-color: #ff9800;
-            color: #000;
-            font-weight: bold;
-            font-size: 0.75rem;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-left: 8px;
-            animation: pulse 1s infinite alternate;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 0.6; }
-            100% { opacity: 1; }
-        }
-
-        .memory-box {
-            background-color: #181818;
-            border-radius: 8px;
-            padding: 10px 12px;
-            height: 160px;
-            border: 1px solid #333;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .memory-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            overflow-y: auto;
-        }
-
-        .memory-cell {
-            display: grid;
-            grid-template-columns: 80px 1fr 1fr;
-            background: #252526;
-            padding: 6px 10px;
-            border-radius: 4px;
-            font-family: 'Consolas', 'Courier New', monospace;
-            font-size: 0.8rem;
-            align-items: center;
-            border-left: 3px solid #555;
-            transition: all 0.3s ease;
-        }
-
-        .memory-cell.updated {
-            border-left-color: #00ff66;
-            background: #2a3a2e;
-            transform: scale(1.01);
-        }
-
-        .mem-addr { color: #888; font-size: 0.7rem; }
-        .mem-name { color: #f8c0c8; font-weight: bold; }
-        .mem-val { color: #ffffff; text-align: right; font-weight: bold; }
-        .mem-unassigned { color: #666; font-style: italic; }
-
-        .input-wrapper {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .input-inline {
-            background: #111;
-            border: 1px solid #00ff66;
-            color: #00ff66;
-            font-family: inherit;
-            font-size: 0.9rem;
-            width: 80px;
-            outline: none;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-
-        .btn-confirm-input {
-            background: #00ff66;
-            color: #000;
-            border: none;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 0.75rem;
-        }
-
-        .explanation-box {
-            background-color: #fcebeb;
-            border-left: 4px solid #6b1120;
-            padding: 12px;
-            border-radius: 6px;
-            color: #4a0e17;
-            font-size: 0.9rem;
-            min-height: 70px;
-        }
-
-        .explanation-box h4 {
-            margin-bottom: 4px;
-            color: #6b1120;
-            font-size: 0.95rem;
-        }
-
-        .typing-cursor::after {
-            content: '█';
-            animation: blink 0.8s infinite;
-            margin-left: 2px;
-            font-size: 0.85em;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
         }
     </style>
 </head>
@@ -512,260 +242,204 @@
 
     <header>
         <h1>PROGRAMAÇÃO EM ALGORITMOS & PYTHON</h1>
-        <p>Selecione uma das aulas abaixo para visualizar o conteúdo e simulações passo a passo de código.</p>
     </header>
 
-    <div class="container">
+    <div class="main-container">
+        <!-- BARRA DE ABAS PARA FILTRAR -->
+        <div class="category-tabs">
+            <button class="tab-btn active" onclick="filterCategory('all', this)">Todas as Aulas (28)</button>
+            <button class="tab-btn" onclick="filterCategory('fundamentos', this)">Fundamentos & VisuAlg</button>
+            <button class="tab-btn" onclick="filterCategory('algoritmos', this)">Algoritmos Básicos</button>
+            <button class="tab-btn" onclick="filterCategory('fluxograma', this)">Fluxogramas</button>
+            <button class="tab-btn" onclick="filterCategory('python-basico', this)">Sintaxe Python</button>
+            <button class="tab-btn" onclick="filterCategory('pygame', this)">Jogos PyGame</button>
+        </div>
+
+        <!-- GRID DE CARDS -->
         <div class="grid-aulas">
 
-            <!-- Card 1 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 01</span>
-                    <h2>Fundamentos da Computação</h2>
-                    <p>Visão geral sobre computadores, programas, algoritmos e linguagens.</p>
-                </div>
+            <!-- Categoria: fundamentos -->
+            <div class="card" data-category="fundamentos">
+                <div class="card-header"><span class="card-badge">Aula 01</span></div>
+                <h2>Fundamentos da Computação</h2>
                 <button class="card-btn" onclick="openModal('modalFundamentos')">Acessar Aula →</button>
             </div>
 
-            <!-- Card 2 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 02</span>
-                    <h2>Lógica de Programação</h2>
-                    <p>Abstração, álgebra booleana, fluxogramas, operadores e refatoração.</p>
-                </div>
+            <div class="card" data-category="fundamentos">
+                <div class="card-header"><span class="card-badge">Aula 02</span></div>
+                <h2>Lógica de Programação</h2>
                 <button class="card-btn" onclick="openModal('modalLogica')">Acessar Aula →</button>
             </div>
 
-            <!-- Card 3 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 03</span>
-                    <h2>Algoritmo de Soma (VisuAlg)</h2>
-                    <p>Simulador interativo com execução linha a linha e memória RAM.</p>
-                </div>
+            <div class="card" data-category="fundamentos">
+                <div class="card-header"><span class="card-badge">Aula 03</span></div>
+                <h2>Algoritmo de Soma (VisuAlg)</h2>
                 <button class="card-btn" onclick="openModal('modalVisualg')">Acessar Aula →</button>
             </div>
 
-            <!-- Card 4 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 04</span>
-                    <h2>Média de Aluno</h2>
-                    <p>Calcula a média a partir da nota de atividade e avaliação.</p>
-                </div>
+            <!-- Categoria: algoritmos -->
+            <div class="card" data-category="algoritmos">
+                <div class="card-header"><span class="card-badge">Aula 04</span></div>
+                <h2>Média de Aluno</h2>
                 <a href="algmedia.html" class="card-btn">Acessar Aula →</a>
             </div>
 
-            <!-- Card 5 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 05</span>
-                    <h2>Cálculo de Salário</h2>
-                    <p>Desconto de faltas e acréscimo de horas extras.</p>
-                </div>
+            <div class="card" data-category="algoritmos">
+                <div class="card-header"><span class="card-badge">Aula 05</span></div>
+                <h2>Cálculo de Salário</h2>
                 <a href="algcalsal.html" class="card-btn">Acessar Aula →</a>
             </div>
 
-            <!-- Card 6 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 06</span>
-                    <h2>Cálculo de Frequência</h2>
-                    <p>Calcula a frequência do aluno na disciplina.</p>
-                </div>
+            <div class="card" data-category="algoritmos">
+                <div class="card-header"><span class="card-badge">Aula 06</span></div>
+                <h2>Cálculo de Frequência</h2>
                 <a href="algfreq.html" class="card-btn">Acessar Aula →</a>
             </div>
 
-            <!-- Card 7 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 07</span>
-                    <h2>Área e Perímetro</h2>
-                    <p>Calcula a área e o perímetro de um terreno.</p>
-                </div>
+            <div class="card" data-category="algoritmos">
+                <div class="card-header"><span class="card-badge">Aula 07</span></div>
+                <h2>Área e Perímetro</h2>
                 <a href="algfreq.html" class="card-btn">Acessar Aula →</a>
             </div>
 
-            <!-- Card 8 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 08</span>
-                    <h2>Estrutura condicional Se</h2>
-                    <p>Demonstra o uso de instruções condicionais em Algoritmos.</p>
-                </div>
+            <div class="card" data-category="algoritmos">
+                <div class="card-header"><span class="card-badge">Aula 08</span></div>
+                <h2>Estrutura Condicional Se</h2>
                 <a href="algEstSe.html" class="card-btn">Acessar Aula →</a>
             </div>
-            <!-- Card 9 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 09</span>
-                    <h2>Laço de repetição Para</h2>
-                    <p>Demonstra o uso de instrução Para (laço) em Algoritmos.</p>
-                </div>
+
+            <div class="card" data-category="algoritmos">
+                <div class="card-header"><span class="card-badge">Aula 09</span></div>
+                <h2>Laço de Repetição Para</h2>
                 <a href="algEstPara.html" class="card-btn">Acessar Aula →</a>
             </div>
-            <!-- Card 10 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 10</span>
-                    <h2>Fluxograma Símbolos</h2>
-                    <p>Principais Símbolos do Fluxograma.</p>
-                </div>
+
+            <!-- Categoria: fluxograma -->
+            <div class="card" data-category="fluxograma">
+                <div class="card-header"><span class="card-badge">Aula 10</span></div>
+                <h2>Símbolos do Fluxograma</h2>
                 <a href="fluxogramaSimbolos.html" class="card-btn">Acessar Aula →</a>
             </div>
-            <!-- Card 11 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 11</span>
-                    <h2>Simulador de Fluxograma</h2>
-                    <p>Fluxograma para somar dois números.</p>
-                </div>
+
+            <div class="card" data-category="fluxograma">
+                <div class="card-header"><span class="card-badge">Aula 11</span></div>
+                <h2>Fluxograma: Soma</h2>
                 <a href="fluxograma.html" class="card-btn">Acessar Aula →</a>
             </div>
-            <!-- Card 12 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 12</span>
-                    <h2>Simulador de Fluxograma</h2>
-                    <p>Fluxograma para identificar o maior entre 3 números.</p>
-                </div>
+
+            <div class="card" data-category="fluxograma">
+                <div class="card-header"><span class="card-badge">Aula 12</span></div>
+                <h2>Fluxograma: Maior Número</h2>
                 <a href="fluxoEnadeada.html" class="card-btn">Acessar Aula →</a>
             </div>
-            <!-- Card 13 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 13</span>
-                    <h2>Simulador de Fluxograma</h2>
-                    <p>Fluxograma tabuada do 5.</p>
-                </div>
+
+            <div class="card" data-category="fluxograma">
+                <div class="card-header"><span class="card-badge">Aula 13</span></div>
+                <h2>Fluxograma: Tabuada</h2>
                 <a href="fluxoTabuada.html" class="card-btn">Acessar Aula →</a>
-            </div>  
-            <!-- Card 14 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 14</span>
-                    <h2>Python Histórico</h2>
-                    <p>Histórico do Python, instalação configuração</p>
-                </div>
+            </div>
+
+            <!-- Categoria: python-basico -->
+            <div class="card" data-category="python-basico">
+                <div class="card-header"><span class="card-badge">Aula 14</span></div>
+                <h2>Python: Histórico</h2>
                 <a href="pythonHistorico.html" class="card-btn">Acessar Aula →</a>
-            </div> 
-            <!-- Card 15 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 15</span>
-                    <h2>Python variáveis, entrada e saída</h2>
-                    <p>Mostra declarar variáveis e utilizar entrada e saída em Python</p>
-                </div>
+            </div>
+
+            <div class="card" data-category="python-basico">
+                <div class="card-header"><span class="card-badge">Aula 15</span></div>
+                <h2>Python: Entrada e Saída</h2>
                 <a href="pythonVareoutros.html" class="card-btn">Acessar Aula →</a>
-            </div>   
-            <!-- Card 16 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 16</span>
-                    <h2>Python variáveis (Local/Global/Escopo)</h2>
-                    <p>Escopo de Variáveis em Python</p>
-                </div>
+            </div>
+
+            <div class="card" data-category="python-basico">
+                <div class="card-header"><span class="card-badge">Aula 16</span></div>
+                <h2>Python: Escopo de Variáveis</h2>
                 <a href="pythonVarEsc.html" class="card-btn">Acessar Aula →</a>
-            </div>   
-            <!-- Card 17 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 17</span>
-                    <h2>Python Soma de 2 números</h2>
-                    <p>Mostra como realizar a soma de 2 números em Python</p>
-                </div>
+            </div>
+
+            <div class="card" data-category="python-basico">
+                <div class="card-header"><span class="card-badge">Aula 17</span></div>
+                <h2>Python: Soma de Números</h2>
                 <a href="pythonSoma2n.html" class="card-btn">Acessar Aula →</a>
-            </div>  
-            <!-- Card 18 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 18</span>
-                    <h2>Python Calculo de salário </h2>
-                    <p>Python Calculo de salário descontado faltas e acrescido horas extras</p>
-                </div>
+            </div>
+
+            <div class="card" data-category="python-basico">
+                <div class="card-header"><span class="card-badge">Aula 18</span></div>
+                <h2>Python: Cálculo de Salário</h2>
                 <a href="pythonCalcSal.html" class="card-btn">Acessar Aula →</a>
-            </div>  
+            </div>
 
-            <!-- Card 19 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 19</span>
-                    <h2>Python Estrutura Condicional </h2>
-                    <p>Python exemplos de estruturas condicionais</p>
-                </div>
+            <div class="card" data-category="python-basico">
+                <div class="card-header"><span class="card-badge">Aula 19</span></div>
+                <h2>Python: Condicionais</h2>
                 <a href="pythonCond.html" class="card-btn">Acessar Aula →</a>
-            </div>  
+            </div>
 
-             <!-- Card 20 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 20</span>
-                    <h2>Python Funções </h2>
-                    <p>Python exemplos de funções com e sem parâmtros</p>
-                </div>
+            <div class="card" data-category="python-basico">
+                <div class="card-header"><span class="card-badge">Aula 20</span></div>
+                <h2>Python: Funções</h2>
                 <a href="pythonfuncoes.html" class="card-btn">Acessar Aula →</a>
-            </div>  
-            <!-- Card 21 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 21</span>
-                    <h2>Try Except </h2>
-                    <p>Tratamento de Exceção</p>
-                </div>
+            </div>
+
+            <div class="card" data-category="python-basico">
+                <div class="card-header"><span class="card-badge">Aula 21</span></div>
+                <h2>Python: Try / Except</h2>
                 <a href="pythonTryExc.html" class="card-btn">Acessar Aula →</a>
-            </div>  
-            <!-- Card 22 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 22</span>
-                    <h2>Arquivos em Python </h2>
-                    <p>Leitura, escrita, exclusão, renomeação</p>
-                </div>
+            </div>
+
+            <div class="card" data-category="python-basico">
+                <div class="card-header"><span class="card-badge">Aula 22</span></div>
+                <h2>Python: Manipulação de Arquivos</h2>
                 <a href="pythonArquivos.html" class="card-btn">Acessar Aula →</a>
-            </div>  
-            <!-- Card 23 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 23</span>
-                    <h2>Python </h2>
-                    <p>Leitura, escrita, exclusão, renomeação</p>
-                </div>
+            </div>
+
+            <div class="card" data-category="python-basico">
+                <div class="card-header"><span class="card-badge">Aula 23</span></div>
+                <h2>Python: Práticas de Arquivos</h2>
                 <a href="pythonArquivos.html" class="card-btn">Acessar Aula →</a>
-            </div> 
-            <!-- Card 24 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 24</span>
-                    <h2>Python PyGame </h2>
-                    <p>Games Python: <a href="https://programiz.pro/ide/python">IDE on line</a></a></p>
-                </div>
+            </div>
+            <div class="card" data-category="python-basico">
+                <div class="card-header"><span class="card-badge">Aula 23</span></div>
+                <h2>Python: Listas e Manipulação em Python</h2>
+                <a href="pythonListas.html" class="card-btn">Acessar Aula →</a>
+            </div>
+
+            <!-- Categoria: pygame -->
+            <div class="card" data-category="pygame">
+                <div class="card-header"><span class="card-badge">Aula 24</span></div>
+                <h2>PyGame: Introdução</h2>
                 <a href="pythonPygame.html" class="card-btn">Acessar Aula →</a>
-            </div> 
-            <!-- Card 25 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 25</span>
-                    <h2>Python PyGame Plataformas </h2>
-                    <p>Desenhando Plataformas</p>
-                </div>
+            </div>
+
+            <div class="card" data-category="pygame">
+                <div class="card-header"><span class="card-badge">Aula 25</span></div>
+                <h2>PyGame: Plataformas</h2>
                 <a href="pythonPlano.html" class="card-btn">Acessar Aula →</a>
-            </div> 
-            <!-- Card 26 -->
-            <div class="card">
-                <div>
-                    <span class="card-badge">Aula 26</span>
-                    <h2>Python PyGame Plataformas com colisão </h2>
-                    <p>Desenhando Plataformas com colisão</p>
-                </div>
+            </div>
+
+            <div class="card" data-category="pygame">
+                <div class="card-header"><span class="card-badge">Aula 26</span></div>
+                <h2>PyGame: Colisão</h2>
                 <a href="pythonPlatCol.html" class="card-btn">Acessar Aula →</a>
-            </div> 
+            </div>
+
+            <div class="card" data-category="pygame">
+                <div class="card-header"><span class="card-badge">Aula 27</span></div>
+                <h2>PyGame: Objetos em Queda</h2>
+                <a href="pythonObjCol.html" class="card-btn">Acessar Aula →</a>
+            </div>
+
+            <div class="card" data-category="pygame">
+                <div class="card-header"><span class="card-badge">Aula 28</span></div>
+                <h2>PyGame: Pontuação</h2>
+                <a href="pythonColEsfPontos.html" class="card-btn">Acessar Aula →</a>
+            </div>
 
         </div>
     </div>
 
-    <!-- MODAL 1: FUNDAMENTOS DA COMPUTAÇÃO -->
+    <!-- MODAIS -->
     <div class="modal-overlay" id="modalFundamentos">
         <div class="modal-content">
             <div class="modal-header">
@@ -773,53 +447,11 @@
                 <button class="modal-close" onclick="closeModal('modalFundamentos')">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="topic-group">
-                    <div class="topic-title">1.1. Funcionamento de um computador</div>
-                    <div class="topic-desc">
-                        O computador opera processando dados através de uma arquitetura básica composta por <strong>Entrada (Input)</strong> (teclado, mouse), <strong>Processamento</strong> (CPU/Processador), <strong>Memória</strong> (RAM para armazenamento temporário e HD/SSD para permanente) e <strong>Saída (Output)</strong> (monitor, caixas de som). Tudo é convertido e processado como sinais elétricos codificados no sistema binário (0s e 1s).
-                    </div>
-                </div>
-
-                <div class="topic-group">
-                    <div class="topic-title">1.2. Programas de computador</div>
-                    <div class="subtopic-title">1.2.1. Definição</div>
-                    <div class="topic-desc">
-                        Um programa de computador é uma sequência lógica e estruturada de instruções escritas em uma linguagem específica, projetada para ser executada pelo hardware a fim de realizar uma tarefa ou resolver um problema.
-                    </div>
-                    <div class="subtopic-title">1.2.2. Tipos</div>
-                    <div class="topic-desc">
-                        Os programas dividem-se principalmente em:
-                        <ul>
-                            <li><span>Sistemas Operacionais/Base:</span> Gerenciam o hardware (ex: Windows, Linux, macOS).</li>
-                            <li><span>Aplicativos:</span> Atendem a necessidades diretas do usuário (ex: navegadores, editores de texto, jogos).</li>
-                            <li><span>Utilitários e Ferramentas:</span> Auxiliam na manutenção do sistema ou no desenvolvimento (ex: antivírus, compiladores, IDEs).</li>
-                        </ul>
-                    </div>
-                    <div class="subtopic-title">1.2.3. Algoritmos</div>
-                    <div class="topic-desc">
-                        Um algoritmo é uma sequência finita de passos claros, bem definidos e não ambíguos para a solução de um problema (semelhante a uma receita de bolo). É a base conceitual antes de escrever o código em qualquer linguagem.
-                    </div>
-                </div>
-
-                <div class="topic-group">
-                    <div class="topic-title">1.3. Linguagens de programação</div>
-                    <div class="subtopic-title">1.3.1. Baixo nível</div>
-                    <div class="topic-desc">
-                        Linguagens próximas da arquitetura física da máquina (como <span>Código de Máquina</span> e <span>Assembly</span>). Oferecem alto controle de hardware e rápida execução, mas são difíceis de ler, escrever e não são portáveis.
-                    </div>
-                    <div class="subtopic-title">1.3.2. Alto nível</div>
-                    <div class="topic-desc">
-                        Linguagens com sintaxe próxima da linguagem humana (geralmente em inglês), como <span>Python</span>, <span>C#</span> ou <span>Java</span>. São fáceis de aprender, portáveis e abstraem a complexidade do hardware.
-                    </div>
-                    <div class="subtopic-title">1.3.3. Interpretada</div>
-                    <div class="topic-desc">
-                        O código-fonte é traduzido e executado linha a linha em tempo real por um <span>Interpretador</span>. Exemplo principal: <strong>Python</strong> e JavaScript.
-                    </div>
-                    <div class="subtopic-title">1.3.4. Compilada</div>
-                    <div class="topic-desc">
-                        Todo o código-fonte é traduzido de uma só vez por um <span>Compilador</span>, gerando um arquivo executável direto na linguagem de máquina (ex: C, C++, Go).
-                    </div>
-                </div>
+                <p><strong>1.1. Funcionamento do Computador:</strong> Processamento de dados através de Entrada, CPU, RAM e Saída.</p>
+                <br>
+                <p><strong>1.2. Programas e Algoritmos:</strong> Instruções lógicas executadas pelo hardware para resolver problemas.</p>
+                <br>
+                <p><strong>1.3. Linguagens de Programação:</strong> Baixo nível vs. Alto nível; Linguagens compiladas vs. interpretadas.</p>
             </div>
             <div class="modal-footer">
                 <button class="card-btn" style="width: auto;" onclick="closeModal('modalFundamentos')">Fechar</button>
@@ -827,7 +459,6 @@
         </div>
     </div>
 
-    <!-- MODAL 2: LÓGICA DE PROGRAMAÇÃO -->
     <div class="modal-overlay" id="modalLogica">
         <div class="modal-content">
             <div class="modal-header">
@@ -835,75 +466,9 @@
                 <button class="modal-close" onclick="closeModal('modalLogica')">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="topic-group">
-                    <div class="topic-title">2.1. Abstração lógica</div>
-                    <div class="topic-desc">
-                        Capacidade de isolar os aspectos essenciais de um problema complexo, ignorando detalhes irrelevantes no momento. Permite focar na modelagem de soluções e na criação de estruturas de dados e funções reutilizáveis sem se preocupar com detalhes de implementação de baixo nível.
-                    </div>
-                </div>
-
-                <div class="topic-group">
-                    <div class="topic-title">2.2. Álgebra booleana</div>
-                    <div class="topic-desc">
-                        Ramo da matemática que lida com variáveis de apenas dois valores lógicos: <strong>Verdadeiro (True/1)</strong> ou <strong>Falso (False/0)</strong>. É a base da tomada de decisões em algoritmos através de operações lógicas fundamentais (E/AND, OU/OR, NÃO/NOT).
-                    </div>
-                </div>
-
-                <div class="topic-group">
-                    <div class="topic-title">2.3. Fluxogramas</div>
-                    <div class="topic-desc">
-                        Representação gráfica de um algoritmo utilizando formas geométricas padronizadas (retângulos para ações, losangos para decisões, elipses para início/fim) conectadas por setas que indicam o fluxo de execução das instruções.
-                    </div>
-                </div>
-
-                <div class="topic-group">
-                    <div class="topic-title">2.4. Operadores</div>
-                    <div class="subtopic-title">2.4.1. Aritméticos</div>
-                    <div class="topic-desc">
-                        Símbolos usados para realizar cálculos matemáticos:
-                        <ul>
-                            <li><span>Adição (+), Subtração (-), Multiplicação (*), Divisão (/)</span></li>
-                            <li><span>Divisão Inteira (//) e Módulo/Resto (%)</span> em Python.</li>
-                            <li><span>Exponenciação (**)</span></li>
-                        </ul>
-                    </div>
-                    <div class="subtopic-title">2.4.2. Relacionais</div>
-                    <div class="topic-desc">
-                        Utilizados para comparar dois valores, retornando um resultado booleano (True ou False):
-                        <ul>
-                            <li><span>Igual (==), Diferente (!=)</span></li>
-                            <li><span>Maior que (>), Menor que (<)</span></li>
-                            <li><span>Maior ou igual (>=), Menor ou igual (<=)</span></li>
-                        </ul>
-                    </div>
-                    <div class="subtopic-title">2.4.3. Lógicos</div>
-                    <div class="topic-desc">
-                        Combinam ou invertem expressões booleanas:
-                        <ul>
-                            <li><span>and (E):</span> Retorna True se ambas as condições forem verdadeiras.</li>
-                            <li><span>or (OU):</span> Retorna True se pelo menos uma condição for verdadeira.</li>
-                            <li><span>not (NÃO):</span> Inverte o valor lógico (True vira False e vice-versa).</li>
-                        </ul>
-                    </div>
-                    <div class="subtopic-title">2.4.4. Expressões</div>
-                    <div class="topic-desc">
-                        Combinações de variáveis, constantes e operadores que são avaliadas pelo computador para produzir um único valor final. Podem ser aritméticas (resultam em número) ou lógicas/booleanas (resultam em True/False).
-                    </div>
-                </div>
-
-                <div class="topic-group">
-                    <div class="topic-title">2.5. Teste de mesa</div>
-                    <div class="topic-desc">
-                        Processo manual no qual o programador segue passo a passo as instruções do algoritmo, anotando o valor de cada variável a cada linha executada. Serve para validar a lógica e encontrar erros (bugs) sem precisar rodar o código.
-                    </div>
-                </div>
-
-                <div class="topic-group">
-                    <div class="topic-title">2.6. Refatoração</div>
-                    <div class="topic-desc">
-                        Prática de reestruturar e melhorar a organização interna do código existente (tornando-o mais limpo, legível e eficiente) <strong>sem alterar seu comportamento externo</strong> ou seu resultado final.
-                    </div>
-                </div>
+                <p><strong>2.1. Abstração Lógica:</strong> Isolamento de elementos essenciais para resolução de problemas.</p>
+                <br>
+                <p><strong>2.2. Álgebra Booleana:</strong> Operações lógicas com valores Verdadeiro/Falso (AND, OR, NOT).</p>
             </div>
             <div class="modal-footer">
                 <button class="card-btn" style="width: auto;" onclick="closeModal('modalLogica')">Fechar</button>
@@ -911,209 +476,52 @@
         </div>
     </div>
 
-    <!-- MODAL 3: SIMULADOR VISUALG -->
-    <div class="modal-overlay" id="modalVisualg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Ambiente VisuAlg - Algoritmo de Soma</h2>
-                <button class="modal-close" onclick="closeModal('modalVisualg')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="visualg-controls">
-                    <button class="btn-sim" id="btnIniciar" onclick="iniciarSimulacao()">▶ Iniciar Execução</button>
-                    <button class="btn-sim" id="btnProximo" onclick="proximoPasso()" disabled>⏭ Próximo Passo</button>
-                    <button class="btn-sim" id="btnReiniciar" onclick="reiniciarSimulacao()">🔄 Reiniciar</button>
-                </div>
-
-                <div class="visualg-layout">
-                    <div class="code-box" id="codeEditor"></div>
-
-                    <div class="vertical-panel">
-                        <div class="console-box">
-                            <div class="panel-header">Console de Saída</div>
-                            <div class="console-output" id="consoleOutput">Aguardando início...</div>
-                        </div>
-
-                        <div class="memory-box">
-                            <div class="panel-header">Memória RAM (Variáveis)</div>
-                            <div class="memory-grid" id="memoryGrid">
-                                <div style="color: #666; font-size: 0.8rem; font-style: italic;">Nenhuma variável declarada na memória.</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="explanation-box">
-                    <h4 id="expTitle">Explicação da Instrução</h4>
-                    <p id="expText">Clique no botão "Iniciar Execução" para avançar linha a linha pelo algoritmo.</p>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="card-btn" style="width: auto;" onclick="closeModal('modalVisualg')">Fechar</button>
-            </div>
-        </div>
-    </div>
-
     <footer>
-        Curso de Algoritmos & Programação • Material Interativo de Aprendizado
+        Hub de Aulas - Algoritmos e VisuAlg
     </footer>
 
     <script>
-        function openModal(id) {
-            document.getElementById(id).classList.add('active');
-        }
+        function filterCategory(category, button) {
+            const cards = document.querySelectorAll('.card');
+            const buttons = document.querySelectorAll('.tab-btn');
 
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
-        }
+            buttons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
 
-        // Script do simulador VisuAlg
-        const codigoAlgoritmo = [
-            { id: 1, text: 'algoritmo "SomaDoisNumeros"', expTitle: 'Instrução: algoritmo', expText: 'Palavra reservada que define o nome do programa no VisuAlg.' },
-            { id: 2, text: '// Disciplina  : Lógica de Programação', expTitle: 'Comentário (//)', expText: 'Linhas com // são ignoradas pelo interpretador e servem para documentar o código.' },
-            { id: 3, text: 'var', expTitle: 'Instrução: var', expText: 'Inicia a seção de declaração de variáveis na memória do sistema.' },
-            { id: 4, text: '   n1, n2, soma : real', expTitle: 'Declaração de Tipo: real', expText: 'Aloca 3 espaços na memória RAM para números reais (com casas decimais), inicializados sem valor.' },
-            { id: 5, text: 'inicio', expTitle: 'Instrução: inicio', expText: 'Marca o começo do bloco executável do programa.' },
-            { id: 6, text: '   escreva("Digite o primeiro número: ")', expTitle: 'Instrução: escreva', expText: 'Exibe uma mensagem no console de saída sem saltar linha.' },
-            { id: 7, text: '   leia(n1)', expTitle: 'Instrução: leia', expText: 'Pausa a execução, aguarda o usuário digitar um valor e pressionar ENTER para salvar na variável n1.' },
-            { id: 8, text: '   escreva("Digite o segundo número: ")', expTitle: 'Instrução: escreva', expText: 'Exibe a solicitação do segundo número no console.' },
-            { id: 9, text: '   leia(n2)', expTitle: 'Instrução: leia', expText: 'Aguardar o usuário digitar um valor e pressionar ENTER para armazenar na variável n2 na memória RAM.' },
-            { id: 10, text: '   soma <- n1 + n2', expTitle: 'Instrução de Atribuição (<-)', expText: 'Lê os valores de n1 e n2 da memória, calcula a soma e atribui o resultado à variável soma.' },
-            { id: 11, text: '   escreval("A soma dos dois números é: ", soma)', expTitle: 'Instrução: escreval', expText: 'Busca o valor da variável soma na memória e o exibe no console junto com o texto, saltando uma linha no final.' },
-            { id: 12, text: 'fimalgoritmo', expTitle: 'Instrução: fimalgoritmo', expText: 'Finaliza a execução do programa.' }
-        ];
-
-        let memoriaRAM = {
-            declarado: false,
-            vars: {
-                n1: { addr: '0x00A1', val: null, updated: false },
-                n2: { addr: '0x00A2', val: null, updated: false },
-                soma: { addr: '0x00A3', val: null, updated: false }
-            }
-        };
-
-        let passoAtual = 0;
-        let emExecucao = false;
-
-        function renderEditor() {
-            const editor = document.getElementById('codeEditor');
-            editor.innerHTML = '';
-            codigoAlgoritmo.forEach((linha, index) => {
-                const lineDiv = document.createElement('div');
-                lineDiv.className = `code-line ${index === passoAtual - 1 ? 'active' : ''}`;
-                lineDiv.id = `line-${index + 1}`;
-                
-                let textHtml = linha.text
-                    .replace(/(algoritmo|var|inicio|fimalgoritmo|escreva|escreval|leia)/g, '<span class="kw-instruction">$1</span>')
-                    .replace(/(real)/g, '<span class="kw-type">$1</span>')
-                    .replace(/(\/\/.*)/g, '<span class="kw-comment">$1</span>');
-
-                lineDiv.innerHTML = `<span class="code-pointer">➔</span> <span>${textHtml}</span>`;
-                editor.appendChild(lineDiv);
+            cards.forEach(card => {
+                if (category === 'all' || card.getAttribute('data-category') === category) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
             });
         }
 
-        function renderMemory() {
-            const memoryGrid = document.getElementById('memoryGrid');
-            if (!memoriaRAM.declarado) {
-                memoryGrid.innerHTML = `<div style="color: #666; font-size: 0.8rem; font-style: italic;">Nenhuma variável declarada na memória.</div>`;
-                return;
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.classList.remove('active');
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+                    modal.classList.remove('active');
+                });
             }
+        });
 
-            memoryGrid.innerHTML = '';
-            for (const [key, item] of Object.entries(memoriaRAM.vars)) {
-                const cell = document.createElement('div');
-                cell.className = `memory-cell ${item.updated ? 'updated' : ''}`;
-                const valDisplay = item.val !== null ? item.val : '<span class="mem-unassigned">indefinido</span>';
-                cell.innerHTML = `
-                    <span class="mem-addr">${item.addr}</span>
-                    <span class="mem-name">${key}</span>
-                    <span class="mem-val">${valDisplay}</span>
-                `;
-                memoryGrid.appendChild(cell);
-            }
-        }
-
-        function iniciarSimulacao() {
-            passoAtual = 1;
-            emExecucao = true;
-            document.getElementById('btnIniciar').disabled = true;
-            document.getElementById('btnProximo').disabled = false;
-            document.getElementById('consoleOutput').innerText = '';
-            executarPasso();
-        }
-
-        function proximoPasso() {
-            if (passoAtual < codigoAlgoritmo.length) {
-                passoAtual++;
-                executarPasso();
-            }
-        }
-
-        function executarPasso() {
-            renderEditor();
-            const curr = codigoAlgoritmo[passoAtual - 1];
-            document.getElementById('expTitle').innerText = curr.expTitle;
-            document.getElementById('expText').innerText = curr.expText;
-
-            for (let v in memoriaRAM.vars) memoriaRAM.vars[v].updated = false;
-
-            if (curr.id === 4) {
-                memoriaRAM.declarado = true;
-            } else if (curr.id === 7) {
-                document.getElementById('btnProximo').disabled = true;
-                const consoleBox = document.getElementById('consoleOutput');
-                consoleBox.innerHTML += ` <span class="input-wrapper"><input type="number" id="inputN1" class="input-inline" placeholder="num" autofocus><button class="btn-confirm-input" onclick="confirmarInput('n1')">OK</button></span>`;
-            } else if (curr.id === 9) {
-                document.getElementById('btnProximo').disabled = true;
-                const consoleBox = document.getElementById('consoleOutput');
-                consoleBox.innerHTML += ` <span class="input-wrapper"><input type="number" id="inputN2" class="input-inline" placeholder="num" autofocus><button class="btn-confirm-input" onclick="confirmarInput('n2')">OK</button></span>`;
-            } else if (curr.id === 10) {
-                const res = (parseFloat(memoriaRAM.vars.n1.val) || 0) + (parseFloat(memoriaRAM.vars.n2.val) || 0);
-                memoriaRAM.vars.soma.val = res;
-                memoriaRAM.vars.soma.updated = true;
-            } else if (curr.id === 6) {
-                document.getElementById('consoleOutput').innerText = 'Digite o primeiro número: ';
-            } else if (curr.id === 8) {
-                document.getElementById('consoleOutput').innerHTML += '\nDigite o segundo número: ';
-            } else if (curr.id === 11) {
-                document.getElementById('consoleOutput').innerHTML += `\nA soma dos dois números é: ${memoriaRAM.vars.soma.val}\n`;
-            } else if (curr.id === 12) {
-                document.getElementById('btnProximo').disabled = true;
-            }
-
-            renderMemory();
-        }
-
-        function confirmarInput(varName) {
-            const inputEl = document.getElementById(varName === 'n1' ? 'inputN1' : 'inputN2');
-            const val = inputEl.value !== '' ? inputEl.value : '0';
-            memoriaRAM.vars[varName].val = val;
-            memoriaRAM.vars[varName].updated = true;
-
-            const parent = inputEl.parentElement;
-            parent.outerHTML = `<strong style="color: #fff;">${val}</strong>`;
-
-            document.getElementById('btnProximo').disabled = false;
-            renderMemory();
-        }
-
-        function reiniciarSimulacao() {
-            passoAtual = 0;
-            emExecucao = false;
-            memoriaRAM.declarado = false;
-            for (let v in memoriaRAM.vars) memoriaRAM.vars[v].val = null;
-            document.getElementById('btnIniciar').disabled = false;
-            document.getElementById('btnProximo').disabled = true;
-            document.getElementById('consoleOutput').innerText = 'Aguardando início...';
-            document.getElementById('expTitle').innerText = 'Explicação da Instrução';
-            document.getElementById('expText').innerText = 'Clique no botão "Iniciar Execução" para avançar linha a linha pelo algoritmo.';
-            renderEditor();
-            renderMemory();
-        }
-
-        renderEditor();
-        renderMemory();
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.classList.remove('active');
+                }
+            });
+        });
     </script>
 </body>
 </html>

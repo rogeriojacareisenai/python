@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Listas em Python - Execução Passo a Passo (Corrigido)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f4f4;
+            color: #2b1e20;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1b4332, #081c15);
+            padding: 18px 15px;
+            text-align: center;
+            border-bottom: 3px solid #2d6a4f;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 8px 8px 0 0;
+        }
+
+        header h1 {
+            font-size: 1.6rem;
+            color: #b7e4c7;
+            margin-bottom: 4px;
+        }
+
+        header p {
+            color: #d8f3dc;
+            font-size: 0.9rem;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 15px auto;
+            flex-grow: 1;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 6px 18px rgba(27, 67, 50, 0.08);
+            border: 1px solid #d8f3dc;
+        }
+
+        .visualg-controls {
+            display: flex;
+            gap: 10px;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #d8f3dc;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn-sim {
+            background-color: #1b4332;
+            color: #ffffff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-size: 0.9rem;
+        }
+
+        .btn-sim:hover:not(:disabled) {
+            background-color: #2d6a4f;
+        }
+
+        .btn-sim:disabled {
+            background-color: #a8a8a8;
+            cursor: not-allowed;
+        }
+
+        .btn-step {
+            background-color: #118ab2;
+        }
+
+        .btn-step:hover:not(:disabled) {
+            background-color: #0f6c8d;
+        }
+
+        .select-exemplo {
+            background-color: #ffffff;
+            color: #1b4332;
+            border: 2px solid #1b4332;
+            padding: 9px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+            outline: none;
+            max-width: 100%;
+        }
+
+        .select-exemplo:focus {
+            border-color: #2d6a4f;
+            box-shadow: 0 0 5px rgba(45, 106, 79, 0.4);
+        }
+
+        .visualg-main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 850px) {
+            .visualg-main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel-header {
+            color: #b7e4c7;
+            padding: 10px 14px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            background: linear-gradient(135deg, #1b4332, #081c15);
+            border-radius: 7px 7px 0 0;
+        }
+
+        .code-container {
+            background-color: #1e1e1e;
+            border-radius: 0 0 8px 8px;
+            padding: 12px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.92rem;
+            color: #d4d4d4;
+            height: 480px;
+            overflow-y: auto;
+        }
+
+        .code-line {
+            padding: 3px 8px;
+            border-radius: 4px;
+            white-space: pre;
+            display: flex;
+        }
+
+        .line-num {
+            color: #858585;
+            width: 30px;
+            user-select: none;
+            display: inline-block;
+        }
+
+        .line-content {
+            flex-grow: 1;
+        }
+
+        .code-line.active {
+            background-color: #2d6a4f;
+            border-left: 4px solid #52b788;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .kw { color: #569cd6; }
+        .fn { color: #dcdcaa; }
+        .num { color: #b5cea8; }
+        .str { color: #ce9178; }
+        .com { color: #6a9955; }
+
+        .debug-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            height: 480px;
+        }
+
+        .debug-box {
+            background-color: #fcf8f8;
+            border: 1px solid #d8f3dc;
+            border-radius: 8px;
+            padding: 12px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .debug-box h4 {
+            color: #1b4332;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #d8f3dc;
+            padding-bottom: 4px;
+        }
+
+        .var-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .var-table th, .var-table td {
+            text-align: left;
+            padding: 6px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .var-table th {
+            color: #1b4332;
+        }
+
+        .console-output {
+            background-color: #111;
+            color: #4ec9b0;
+            font-family: monospace;
+            padding: 10px;
+            border-radius: 6px;
+            height: 120px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+        }
+
+        .explanation-box {
+            background-color: #e8f5e9;
+            border-left: 4px solid #2d6a4f;
+            padding: 14px 16px;
+            border-radius: 6px;
+            color: #1b4332;
+            font-size: 0.92rem;
+        }
+
+        .explanation-box h4 {
+            color: #1b4332;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Listas em Python - Execução Passo a Passo</h1>
+        <p>Aprenda operações essenciais e avançadas em listas com simulação visual em tempo real.</p>
+    </header>
+
+    <div class="container">
+        
+        <div class="visualg-controls">
+            <button class="btn-sim btn-back" id="btnVoltar" onclick="window.history.back()">Voltar</button>
+            <label for="selectExemplo" style="font-weight: bold; color: #1b4332;">Selecione a Operação:</label>
+            <select id="selectExemplo" class="select-exemplo" onchange="selecionarExemploViaMenu(this.value)">
+            </select>
+
+            <button class="btn-sim btn-step" id="btnPasso" onclick="executarPasso()">⏭ Próximo Passo</button>
+            <button class="btn-sim" id="btnReiniciar" onclick="reiniciarSimulacao()">🔄 Reiniciar</button>
+        </div>
+
+        <div class="visualg-main-layout">
+            <div>
+                <div class="panel-header" id="codigoTitulo">Código Fonte Python</div>
+                <div class="code-container" id="codeDisplay"></div>
+            </div>
+
+            <div class="debug-container">
+                <div class="debug-box">
+                    <h4>📊 Variáveis e Estado da Memória</h4>
+                    <table class="var-table">
+                        <thead>
+                            <tr>
+                                <th>Escopo</th>
+                                <th>Variável</th>
+                                <th>Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody id="varTableBody">
+                            <tr><td colspan="3">Nenhuma variável alocada ainda.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="debug-box" style="flex-grow: 0;">
+                    <h4>🖥️ Console de Saída (Output)</h4>
+                    <div class="console-output" id="consoleOutput"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="explanation-box">
+            <h4 id="expTitulo">Instruções</h4>
+            <p id="expTexto">Clique em "Próximo Passo" para iniciar a execução linha por linha do código acima.</p>
+        </div>
+
+    </div>
+
+    <script>
+        const exemplos = [
+            // 1. DECLARAÇÃO
+            {
+                id: 0,
+                nome: "1️⃣ Declaração de Listas",
+                titulo: "Exemplo 1: Criando Listas Vazias e Preenchidas",
+                linhasCodigo: [
+                    `frutas = [<span class="str">"Maçã"</span>, <span class="str">"Banana"</span>, <span class="str">"Laranja"</span>]`,
+                    `numeros = []`,
+                    `<span class="fn">print</span>(<span class="str">"Frutas:"</span>, frutas)`,
+                    `<span class="fn">print</span>(<span class="str">"Números:"</span>, numeros)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: { "frutas": '["Maçã", "Banana", "Laranja"]' }, output: "", explicacao: "Declara a lista 'frutas' inicializada com três elementos do tipo string." },
+                    { linha: 1, escopo: "Global", vars: { "frutas": '["Maçã", "Banana", "Laranja"]', "numeros": "[]" }, output: "", explicacao: "Declara a lista 'numeros' totalmente vazia usando colchetes []." },
+                    { linha: 2, escopo: "Global", vars: { "frutas": '["Maçã", "Banana", "Laranja"]', "numeros": "[]" }, output: "Frutas: ['Maçã', 'Banana', 'Laranja']", explicacao: "Imprime no console a lista de frutas." },
+                    { linha: 3, escopo: "Global", vars: { "frutas": '["Maçã", "Banana", "Laranja"]', "numeros": "[]" }, output: "Números: []", explicacao: "Imprime a lista vazia no console." }
+                ]
+            },
+            // 2. INSERÇÃO
+            {
+                id: 1,
+                nome: "2️⃣ Inserção de Elementos",
+                titulo: "Exemplo 2: Adicionando com append() e insert()",
+                linhasCodigo: [
+                    `linguagens = [<span class="str">"Python"</span>, <span class="str">"C++"</span>]`,
+                    `linguagens.append(<span class="str">"Java"</span>)`,
+                    `linguagens.insert(<span class="num">1</span>, <span class="str">"JavaScript"</span>)`,
+                    `<span class="fn">print</span>(linguagens)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: { "linguagens": '["Python", "C++"]' }, output: "", explicacao: "Cria a lista inicial com duas linguagens." },
+                    { linha: 1, escopo: "Global", vars: { "linguagens": '["Python", "C++", "Java"]' }, output: "", explicacao: "append('Java') adiciona o elemento 'Java' ao FINAL da lista." },
+                    { linha: 2, escopo: "Global", vars: { "linguagens": '["Python", "JavaScript", "C++", "Java"]' }, output: "", explicacao: "insert(1, 'JavaScript') insere 'JavaScript' no índice 1, deslocando os demais." },
+                    { linha: 3, escopo: "Global", vars: { "linguagens": '["Python", "JavaScript", "C++", "Java"]' }, output: "['Python', 'JavaScript', 'C++', 'Java']", explicacao: "Imprime a lista final com os novos elementos inseridos." }
+                ]
+            },
+            // 3. LISTAGEM (PERCORRER)
+            {
+                id: 2,
+                nome: "3️⃣ Listagem e Leitura",
+                titulo: "Exemplo 3: Acesso Direto e Iteração com Loop 'for'",
+                linhasCodigo: [
+                    `cidades = [<span class="str">"São Paulo"</span>, <span class="str">"Rio"</span>, <span class="str">"Curitiba"</span>]`,
+                    `primeira = cidades[<span class="num">0</span>]`,
+                    `<span class="kw">for</span> item <span class="kw">in</span> cidades:`,
+                    `    <span class="fn">print</span>(<span class="str">"Cidade:"</span>, item)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: { "cidades": '["São Paulo", "Rio", "Curitiba"]' }, output: "", explicacao: "Declara a lista de cidades." },
+                    { linha: 1, escopo: "Global", vars: { "cidades": '["São Paulo", "Rio", "Curitiba"]', "primeira": '"São Paulo"' }, output: "", explicacao: "Acessa o primeiro elemento pelo índice 0 e o guarda na variável 'primeira'." },
+                    { linha: 2, escopo: "Global", vars: { "cidades": '["São Paulo", "Rio", "Curitiba"]', "primeira": '"São Paulo"', "item": '"São Paulo"' }, output: "", explicacao: "O loop 'for' inicia pegando o primeiro elemento 'São Paulo'." },
+                    { linha: 3, escopo: "Global", vars: { "cidades": '["São Paulo", "Rio", "Curitiba"]', "primeira": '"São Paulo"', "item": '"São Paulo"' }, output: "Cidade: São Paulo", explicacao: "Imprime a primeira cidade no console." },
+                    { linha: 2, escopo: "Global", vars: { "cidades": '["São Paulo", "Rio", "Curitiba"]', "primeira": '"São Paulo"', "item": '"Rio"' }, output: "", explicacao: "Avança o loop para o próximo item: 'Rio'." },
+                    { linha: 3, escopo: "Global", vars: { "cidades": '["São Paulo", "Rio", "Curitiba"]', "primeira": '"São Paulo"', "item": '"Rio"' }, output: "Cidade: Rio", explicacao: "Imprime a segunda cidade no console." },
+                    { linha: 2, escopo: "Global", vars: { "cidades": '["São Paulo", "Rio", "Curitiba"]', "primeira": '"São Paulo"', "item": '"Curitiba"' }, output: "", explicacao: "Avança o loop para o último item: 'Curitiba'." },
+                    { linha: 3, escopo: "Global", vars: { "cidades": '["São Paulo", "Rio", "Curitiba"]', "primeira": '"São Paulo"', "item": '"Curitiba"' }, output: "Cidade: Curitiba", explicacao: "Imprime a terceira cidade no console." }
+                ]
+            },
+            // 4. PROCURA
+            {
+                id: 3,
+                nome: "4️⃣ Procura e Busca",
+                titulo: "Exemplo 4: Buscando Elemento com 'in' e index()",
+                linhasCodigo: [
+                    `produtos = [<span class="str">"Teclado"</span>, <span class="str">"Mouse"</span>, <span class="str">"Monitor"</span>]`,
+                    `existe = <span class="str">"Mouse"</span> <span class="kw">in</span> produtos`,
+                    `posicao = produtos.index(<span class="str">"Mouse"</span>)`,
+                    `<span class="fn">print</span>(<span class="str">"Existe?"</span>, existe)`,
+                    `<span class="fn">print</span>(<span class="str">"Posição no índice:"</span>, posicao)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: { "produtos": '["Teclado", "Mouse", "Monitor"]' }, output: "", explicacao: "Cria a lista de produtos." },
+                    { linha: 1, escopo: "Global", vars: { "produtos": '["Teclado", "Mouse", "Monitor"]', "existe": "True" }, output: "", explicacao: "O operador 'in' verifica se 'Mouse' pertence à lista e retorna True." },
+                    { linha: 2, escopo: "Global", vars: { "produtos": '["Teclado", "Mouse", "Monitor"]', "existe": "True", "posicao": 1 }, output: "", explicacao: "index('Mouse') localiza e devolve a posição do item (índice 1)." },
+                    { linha: 3, escopo: "Global", vars: { "produtos": '["Teclado", "Mouse", "Monitor"]', "existe": "True", "posicao": 1 }, output: "Existe? True", explicacao: "Imprime no console se o item existe." },
+                    { linha: 4, escopo: "Global", vars: { "produtos": '["Teclado", "Mouse", "Monitor"]', "existe": "True", "posicao": 1 }, output: "Posição no índice: 1", explicacao: "Imprime o índice em que o item foi encontrado." }
+                ]
+            },
+            // 5. ALTERAÇÃO
+            {
+                id: 4,
+                nome: "5️⃣ Alteração de Elementos",
+                titulo: "Exemplo 5: Substituindo Valor via Índice",
+                linhasCodigo: [
+                    `cores = [<span class="str">"Vermelho"</span>, <span class="str">"Verde"</span>, <span class="str">"Azul"</span>]`,
+                    `cores[<span class="num">1</span>] = <span class="str">"Amarelo"</span>`,
+                    `<span class="fn">print</span>(cores)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: { "cores": '["Vermelho", "Verde", "Azul"]' }, output: "", explicacao: "Cria a lista de cores original." },
+                    { linha: 1, escopo: "Global", vars: { "cores": '["Vermelho", "Amarelo", "Azul"]' }, output: "", explicacao: "Acessa o índice 1 (anteriormente 'Verde') e substitui diretamente por 'Amarelo'." },
+                    { linha: 2, escopo: "Global", vars: { "cores": '["Vermelho", "Amarelo", "Azul"]' }, output: "['Vermelho', 'Amarelo', 'Azul']", explicacao: "Imprime a lista atualizada." }
+                ]
+            },
+            // 6. ORDENAÇÃO
+            {
+                id: 5,
+                nome: "6️⃣ Ordenação de Listas",
+                titulo: "Exemplo 6: Ordenando com sort() e reverse",
+                linhasCodigo: [
+                    `valores = [<span class="num">42</span>, <span class="num">10</span>, <span class="num">5</span>, <span class="num">23</span>]`,
+                    `valores.sort()`,
+                    `<span class="fn">print</span>(<span class="str">"Crescente:"</span>, valores)`,
+                    `valores.sort(reverse=<span class="kw">True</span>)`,
+                    `<span class="fn">print</span>(<span class="str">"Decrescente:"</span>, valores)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: { "valores": "[42, 10, 5, 23]" }, output: "", explicacao: "Cria uma lista de números desordenada." },
+                    { linha: 1, escopo: "Global", vars: { "valores": "[5, 10, 23, 42]" }, output: "", explicacao: "sort() altera a própria lista original ordenando em ordem crescente." },
+                    { linha: 2, escopo: "Global", vars: { "valores": "[5, 10, 23, 42]" }, output: "Crescente: [5, 10, 23, 42]", explicacao: "Exibe no console a lista ordenada crescentemente." },
+                    { linha: 3, escopo: "Global", vars: { "valores": "[42, 23, 10, 5]" }, output: "", explicacao: "sort(reverse=True) reordena a lista original em ordem decrescente." },
+                    { linha: 4, escopo: "Global", vars: { "valores": "[42, 23, 10, 5]" }, output: "Decrescente: [42, 23, 10, 5]", explicacao: "Exibe a lista ordenada decrescentemente." }
+                ]
+            },
+            // 7. REMOÇÃO DE ELEMENTOS (CORRIGIDO - APENAS UM DEL ITENS[0])
+            {
+                id: 6,
+                nome: "7️⃣ Remoção (pop, remove, del)",
+                titulo: "Exemplo 7: Formas de Excluir Itens de uma Lista",
+                linhasCodigo: [
+                    `itens = [<span class="str">"A"</span>, <span class="str">"B"</span>, <span class="str">"C"</span>, <span class="str">"D"</span>]`,
+                    `removido = itens.pop()`,
+                    `itens.remove(<span class="str">"B"</span>)`,
+                    `<span class="kw">del</span> itens[<span class="num">0</span>]`,
+                    `<span class="fn">print</span>(<span class="str">"Sobra:"</span>, itens)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: { "itens": '["A", "B", "C", "D"]' }, output: "", explicacao: "Inicializa a lista com 4 itens: ['A', 'B', 'C', 'D']." },
+                    { linha: 1, escopo: "Global", vars: { "itens": '["A", "B", "C"]', "removido": '"D"' }, output: "", explicacao: "pop() remove e retorna o ÚLTIMO item da lista ('D'). Sobram: ['A', 'B', 'C']." },
+                    { linha: 2, escopo: "Global", vars: { "itens": '["A", "C"]', "removido": '"D"' }, output: "", explicacao: "remove('B') busca o VALOR 'B' e o exclui. Sobram: ['A', 'C']." },
+                    { linha: 3, escopo: "Global", vars: { "itens": '["C"]', "removido": '"D"' }, output: "", explicacao: "del itens[0] deleta o elemento no ÍNDICE 0 ('A'). Sobra apenas: ['C']." },
+                    { linha: 4, escopo: "Global", vars: { "itens": '["C"]', "removido": '"D"' }, output: "Sobra: ['C']", explicacao: "Exibe a lista restante no console." }
+                ]
+            },
+            // 8. FATIAMENTO (SLICING)
+            {
+                id: 7,
+                nome: "8️⃣ Fatiamento (Slicing)",
+                titulo: "Exemplo 8: Extraindo Sublistas com [inicio:fim:passo]",
+                linhasCodigo: [
+                    `nums = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>, <span class="num">50</span>]`,
+                    `sub1 = nums[<span class="num">1</span>:<span class="num">4</span>]`,
+                    `sub2 = nums[:<span class="num">3</span>]`,
+                    `invertida = nums[::-<span class="num">1</span>]`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: { "nums": "[10, 20, 30, 40, 50]" }, output: "", explicacao: "Cria a lista numérica original." },
+                    { linha: 1, escopo: "Global", vars: { "nums": "[10, 20, 30, 40, 50]", "sub1": "[20, 30, 40]" }, output: "", explicacao: "nums[1:4] pega do índice 1 até o índice 3 (o final '4' é exclusivo)." },
+                    { linha: 2, escopo: "Global", vars: { "nums": "[10, 20, 30, 40, 50]", "sub1": "[20, 30, 40]", "sub2": "[10, 20, 30]" }, output: "", explicacao: "nums[:3] pega do início (índice 0) até o índice 2." },
+                    { linha: 3, escopo: "Global", vars: { "nums": "[10, 20, 30, 40, 50]", "sub1": "[20, 30, 40]", "sub2": "[10, 20, 30]", "invertida": "[50, 40, 30, 20, 10]" }, output: "", explicacao: "nums[::-1] usa o passo negativo (-1) para inverter a lista inteira de forma prática." }
+                ]
+            },
+            // 9. LIST COMPREHENSION
+            {
+                id: 8,
+                nome: "9️⃣ List Comprehension",
+                titulo: "Exemplo 9: Criando Listas com Sintaxe Concisa",
+                linhasCodigo: [
+                    `base = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>]`,
+                    `dobros = [x * <span class="num">2</span> <span class="kw">for</span> x <span class="kw">in</span> base]`,
+                    `pares = [x <span class="kw">for</span> x <span class="kw">in</span> base <span class="kw">if</span> x % <span class="num">2</span> == <span class="num">0</span>]`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: { "base": "[1, 2, 3, 4, 5]" }, output: "", explicacao: "Cria a lista de inteiros original." },
+                    { linha: 1, escopo: "Global", vars: { "base": "[1, 2, 3, 4, 5]", "dobros": "[2, 4, 6, 8, 10]" }, output: "", explicacao: "Multiplica cada elemento de 'base' por 2 criando uma nova lista em uma única linha." },
+                    { linha: 2, escopo: "Global", vars: { "base": "[1, 2, 3, 4, 5]", "dobros": "[2, 4, 6, 8, 10]", "pares": "[2, 4]" }, output: "", explicacao: "Filtra apenas os números cujo resto da divisão por 2 (x % 2) é igual a 0." }
+                ]
+            },
+            // 10. FUNÇÕES NATIVAS (len, sum, min, max)
+            {
+                id: 9,
+                nome: "🔟 Funções Utilitárias",
+                titulo: "Exemplo 10: Medindo e Calculando Estatísticas (len, sum, min, max)",
+                linhasCodigo: [
+                    `notas = [<span class="num">7.5</span>, <span class="num">9.0</span>, <span class="num">6.0</span>, <span class="num">8.5</span>]`,
+                    `total_itens = <span class="fn">len</span>(notas)`,
+                    `soma_total = <span class="fn">sum</span>(notas)`,
+                    `maior_nota = <span class="fn">max</span>(notas)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: { "notas": "[7.5, 9.0, 6.0, 8.5]" }, output: "", explicacao: "Cria a lista de notas numéricas." },
+                    { linha: 1, escopo: "Global", vars: { "notas": "[7.5, 9.0, 6.0, 8.5]", "total_itens": 4 }, output: "", explicacao: "len(notas) conta a quantidade de elementos armazenados (4)." },
+                    { linha: 2, escopo: "Global", vars: { "notas": "[7.5, 9.0, 6.0, 8.5]", "total_itens": 4, "soma_total": 31.0 }, output: "", explicacao: "sum(notas) calcula a soma aritmética de todos os números na lista (31.0)." },
+                    { linha: 3, escopo: "Global", vars: { "notas": "[7.5, 9.0, 6.0, 8.5]", "total_itens": 4, "soma_total": 31.0, "maior_nota": 9.0 }, output: "", explicacao: "max(notas) varre a lista e extrai o maior valor numérico existente (9.0)." }
+                ]
+            },
+            // 11. CONCATENAÇÃO E REPETIÇÃO
+            {
+                id: 10,
+                nome: "1️⃣1️⃣ Concatenação e Repetição",
+                titulo: "Exemplo 11: Unindo e Duplicando Listas (+ e *)",
+                linhasCodigo: [
+                    `a = [<span class="num">1</span>, <span class="num">2</span>]`,
+                    `b = [<span class="num">3</span>, <span class="num">4</span>]`,
+                    `uniao = a + b`,
+                    `repetida = a * <span class="num">3</span>`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: { "a": "[1, 2]" }, output: "", explicacao: "Cria a primeira lista 'a'." },
+                    { linha: 1, escopo: "Global", vars: { "a": "[1, 2]", "b": "[3, 4]" }, output: "", explicacao: "Cria a segunda lista 'b'." },
+                    { linha: 2, escopo: "Global", vars: { "a": "[1, 2]", "b": "[3, 4]", "uniao": "[1, 2, 3, 4]" }, output: "", explicacao: "O operador '+' junta os elementos das duas listas em uma nova lista." },
+                    { linha: 3, escopo: "Global", vars: { "a": "[1, 2]", "b": "[3, 4]", "uniao": "[1, 2, 3, 4]", "repetida": "[1, 2, 1, 2, 1, 2]" }, output: "", explicacao: "O operador '*' repete a sequência da lista pelo número de vezes especificado (3x)." }
+                ]
+            },
+            // 12. CÓPIA SEGURA (copy)
+            {
+                id: 11,
+                nome: "1️⃣2️⃣ Cópia de Listas (.copy)",
+                titulo: "Exemplo 12: Atribuição por Referência vs. Cópia Independente",
+                linhasCodigo: [
+                    `original = [<span class="num">100</span>, <span class="num">200</span>]`,
+                    `copia_real = original.copy()`,
+                    `copia_real.append(<span class="num">300</span>)`,
+                    `<span class="fn">print</span>(<span class="str">"Orig:"</span>, original)`,
+                    `<span class="fn">print</span>(<span class="str">"Cópia:"</span>, copia_real)`
+                ],
+                passos: [
+                    { linha: 0, escopo: "Global", vars: { "original": "[100, 200]" }, output: "", explicacao: "Declara a lista original." },
+                    { linha: 1, escopo: "Global", vars: { "original": "[100, 200]", "copia_real": "[100, 200]" }, output: "", explicacao: "copy() cria uma NOVA lista na memória desconectada da original." },
+                    { linha: 2, escopo: "Global", vars: { "original": "[100, 200]", "copia_real": "[100, 200, 300]" }, output: "", explicacao: "Alterar 'copia_real' adicionando 300 NÃO afeta a lista 'original'." },
+                    { linha: 3, escopo: "Global", vars: { "original": "[100, 200]", "copia_real": "[100, 200, 300]" }, output: "Orig: [100, 200]", explicacao: "Imprime a lista original (intacta)." },
+                    { linha: 4, escopo: "Global", vars: { "original": "[100, 200]", "copia_real": "[100, 200, 300]" }, output: "Cópia: [100, 200, 300]", explicacao: "Imprime a cópia modificada com sucesso." }
+                ]
+            }
+        ];
+
+        let exemploAtual = 0;
+        let passoAtual = 0;
+        let consoleHistorico = "";
+
+        function carregarExemplosNoSelect() {
+            const select = document.getElementById("selectExemplo");
+            select.innerHTML = "";
+            exemplos.forEach((ex, idx) => {
+                const opt = document.createElement("option");
+                opt.value = idx;
+                opt.innerText = ex.nome;
+                select.appendChild(opt);
+            });
+        }
+
+        function selecionarExemploViaMenu(index) {
+            exemploAtual = parseInt(index);
+            reiniciarSimulacao();
+        }
+
+        function renderizarCodigo() {
+            const ex = exemplos[exemploAtual];
+            document.getElementById("codigoTitulo").innerText = ex.titulo;
+            const container = document.getElementById("codeDisplay");
+            container.innerHTML = "";
+
+            ex.linhasCodigo.forEach((linhaText, idx) => {
+                const divLine = document.createElement("div");
+                divLine.className = "code-line";
+                divLine.id = `line-${idx}`;
+
+                const spanNum = document.createElement("span");
+                spanNum.className = "line-num";
+                spanNum.innerText = (idx + 1).toString().padStart(2, '0');
+
+                const spanContent = document.createElement("span");
+                spanContent.className = "line-content";
+                spanContent.innerHTML = linhaText;
+
+                divLine.appendChild(spanNum);
+                divLine.appendChild(spanContent);
+                container.appendChild(divLine);
+            });
+        }
+
+        function reiniciarSimulacao() {
+            passoAtual = 0;
+            consoleHistorico = "";
+            document.getElementById("consoleOutput").innerText = "";
+            document.getElementById("varTableBody").innerHTML = '<tr><td colspan="3">Nenhuma variável alocada ainda.</td></tr>';
+            document.getElementById("expTitulo").innerText = "Instruções";
+            document.getElementById("expTexto").innerText = "Clique em 'Próximo Passo' para iniciar a execução linha por linha do código acima.";
+            
+            const activeLines = document.querySelectorAll(".code-line.active");
+            activeLines.forEach(el => el.classList.remove("active"));
+            
+            document.getElementById("btnPasso").disabled = false;
+            renderizarCodigo();
+        }
+
+        function executarPasso() {
+            const ex = exemplos[exemploAtual];
+
+            if (passoAtual >= ex.passos.length) {
+                document.getElementById("expTitulo").innerText = "Fim da Execução";
+                document.getElementById("expTexto").innerText = "Você chegou ao final deste exemplo. Selecione outro exemplo no menu ou clique em 'Reiniciar'.";
+                document.getElementById("btnPasso").disabled = true;
+                return;
+            }
+
+            const p = ex.passos[passoAtual];
+
+            // Atualiza linha ativa
+            const activeLines = document.querySelectorAll(".code-line.active");
+            activeLines.forEach(el => el.classList.remove("active"));
+            
+            const curLine = document.getElementById(`line-${p.linha}`);
+            if (curLine) {
+                curLine.classList.add("active");
+                curLine.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            // Atualiza Tabela de Variáveis
+            const tbody = document.getElementById("varTableBody");
+            tbody.innerHTML = "";
+            const keys = Object.keys(p.vars);
+
+            if (keys.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3">Nenhuma variável local/global alocada.</td></tr>';
+            } else {
+                keys.forEach(k => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `<td>${p.escopo}</td><td><strong>${k}</strong></td><td><code>${p.vars[k]}</code></td>`;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // Atualiza Console
+            if (p.output !== "") {
+                if (consoleHistorico !== "") {
+                    consoleHistorico += "\n";
+                }
+                consoleHistorico += p.output;
+                const cOut = document.getElementById("consoleOutput");
+                cOut.innerText = consoleHistorico;
+                cOut.scrollTop = cOut.scrollHeight;
+            }
+
+            // Atualiza Explicação
+            document.getElementById("expTitulo").innerText = `Passo ${passoAtual + 1} de ${ex.passos.length}`;
+            document.getElementById("expTexto").innerText = p.explicacao;
+
+            passoAtual++;
+        }
+
+        // Inicialização ao carregar a página
+        window.onload = function() {
+            carregarExemplosNoSelect();
+            reiniciarSimulacao();
+        };
+    </script>
+</body>
+</html>
