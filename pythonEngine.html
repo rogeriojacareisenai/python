@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engine Interativa de Games 2D - Plataforma</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* --- HEADER & BARRA HORIZONTAL DE FERRAMENTAS --- */
+        header {
+            background: #1e293b;
+            padding: 8px 16px;
+            border-bottom: 2px solid #3b82f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            gap: 12px;
+            z-index: 10;
+        }
+
+        .header-title h1 {
+            font-size: 1.1rem;
+            color: #60a5fa;
+            white-space: nowrap;
+        }
+
+        .top-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .nav-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #0f172a;
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid #334155;
+        }
+
+        .controls-card {
+            font-size: 0.72rem;
+            color: #cbd5e1;
+            background: #0f172a;
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid #334155;
+            white-space: nowrap;
+        }
+
+        .controls-card kbd {
+            background: #334155;
+            color: #38bdf8;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        /* --- LAYOUT PRINCIPAL --- */
+        .main-wrapper {
+            display: flex;
+            flex-grow: 1;
+            height: calc(100vh - 50px);
+            overflow: hidden;
+        }
+
+        /* --- SIDEBAR LATERAL & ABAS --- */
+        .sidebar {
+            width: 320px;
+            background: #1e293b;
+            border-right: 1px solid #334155;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .tab-menu {
+            display: flex;
+            background: #0f172a;
+            border-bottom: 1px solid #334155;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 8px 4px;
+            background: transparent;
+            color: #94a3b8;
+            border: none;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            color: #38bdf8;
+            border-bottom-color: #38bdf8;
+            background: #1e293b;
+        }
+
+        .tab-content {
+            padding: 12px;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        .section-title {
+            font-size: 0.72rem;
+            font-weight: bold;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 4px;
+            margin-top: 2px;
+        }
+
+        .config-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            background: #0f172a;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #334155;
+        }
+
+        .config-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .config-group label {
+            font-size: 0.78rem;
+            font-weight: bold;
+            color: #cbd5e1;
+        }
+
+        .config-group input[type="number"],
+        .config-group input[type="text"],
+        .config-group select {
+            width: 100%;
+            background: #1e293b;
+            border: 1px solid #475569;
+            color: #fff;
+            padding: 4px 6px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .config-group input[type="number"] {
+            width: 70px;
+        }
+
+        .color-palette {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .color-swatch {
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.1s, border-color 0.1s;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.15);
+        }
+
+        .color-swatch.active {
+            border-color: #ffffff;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+        }
+
+        input[type="color"] {
+            -webkit-appearance: none;
+            border: none;
+            width: 26px;
+            height: 26px;
+            border-radius: 4px;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        input[type="color"]::-webkit-color-swatch {
+            border: 1px solid #475569;
+            border-radius: 4px;
+        }
+
+        .file-upload-btn {
+            background: #334155;
+            color: #f8fafc;
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 6px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            border: 1px solid #475569;
+            transition: background 0.2s;
+            width: 100%;
+            display: block;
+        }
+
+        .file-upload-btn:hover {
+            background: #475569;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .switch-btn {
+            background: #334155;
+            color: #94a3b8;
+            border: none;
+            padding: 8px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .switch-btn.active-solid {
+            background: #10b981;
+            color: #ffffff;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+        }
+
+        .switch-btn.active-passable {
+            background: #f59e0b;
+            color: #ffffff;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+        }
+
+        .switch-btn.active-circle {
+            background: #ec4899;
+            color: #ffffff;
+            box-shadow: 0 0 8px rgba(236, 72, 153, 0.4);
+        }
+
+        .switch-btn.active-skull {
+            background: #ef4444;
+            color: #ffffff;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-sim {
+            background-color: #3b82f6;
+            color: #ffffff;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: background 0.2s;
+        }
+
+        .btn-sim:hover { background-color: #2563eb; }
+        .btn-sim.special { background-color: #8b5cf6; }
+        .btn-sim.special:hover { background-color: #7c3aed; }
+        .btn-sim.warning { background-color: #eab308; color: #0f172a; }
+        .btn-sim.warning:hover { background-color: #ca8a04; }
+        .btn-sim.danger { background-color: #dc2626; }
+        .btn-sim.danger:hover { background-color: #ef4444; }
+        .btn-sim.success { background-color: #10b981; }
+        .btn-sim.success:hover { background-color: #059669; }
+
+        .anim-item {
+            background: #1e293b;
+            padding: 6px;
+            border-radius: 4px;
+            border: 1px solid #475569;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        .anim-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #38bdf8;
+        }
+
+        .anim-item-delete {
+            color: #ef4444;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* --- WORKSPACE / ÁREA DO CANVAS --- */
+        .workspace {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+            gap: 12px;
+            background: #0b1120;
+            overflow: hidden;
+        }
+
+        .stage-container {
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-grow: 1;
+            min-height: 0;
+            position: relative;
+        }
+
+        .stage-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .badge-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .status-badge {
+            background: #020617;
+            color: #38bdf8;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            border: 1px solid #0284c7;
+        }
+
+        .score-badge {
+            background: #831843;
+            color: #f472b6;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            border: 1px solid #ec4899;
+            font-weight: bold;
+        }
+
+        .hp-badge {
+            background: #7f1d1d;
+            color: #fca5a5;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            border: 1px solid #ef4444;
+            font-weight: bold;
+        }
+
+        canvas {
+            background-color: #000000;
+            border-radius: 6px;
+            border: 1px solid #475569;
+            box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.9);
+            width: 100%;
+            height: 100%;
+            max-width: 800px;
+            max-height: 450px;
+            cursor: crosshair;
+            outline: none;
+            object-fit: contain;
+        }
+
+        .bottom-panels {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            height: 160px;
+            flex-shrink: 0;
+        }
+
+        .panel {
+            background: #1e293b;
+            border-radius: 8px;
+            padding: 8px 12px;
+            border: 1px solid #334155;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            color: #94a3b8;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 4px;
+        }
+
+        .console-output {
+            font-family: 'Consolas', monospace;
+            font-size: 0.78rem;
+            color: #60a5fa;
+            white-space: pre-wrap;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .code-box {
+            background-color: #020617;
+            border: 1px solid #1e293b;
+            color: #e2e8f0;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            overflow-y: auto;
+            white-space: pre;
+            flex-grow: 1;
+        }
+
+        /* --- BOTÕES DE CONTROLE DA SIMULAÇÃO --- */
+        .state-btn {
+            padding: 6px 12px;
+            font-weight: bold;
+            font-size: 0.75rem;
+            border: 1px solid #334155;
+            border-radius: 4px;
+            cursor: pointer;
+            background: #0f172a;
+            color: #94a3b8;
+            transition: all 0.2s;
+        }
+
+        .state-btn.active-play {
+            background: #10b981;
+            color: #fff;
+            border-color: #059669;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+        }
+
+        .state-btn.active-pause {
+            background: #f59e0b;
+            color: #fff;
+            border-color: #d97706;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+        }
+
+        .state-btn.active-stop {
+            background: #ef4444;
+            color: #fff;
+            border-color: #dc2626;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- MENU HORIZONTAL SUPERIOR -->
+    <header>
+        <div class="header-title">
+            <h1>Pygame Engine 2D</h1>
+        </div>
+
+        <div class="top-nav">
+            <!-- CONTROLES DE SIMULAÇÃO (PLAY / PAUSE / STOP) -->
+            <div class="nav-group">
+                <button id="btnPlayState" class="state-btn" onclick="definirEstadoExecucao('play')">▶️ Play</button>
+                <button id="btnPauseState" class="state-btn" onclick="definirEstadoExecucao('pause')">⏸️ Pause</button>
+                <button id="btnStopState" class="state-btn active-stop" onclick="definirEstadoExecucao('stop')">⏹️ Stop</button>
+            </div>
+
+            <!-- Projeto -->
+            <div class="nav-group">
+                <button class="btn-sim success" onclick="salvarEstadoLocal()">💾 Salvar</button>
+                <button class="btn-sim warning" onclick="carregarEstadoLocal()">📂 Carregar</button>
+                <button class="btn-sim special" onclick="exportarProjetoJSON()">📥 Exportar .JSON</button>
+                <label for="importJsonInput" class="btn-sim special" style="margin: 0; cursor: pointer;">📤 Importar</label>
+                <input type="file" id="importJsonInput" accept=".json" onchange="importarProjetoJSON(event)" style="display: none;">
+            </div>
+
+            <!-- Ações Rápida -->
+            <div class="nav-group">
+                <button class="btn-sim success" onclick="copiarCodigo()">📋 Copiar Código</button>
+                <button class="btn-sim danger" onclick="limparObjetos()">🗑 Limpar</button>
+            </div>
+        </div>
+
+        <div class="controls-card">
+            🎮 <kbd>A</kbd><kbd>D</kbd> / <kbd>←</kbd><kbd>→</kbd> Mover |
+            <kbd>Espaço</kbd>/<kbd>W</kbd> Pular |
+            <kbd>Botão Dir.</kbd> Remover
+        </div>
+    </header>
+
+    <!-- WRAPPER CONTEÚDO PRINCIPAL -->
+    <div class="main-wrapper">
+        
+        <!-- SIDEBAR LATERAL COM ABAS -->
+        <div class="sidebar">
+            <div class="tab-menu">
+                <button class="tab-btn active" onclick="switchTab('tab-construir', this)">🧱 Construir</button>
+                <button class="tab-btn" onclick="switchTab('tab-player', this)">🏃 Player</button>
+                <button class="tab-btn" onclick="switchTab('tab-cenario', this)">🖼️ Cenário</button>
+                <button class="tab-btn" onclick="switchTab('tab-regras', this)">⚙️ Regras</button>
+            </div>
+
+            <!-- ABA 1: CONSTRUIR -->
+            <div id="tab-construir" class="tab-content active">
+                <div class="section-title">Modos de Edição</div>
+                <div class="tools-grid">
+                    <button id="btnSolid" class="switch-btn active-solid" onclick="definirModo('solid')">🧱 Sólida</button>
+                    <button id="btnPassable" class="switch-btn" onclick="definirModo('passable')">👻 Passável</button>
+                    <button id="btnCircle" class="switch-btn" onclick="definirModo('circle')">🟡 Esfera</button>
+                    <button id="btnSkull" class="switch-btn" onclick="definirModo('skull')">💀 Caveira</button>
+                </div>
+
+                <div class="section-title">Cor do Objeto</div>
+                <div class="config-group">
+                    <div class="config-row">
+                        <div class="color-palette">
+                            <div class="color-swatch active" style="background: #22c55e;" onclick="selecionarCor('#22c55e', this)"></div>
+                            <div class="color-swatch" style="background: #3b82f6;" onclick="selecionarCor('#3b82f6', this)"></div>
+                            <div class="color-swatch" style="background: #ef4444;" onclick="selecionarCor('#ef4444', this)"></div>
+                            <div class="color-swatch" style="background: #eab308;" onclick="selecionarCor('#eab308', this)"></div>
+                            <div class="color-swatch" style="background: #a855f7;" onclick="selecionarCor('#a855f7', this)"></div>
+                        </div>
+                        <input type="color" id="customColorPicker" value="#22c55e" oninput="selecionarCorCustomizada(this.value)">
+                    </div>
+                </div>
+
+                <div class="section-title">Ações do Editor</div>
+                <div class="config-group">
+                    <button class="btn-sim special" onclick="spawnObjetoAleatorio('circle')">🎲 Spawn Esfera</button>
+                    <button class="btn-sim danger" onclick="spawnObjetoAleatorio('skull')">💀 Spawn Caveira</button>
+                </div>
+            </div>
+
+            <!-- ABA 2: PLAYER & ANIMAÇÕES -->
+            <div id="tab-player" class="tab-content">
+                <div class="section-title">Dimensões & Aparência Base</div>
+                <div class="config-group">
+                    <div class="config-row">
+                        <label>Cor Base:</label>
+                        <input type="color" id="playerColorPicker" value="#facc15" oninput="alterarCorPlayer(this.value)">
+                    </div>
+                    <div class="config-row">
+                        <label>Largura (W):</label>
+                        <input type="number" id="playerWidthInput" value="24" min="8" max="120" onchange="alterarTamanhoPlayer()">
+                    </div>
+                    <div class="config-row">
+                        <label>Altura (H):</label>
+                        <input type="number" id="playerHeightInput" value="32" min="8" max="120" onchange="alterarTamanhoPlayer()">
+                    </div>
+                </div>
+
+                <div class="section-title">Animações do Sprite</div>
+                <div class="config-group">
+                    <label>Nome da Animação:</label>
+                    <input type="text" id="animNameInput" placeholder="Ex: andar, pular, agachar...">
+                    
+                    <div class="config-row" style="margin-top: 4px;">
+                        <label style="font-size: 0.7rem;">Gatilho / Tecla:</label>
+                        <select id="animKeyInput">
+                            <option value="NONE">Nenhuma (Parado / Idle)</option>
+                            <option value="LEFT_RIGHT">↔️ Esquerda / Direita (Andar)</option>
+                            <option value="UP_DOWN">↕️ Cima / Baixo (Pulo/Ar)</option>
+                            <option value="KeyA">Tecla A / Esquerda</option>
+                            <option value="KeyD">Tecla D / Direita</option>
+                            <option value="KeyW">Tecla W / Espaço / Pulo</option>
+                            <option value="KeyS">Tecla S / Baixo</option>
+                        </select>
+                    </div>
+
+                    <label for="animFilesInput" class="file-upload-btn" style="margin-top: 6px;">📁 Selecionar Frames (PNG)</label>
+                    <input type="file" id="animFilesInput" accept="image/png, image/jpeg, image/gif" multiple onchange="adicionarSequenciaAnimacao(event)" style="display: none;">
+                </div>
+
+                <div class="config-group">
+                    <div class="config-row">
+                        <label>Animação Idle (Padrão):</label>
+                        <select id="initialAnimSelect" onchange="definirAnimacaoInicial(this.value)">
+                            <option value="">Nenhuma (Cor Sólida)</option>
+                        </select>
+                    </div>
+
+                    <div id="animList" style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;"></div>
+                    <button class="switch-btn" id="btnRemoverAnims" onclick="limparAnimacoes()" style="display: none; margin-top: 4px;">Remover Animações</button>
+                </div>
+            </div>
+
+            <!-- ABA 3: CENÁRIO -->
+            <div id="tab-cenario" class="tab-content">
+                <div class="section-title">Estilo do Fundo</div>
+                <div class="config-group">
+                    <div class="config-row">
+                        <label>Cor de Fundo:</label>
+                        <input type="color" id="bgPicker" value="#000000" oninput="alterarCenario(this.value)">
+                    </div>
+                </div>
+
+                <div class="config-group">
+                    <label>Imagem do Cenário (PNG/JPG):</label>
+                    <label for="bgImageInput" class="file-upload-btn">🖼️ Upload Imagem de Fundo</label>
+                    <input type="file" id="bgImageInput" accept="image/png, image/jpeg, image/gif" onchange="carregarImagemCenario(event)" style="display: none;">
+                    <button class="switch-btn" id="btnRemoverBgImg" onclick="removerImagemCenario()" style="display: none; margin-top: 4px;">Usar Cor Sólida</button>
+                </div>
+            </div>
+
+            <!-- ABA 4: REGRAS & ATRIBUTOS -->
+            <div id="tab-regras" class="tab-content">
+                <div class="section-title">Valores Numéricos</div>
+                <div class="config-group">
+                    <div class="config-row">
+                        <label>HP Inicial:</label>
+                        <input type="number" id="hpInput" value="100" min="10" max="500" onchange="alterarHPInicial(this.value)">
+                    </div>
+                    <div class="config-row">
+                        <label>Pontos Esfera (+):</label>
+                        <input type="number" id="spherePoints" value="10" step="5" min="1" onchange="atualizarCodigoPython()">
+                    </div>
+                    <div class="config-row">
+                        <label>Dano Caveira (-):</label>
+                        <input type="number" id="skullDamage" value="25" min="0" step="5" onchange="atualizarCodigoPython()">
+                    </div>
+                    <div class="config-row">
+                        <label>Perda Pontos (-):</label>
+                        <input type="number" id="skullPointLoss" value="15" min="0" step="5" onchange="atualizarCodigoPython()">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ÁREA CENTRAL DO JOGO E CÓDIGO -->
+        <div class="workspace">
+            <div class="stage-container">
+                <div class="stage-header">
+                    <div class="badge-group">
+                        <span class="hp-badge" id="hpBadge">HP: 100</span>
+                        <span class="score-badge" id="scoreBadge">Pontos: 0</span>
+                    </div>
+                    <span class="status-badge" id="coordBadge">Player X: 100 | Y: 100</span>
+                </div>
+                <canvas id="pygameCanvas" width="800" height="450" tabindex="0"></canvas>
+            </div>
+
+            <!-- PAINÉIS DE CONSOLE E CÓDIGO GERADO -->
+            <div class="bottom-panels">
+                <div class="panel">
+                    <div class="panel-header">Console de Eventos</div>
+                    <div class="console-output" id="consoleOutput">Clique em Play para testar o jogo. Use Botão Esquerdo para criar / Direito para remover elementos.</div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">Código Pygame Gerado (Python)</div>
+                    <div class="code-box" id="codeEditor"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SCRIPT JS REVISADO -->
+    <script>
+        const canvas = document.getElementById('pygameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Estado do Jogo (Play / Pause / Stop)
+        let estadoExecucao = 'stop'; // 'play', 'pause', 'stop'
+
+        let corCenarioHex = '#000000';
+        let bgImg = null;
+        let bgImgBase64 = null;
+        let bgImgFileName = 'background.png';
+
+        let corAtualHex = '#22c55e';
+        let modoAtual = 'solid';
+        let desenhando = false;
+        let pontoInicial = { x: 0, y: 0 };
+        let pontoAtual = { x: 0, y: 0 };
+        let mouseCanvasPos = { x: 0, y: 0 };
+
+        let pontuacao = 0;
+        let hpMaximo = 100;
+        let popupsText = [];
+
+        // Sistema de Animação Refatorado
+        const animacoes = {}; 
+        let animacaoInicial = "";
+        let animacaoAtual = "";
+        let frameIndex = 0;
+        let frameTimer = 0;
+        const FRAME_SPEED = 8;
+
+        canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        const playerInicial = { x: 100, y: 100 };
+
+        const player = {
+            x: 100,
+            y: 100,
+            w: 24,
+            h: 32,
+            vx: 0,
+            vy: 0,
+            speed: 4,
+            jumpForce: -10,
+            gravity: 0.5,
+            grounded: false,
+            facingRight: true,
+            color: '#facc15',
+            hp: 100
+        };
+
+        const keys = {};
+
+        let plataformas = [
+            { x: 50, y: 380, w: 700, h: 30, color: '#22c55e', solid: true },
+            { x: 150, y: 270, w: 180, h: 20, color: '#3b82f6', solid: true },
+            { x: 450, y: 180, w: 200, h: 20, color: '#eab308', solid: false }
+        ];
+
+        let esferas = [
+            { x: 230, y: 0, w: 24, h: 24, vy: 2.5, color: '#ec4899', pontos: 10 }
+        ];
+
+        let caveiras = [
+            { x: 520, y: 0, w: 26, h: 26, vy: 2.5, color: '#ef4444', dano: 25, perdaPontos: 15 }
+        ];
+
+        // --- SISTEMA DE CONTROLE DE SIMULAÇÃO ---
+        function definirEstadoExecucao(estado) {
+            estadoExecucao = estado;
+            
+            document.getElementById('btnPlayState').className = 'state-btn';
+            document.getElementById('btnPauseState').className = 'state-btn';
+            document.getElementById('btnStopState').className = 'state-btn';
+
+            if (estado === 'play') {
+                document.getElementById('btnPlayState').className = 'state-btn active-play';
+                logConsole("▶️ Simulação em execução.");
+            } else if (estado === 'pause') {
+                document.getElementById('btnPauseState').className = 'state-btn active-pause';
+                logConsole("⏸️ Simulação pausada.");
+            } else if (estado === 'stop') {
+                document.getElementById('btnStopState').className = 'state-btn active-stop';
+                resetarPlayer();
+                logConsole("⏹️ Simulação parada (Modo Edição).");
+            }
+        }
+
+        // --- SISTEMA DE ABAS DA SIDEBAR ---
+        function switchTab(tabId, btnEl) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btnEl.classList.add('active');
+        }
+
+        function logConsole(msg) {
+            const consoleOut = document.getElementById('consoleOutput');
+            consoleOut.textContent = `> ${msg}\n` + consoleOut.textContent;
+        }
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : { r: 255, g: 255, b: 255 };
+        }
+
+        function resetarPosicaoObjeto(obj) {
+            obj.y = 0;
+            obj.x = Math.floor(Math.random() * (canvas.width - obj.w));
+        }
+
+        // --- PROJETO SALVAR/CARREGAR/EXPORTAR ---
+        function obterEstadoProjetoJSON() {
+            const animacoesData = {};
+            for (let name in animacoes) {
+                animacoesData[name] = {
+                    keyTrigger: animacoes[name].keyTrigger,
+                    filenames: animacoes[name].filenames,
+                    base64Frames: animacoes[name].base64Frames || []
+                };
+            }
+
+            return JSON.stringify({
+                player: { x: player.x, y: player.y, w: player.w, h: player.h, color: player.color, hpMax: hpMaximo },
+                corCenarioHex: corCenarioHex,
+                bgImgBase64: bgImgBase64,
+                bgImgFileName: bgImgFileName,
+                plataformas: plataformas,
+                esferas: esferas,
+                caveiras: caveiras,
+                animacoes: animacoesData,
+                animacaoInicial: animacaoInicial
+            });
+        }
+
+        function carregarEstadoProjetoJSON(jsonString) {
+            try {
+                const data = JSON.parse(jsonString);
+                
+                player.x = data.player.x || 100;
+                player.y = data.player.y || 100;
+                player.w = data.player.w || 24;
+                player.h = data.player.h || 32;
+                player.color = data.player.color || '#facc15';
+                hpMaximo = data.player.hpMax || 100;
+                player.hp = hpMaximo;
+
+                document.getElementById('playerWidthInput').value = player.w;
+                document.getElementById('playerHeightInput').value = player.h;
+                document.getElementById('playerColorPicker').value = player.color;
+                document.getElementById('hpInput').value = hpMaximo;
+                document.getElementById('hpBadge').textContent = `HP: ${player.hp}`;
+
+                corCenarioHex = data.corCenarioHex || '#000000';
+                document.getElementById('bgPicker').value = corCenarioHex;
+
+                bgImgBase64 = data.bgImgBase64 || null;
+                bgImgFileName = data.bgImgFileName || 'background.png';
+                if (bgImgBase64) {
+                    const img = new Image();
+                    img.onload = () => {
+                        bgImg = img;
+                        document.getElementById('btnRemoverBgImg').style.display = 'block';
+                    };
+                    img.src = bgImgBase64;
+                } else {
+                    bgImg = null;
+                    document.getElementById('btnRemoverBgImg').style.display = 'none';
+                }
+
+                plataformas = data.plataformas || [];
+                esferas = data.esferas || [];
+                caveiras = data.caveiras || [];
+
+                for (let k in animacoes) delete animacoes[k];
+                const animsData = data.animacoes || {};
+                
+                for (let name in animsData) {
+                    const item = animsData[name];
+                    const loadedFrames = [];
+                    if (item.base64Frames) {
+                        item.base64Frames.forEach(b64 => {
+                            const img = new Image();
+                            img.src = b64;
+                            loadedFrames.push(img);
+                        });
+                    }
+                    animacoes[name] = {
+                        frames: loadedFrames,
+                        filenames: item.filenames || [],
+                        base64Frames: item.base64Frames || [],
+                        keyTrigger: item.keyTrigger || "NONE",
+                        loaded: true
+                    };
+                }
+
+                animacaoInicial = data.animacaoInicial || "";
+                animacaoAtual = animacaoInicial;
+
+                renderizarListaAnimacoes();
+                atualizarCodigoPython();
+                logConsole("Projeto carregado com sucesso!");
+            } catch (err) {
+                logConsole("Erro ao carregar projeto: " + err.message);
+            }
+        }
+
+        function salvarEstadoLocal() {
+            localStorage.setItem('pygame_project_data', obterEstadoProjetoJSON());
+            logConsole("💾 Salvo no armazenamento local!");
+        }
+
+        function carregarEstadoLocal() {
+            const jsonStr = localStorage.getItem('pygame_project_data');
+            if (jsonStr) carregarEstadoProjetoJSON(jsonStr);
+            else logConsole("Nenhum estado salvo encontrado no navegador.");
+        }
+
+        function exportarProjetoJSON() {
+            const jsonStr = obterEstadoProjetoJSON();
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'projeto_pygame.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            logConsole("📥 Exportado arquivo 'projeto_pygame.json'.");
+        }
+
+        function importarProjetoJSON(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) { carregarEstadoProjetoJSON(evt.target.result); };
+            reader.readAsText(file);
+        }
+
+        // --- CONFIGURAÇÕES DE ELEMENTOS ---
+        function definirModo(modo) {
+            modoAtual = modo;
+            document.querySelectorAll('.switch-btn').forEach(btn => {
+                btn.className = 'switch-btn';
+            });
+
+            if (modo === 'solid') document.getElementById('btnSolid').className = 'switch-btn active-solid';
+            if (modo === 'passable') document.getElementById('btnPassable').className = 'switch-btn active-passable';
+            if (modo === 'circle') document.getElementById('btnCircle').className = 'switch-btn active-circle';
+            if (modo === 'skull') document.getElementById('btnSkull').className = 'switch-btn active-skull';
+            logConsole(`Modo de criação definido para: ${modo.toUpperCase()}`);
+        }
+
+        function selecionarCor(hex, element) {
+            corAtualHex = hex;
+            document.querySelectorAll('.color-swatch').forEach(el => el.classList.remove('active'));
+            if (element) element.classList.add('active');
+            document.getElementById('customColorPicker').value = hex;
+        }
+
+        function selecionarCorCustomizada(hex) {
+            corAtualHex = hex;
+            document.querySelectorAll('.color-swatch').forEach(el => el.classList.remove('active'));
+        }
+
+        function alterarCenario(cor) {
+            corCenarioHex = cor;
+            atualizarCodigoPython();
+        }
+
+        function alterarCorPlayer(cor) {
+            player.color = cor;
+            atualizarCodigoPython();
+        }
+
+        function alterarTamanhoPlayer() {
+            const nw = parseInt(document.getElementById('playerWidthInput').value) || 24;
+            const nh = parseInt(document.getElementById('playerHeightInput').value) || 32;
+            player.w = Math.max(8, Math.min(120, nw));
+            player.h = Math.max(8, Math.min(120, nh));
+            logConsole(`Dimensões do Player: ${player.w}x${player.h}px`);
+            atualizarCodigoPython();
+        }
+
+        function alterarHPInicial(v) {
+            hpMaximo = parseInt(v) || 100;
+            player.hp = hpMaximo;
+            document.getElementById('hpBadge').textContent = `HP: ${player.hp}`;
+            atualizarCodigoPython();
+        }
+
+        function carregarImagemCenario(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                bgImgBase64 = event.target.result;
+                const img = new Image();
+                img.onload = function () {
+                    bgImg = img;
+                    bgImgFileName = file.name;
+                    document.getElementById('btnRemoverBgImg').style.display = 'block';
+                    logConsole(`Imagem de fundo definida: ${file.name}`);
+                    atualizarCodigoPython();
+                };
+                img.src = bgImgBase64;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removerImagemCenario() {
+            bgImg = null;
+            bgImgBase64 = null;
+            document.getElementById('bgImageInput').value = '';
+            document.getElementById('btnRemoverBgImg').style.display = 'none';
+            logConsole("Imagem de fundo removida.");
+            atualizarCodigoPython();
+        }
+
+        // --- SISTEMA DE ANIMAÇÕES CORRIGIDO (SEM RETÂNGULO E COM PRÉ-CARREGAMENTO) ---
+        function adicionarSequenciaAnimacao(e) {
+            const files = Array.from(e.target.files);
+            const nomeInput = document.getElementById('animNameInput');
+            let nomeAnim = nomeInput.value.trim().toLowerCase();
+            const keyTrigger = document.getElementById('animKeyInput').value;
+
+            if (!files.length) return;
+            if (!nomeAnim) nomeAnim = `anim_${Object.keys(animacoes).length + 1}`;
+
+            const framesArray = [];
+            const fileNamesArray = [];
+            const base64Array = [];
+            let carregadas = 0;
+
+            files.forEach((file) => {
+                fileNamesArray.push(file.name);
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const b64 = event.target.result;
+                    base64Array.push(b64);
+                    const img = new Image();
+                    img.onload = function () {
+                        framesArray.push(img);
+                        carregadas++;
+                        if (carregadas === files.length) {
+                            animacoes[nomeAnim] = {
+                                frames: framesArray,
+                                filenames: fileNamesArray,
+                                base64Frames: base64Array,
+                                keyTrigger: keyTrigger,
+                                loaded: true
+                            };
+                            if (!animacaoInicial) {
+                                animacaoInicial = nomeAnim;
+                                animacaoAtual = nomeAnim;
+                            }
+                            nomeInput.value = '';
+                            renderizarListaAnimacoes();
+                            atualizarCodigoPython();
+                            logConsole(`Animação '${nomeAnim}' carregada com ${files.length} frames.`);
+                        }
+                    };
+                    img.src = b64;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function renderizarListaAnimacoes() {
+            const listContainer = document.getElementById('animList');
+            const selectInit = document.getElementById('initialAnimSelect');
+            listContainer.innerHTML = '';
+            selectInit.innerHTML = '<option value="">Nenhuma (Cor Sólida)</option>';
+
+            const nomes = Object.keys(animacoes);
+            document.getElementById('btnRemoverAnims').style.display = nomes.length ? 'block' : 'none';
+
+            nomes.forEach((nome) => {
+                const item = animacoes[nome];
+                const opt = document.createElement('option');
+                opt.value = nome;
+                opt.textContent = `${nome} (${item.frames.length} frames)`;
+                if (nome === animacaoInicial) opt.selected = true;
+                selectInit.appendChild(opt);
+
+                const div = document.createElement('div');
+                div.className = 'anim-item';
+                div.innerHTML = `
+                    <div class="anim-item-header">
+                        <span>🎬 ${nome} (${item.frames.length} frames)</span>
+                        <span class="anim-item-delete" onclick="removerAnimacao('${nome}')">✖</span>
+                    </div>
+                    <div class="config-row" style="margin-top:2px;">
+                        <label style="font-size:0.68rem;">Tecla:</label>
+                        <select style="font-size:0.7rem; padding:2px;" onchange="reassociarTeclaAnimacao('${nome}', this.value)">
+                            <option value="NONE" ${item.keyTrigger==='NONE'?'selected':''}>Nenhuma (Idle)</option>
+                            <option value="LEFT_RIGHT" ${item.keyTrigger==='LEFT_RIGHT'?'selected':''}>↔️ Esquerda / Direita</option>
+                            <option value="UP_DOWN" ${item.keyTrigger==='UP_DOWN'?'selected':''}>↕️ Cima / Baixo</option>
+                            <option value="KeyA" ${item.keyTrigger==='KeyA'?'selected':''}>Tecla A</option>
+                            <option value="KeyD" ${item.keyTrigger==='KeyD'?'selected':''}>Tecla D</option>
+                            <option value="KeyW" ${item.keyTrigger==='KeyW'?'selected':''}>Tecla W / Espaço</option>
+                            <option value="KeyS" ${item.keyTrigger==='KeyS'?'selected':''}>Tecla S</option>
+                        </select>
+                    </div>
+                `;
+                listContainer.appendChild(div);
+            });
+        }
+
+        function reassociarTeclaAnimacao(nomeAnim, novaTecla) {
+            if (animacoes[nomeAnim]) {
+                animacoes[nomeAnim].keyTrigger = novaTecla;
+                atualizarCodigoPython();
+            }
+        }
+
+        function definirAnimacaoInicial(val) {
+            animacaoInicial = val;
+            animacaoAtual = val;
+            atualizarCodigoPython();
+        }
+
+        function removerAnimacao(nome) {
+            delete animacoes[nome];
+            if (animacaoInicial === nome) animacaoInicial = Object.keys(animacoes)[0] || "";
+            animacaoAtual = animacaoInicial;
+            renderizarListaAnimacoes();
+            atualizarCodigoPython();
+        }
+
+        function limparAnimacoes() {
+            for (let k in animacoes) delete animacoes[k];
+            animacaoInicial = "";
+            animacaoAtual = "";
+            renderizarListaAnimacoes();
+            atualizarCodigoPython();
+        }
+
+        // --- MANIPULAÇÃO DO CANVAS & CORREÇÃO DO BUG DO SPAWN AUTOMÁTICO DE CAVEIRAS ---
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            const mx = (e.clientX - rect.left) * scaleX;
+            const my = (e.clientY - rect.top) * scaleY;
+
+            if (e.button === 2) {
+                // Remover Objetos (Botão Direito)
+                plataformas = plataformas.filter(p => !(mx >= p.x && mx <= p.x + p.w && my >= p.y && my <= p.y + p.h));
+                esferas = esferas.filter(s => !(mx >= s.x - s.w && mx <= s.x + s.w && my >= s.y - s.h && my <= s.y + s.h));
+                caveiras = caveiras.filter(c => !(mx >= c.x - c.w && mx <= c.x + c.w && my >= c.y - c.h && my <= c.y + c.h));
+                atualizarCodigoPython();
+                return;
+            }
+
+            if (e.button === 0) {
+                if (modoAtual === 'solid' || modoAtual === 'passable') {
+                    desenhando = true;
+                    pontoInicial = { x: mx, y: my };
+                    pontoAtual = { x: mx, y: my };
+                } else if (modoAtual === 'circle') {
+                    const pts = parseInt(document.getElementById('spherePoints').value) || 10;
+                    esferas.push({ x: mx, y: my, w: 24, h: 24, vy: 2.5, color: corAtualHex, pontos: pts });
+                    logConsole(`Esfera adicionada em (${Math.round(mx)}, ${Math.round(my)})`);
+                    atualizarCodigoPython();
+                } else if (modoAtual === 'skull') {
+                    // ADICIONA UMA ÚNICA CAVEIRA POR CLIQUE
+                    const dmg = parseInt(document.getElementById('skullDamage').value) || 25;
+                    const loss = parseInt(document.getElementById('skullPointLoss').value) || 15;
+                    caveiras.push({ x: mx, y: my, w: 26, h: 26, vy: 2.5, color: corAtualHex, dano: dmg, perdaPontos: loss });
+                    logConsole(`Caveira adicionada em (${Math.round(mx)}, ${Math.round(my)})`);
+                    atualizarCodigoPython();
+                }
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            mouseCanvasPos.x = (e.clientX - rect.left) * scaleX;
+            mouseCanvasPos.y = (e.clientY - rect.top) * scaleY;
+
+            if (desenhando) {
+                pontoAtual = { x: mouseCanvasPos.x, y: mouseCanvasPos.y };
+            }
+        });
+
+        window.addEventListener('mouseup', (e) => {
+            if (desenhando && e.button === 0) {
+                desenhando = false;
+                const x = Math.min(pontoInicial.x, pontoAtual.x);
+                const y = Math.min(pontoInicial.y, pontoAtual.y);
+                const w = Math.abs(pontoAtual.x - pontoInicial.x);
+                const h = Math.abs(pontoAtual.y - pontoInicial.y);
+
+                if (w > 10 && h > 6) {
+                    const isSolid = (modoAtual === 'solid');
+                    plataformas.push({ x, y, w, h, color: corAtualHex, solid: isSolid });
+                    logConsole(`Plataforma ${isSolid ? 'Sólida' : 'Passável'} criada: ${Math.round(w)}x${Math.round(h)}px`);
+                    atualizarCodigoPython();
+                }
+            }
+        });
+
+        // Controles de Teclado
+        window.addEventListener('keydown', (e) => {
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key) && document.activeElement === canvas) {
+                e.preventDefault();
+            }
+            keys[e.code] = true;
+        });
+
+        window.addEventListener('keyup', (e) => {
+            keys[e.code] = false;
+        });
+
+        function spawnObjetoAleatorio(tipo) {
+            const rx = Math.floor(Math.random() * (canvas.width - 30));
+            if (tipo === 'circle') {
+                const pts = parseInt(document.getElementById('spherePoints').value) || 10;
+                esferas.push({ x: rx, y: 0, w: 24, h: 24, vy: 2.5, color: '#ec4899', pontos: pts });
+            } else if (tipo === 'skull') {
+                const dmg = parseInt(document.getElementById('skullDamage').value) || 25;
+                const loss = parseInt(document.getElementById('skullPointLoss').value) || 15;
+                caveiras.push({ x: rx, y: 0, w: 26, h: 26, vy: 2.5, color: '#ef4444', dano: dmg, perdaPontos: loss });
+            }
+            atualizarCodigoPython();
+        }
+
+        function resetarPlayer() {
+            player.x = playerInicial.x;
+            player.y = playerInicial.y;
+            player.vx = 0;
+            player.vy = 0;
+            player.hp = hpMaximo;
+            pontuacao = 0;
+            document.getElementById('hpBadge').textContent = `HP: ${player.hp}`;
+            document.getElementById('scoreBadge').textContent = `Pontos: ${pontuacao}`;
+        }
+
+        function limparObjetos() {
+            plataformas = [];
+            esferas = [];
+            caveiras = [];
+            atualizarCodigoPython();
+            logConsole("Cenário limpo.");
+        }
+
+        // --- UPDATE SIMULAÇÃO ---
+        function update() {
+            if (estadoExecucao !== 'play') return; // Se pausado ou parado, ignora física
+
+            // Movimento Horizontal
+            player.vx = 0;
+            if (keys['KeyA'] || keys['ArrowLeft']) {
+                player.vx = -player.speed;
+                player.facingRight = false;
+            }
+            if (keys['KeyD'] || keys['ArrowRight']) {
+                player.vx = player.speed;
+                player.facingRight = true;
+            }
+
+            // Pulo
+            if ((keys['KeyW'] || keys['ArrowUp'] || keys['Space']) && player.grounded) {
+                player.vy = player.jumpForce;
+                player.grounded = false;
+            }
+
+            // Seleção Dinâmica de Animação
+            let novaAnim = animacaoInicial;
+            for (let name in animacoes) {
+                const trigger = animacoes[name].keyTrigger;
+                if (trigger === 'LEFT_RIGHT' && Math.abs(player.vx) > 0) novaAnim = name;
+                else if (trigger === 'UP_DOWN' && !player.grounded) novaAnim = name;
+                else if (trigger !== 'NONE' && trigger !== 'LEFT_RIGHT' && trigger !== 'UP_DOWN' && keys[trigger]) novaAnim = name;
+            }
+            if (novaAnim && animacoes[novaAnim]) animacaoAtual = novaAnim;
+
+            // Gravidade
+            player.vy += player.gravity;
+
+            // Colisão X
+            player.x += player.vx;
+            plataformas.forEach(p => {
+                if (p.solid && AABB(player, p)) {
+                    if (player.vx > 0) player.x = p.x - player.w;
+                    else if (player.vx < 0) player.x = p.x + p.w;
+                }
+            });
+
+            // Colisão Y
+            player.y += player.vy;
+            player.grounded = false;
+
+            plataformas.forEach(p => {
+                if (p.solid) {
+                    if (AABB(player, p)) {
+                        if (player.vy > 0) {
+                            player.y = p.y - player.h;
+                            player.vy = 0;
+                            player.grounded = true;
+                        } else if (player.vy < 0) {
+                            player.y = p.y + p.h;
+                            player.vy = 0;
+                        }
+                    }
+                } else {
+                    if (player.vy > 0 && (player.y + player.h - player.vy) <= p.y && AABB(player, p)) {
+                        player.y = p.y - player.h;
+                        player.vy = 0;
+                        player.grounded = true;
+                    }
+                }
+            });
+
+            // Limite inferior Canvas
+            if (player.y + player.h > canvas.height) {
+                player.y = canvas.height - player.h;
+                player.vy = 0;
+                player.grounded = true;
+            }
+
+            // Movimento Objetos Coletáveis
+            esferas.forEach(s => {
+                s.y += s.vy;
+                if (s.y > canvas.height) resetarPosicaoObjeto(s);
+                if (AABB(player, { x: s.x - s.w / 2, y: s.y - s.h / 2, w: s.w, h: s.h })) {
+                    pontuacao += s.pontos;
+                    popupsText.push({ text: `+${s.pontos}`, x: s.x, y: s.y, color: '#4ade80', life: 30 });
+                    resetarPosicaoObjeto(s);
+                    document.getElementById('scoreBadge').textContent = `Pontos: ${pontuacao}`;
+                }
+            });
+
+            caveiras.forEach(c => {
+                c.y += c.vy;
+                if (c.y > canvas.height) resetarPosicaoObjeto(c);
+                if (AABB(player, { x: c.x - c.w / 2, y: c.y - c.h / 2, w: c.w, h: c.h })) {
+                    player.hp = Math.max(0, player.hp - c.dano);
+                    pontuacao = Math.max(0, pontuacao - c.perdaPontos);
+                    popupsText.push({ text: `-${c.dano} HP`, x: c.x, y: c.y, color: '#f87171', life: 30 });
+                    resetarPosicaoObjeto(c);
+                    document.getElementById('hpBadge').textContent = `HP: ${player.hp}`;
+                    document.getElementById('scoreBadge').textContent = `Pontos: ${pontuacao}`;
+                }
+            });
+
+            document.getElementById('coordBadge').textContent = `Player X: ${Math.round(player.x)} | Y: ${Math.round(player.y)}`;
+        }
+
+        function AABB(a, b) {
+            return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+        }
+
+        // --- DRAW / RENDER CORRIGIDO (SEM RETÂNGULO PISCANDO) ---
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Fundo
+            if (bgImg) {
+                ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+            } else {
+                ctx.fillStyle = corCenarioHex;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            // Grid Suave
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            for (let x = 0; x < canvas.width; x += 40) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += 40) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+            }
+
+            // Plataformas
+            plataformas.forEach(p => {
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.w, p.h);
+                if (!p.solid) {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(p.x, p.y, p.w, 3);
+                }
+            });
+
+            // Esferas
+            esferas.forEach(s => {
+                ctx.fillStyle = s.color;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.w / 2, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Caveiras
+            caveiras.forEach(c => {
+                ctx.fillStyle = c.color;
+                ctx.fillRect(c.x - c.w / 2, c.y - c.h / 2, c.w, c.h);
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(c.x - 6, c.y - 4, 4, 4);
+                ctx.fillRect(c.x + 2, c.y - 4, 4, 4);
+            });
+
+            // Preview Plataforma
+            if (desenhando) {
+                const x = Math.min(pontoInicial.x, pontoAtual.x);
+                const y = Math.min(pontoInicial.y, pontoAtual.y);
+                const w = Math.abs(pontoAtual.x - pontoInicial.x);
+                const h = Math.abs(pontoAtual.y - pontoInicial.y);
+                ctx.strokeStyle = corAtualHex;
+                ctx.setLineDash([4, 4]);
+                ctx.strokeRect(x, y, w, h);
+                ctx.setLineDash([]);
+            }
+
+            // --- DESENHO DO PLAYER CORRIGIDO SEM RETÂNGULO FANTASMA ---
+            let frameRenderizado = false;
+            const currentAnimData = animacoes[animacaoAtual];
+
+            if (currentAnimData && currentAnimData.frames && currentAnimData.frames.length > 0) {
+                if (estadoExecucao === 'play') {
+                    frameTimer++;
+                    if (frameTimer >= FRAME_SPEED) {
+                        frameTimer = 0;
+                        frameIndex = (frameIndex + 1) % currentAnimData.frames.length;
+                    }
+                }
+                
+                // Valida o índice do frame de forma segura
+                if (frameIndex >= currentAnimData.frames.length) frameIndex = 0;
+                const imgFrame = currentAnimData.frames[frameIndex];
+
+                if (imgFrame && imgFrame.complete && imgFrame.naturalWidth > 0) {
+                    ctx.save();
+                    if (!player.facingRight) {
+                        ctx.translate(player.x + player.w, player.y);
+                        ctx.scale(-1, 1);
+                        ctx.drawImage(imgFrame, 0, 0, player.w, player.h);
+                    } else {
+                        ctx.drawImage(imgFrame, player.x, player.y, player.w, player.h);
+                    }
+                    ctx.restore();
+                    frameRenderizado = true;
+                }
+            }
+
+            // Só desenha o retângulo base do player se NENHUMA animação tiver sido configurada
+            if (!frameRenderizado && Object.keys(animacoes).length === 0) {
+                ctx.fillStyle = player.color;
+                ctx.fillRect(player.x, player.y, player.w, player.h);
+                ctx.fillStyle = '#000000';
+                const eyeX = player.facingRight ? player.x + player.w - 6 : player.x + 2;
+                ctx.fillRect(eyeX, player.y + 6, 4, 4);
+            }
+
+            // Popups de texto (+10 / -25)
+            for (let i = popupsText.length - 1; i >= 0; i--) {
+                const pop = popupsText[i];
+                ctx.fillStyle = pop.color;
+                ctx.font = 'bold 12px sans-serif';
+                ctx.fillText(pop.text, pop.x, pop.y);
+                pop.y -= 0.8;
+                pop.life--;
+                if (pop.life <= 0) popupsText.splice(i, 1);
+            }
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // --- GERADOR DE CÓDIGO PYTHON / PYGAME ---
+        function atualizarCodigoPython() {
+            const bgRgb = hexToRgb(corCenarioHex);
+            const playerRgb = hexToRgb(player.color);
+
+            let pyCode = `import pygame\nimport sys\n\npygame.init()\nWIDTH, HEIGHT = 800, 450\nscreen = pygame.display.set_mode((WIDTH, HEIGHT))\npygame.display.set_caption("Jogo Plataforma 2D")\nclock = pygame.time.Clock()\n\n# Cores\nBG_COLOR = (${bgRgb.r}, ${bgRgb.g}, ${bgRgb.b})\n`;
+
+            pyCode += `\n# Elementos do Jogo\nplataformas = [\n`;
+            plataformas.forEach(p => {
+                const c = hexToRgb(p.color);
+                pyCode += `    {"rect": pygame.Rect(${Math.round(p.x)}, ${Math.round(p.y)}, ${Math.round(p.w)}, ${Math.round(p.h)}), "color": (${c.r}, ${c.g}, ${c.b}), "solid": ${p.solid ? 'True' : 'False'}},\n`;
+            });
+            pyCode += `]\n\nesferas = [\n`;
+            esferas.forEach(s => {
+                pyCode += `    {"x": ${Math.round(s.x)}, "y": ${Math.round(s.y)}, "radius": 12, "vy": 2.5},\n`;
+            });
+            pyCode += `]\n\ncaveiras = [\n`;
+            caveiras.forEach(c => {
+                pyCode += `    {"x": ${Math.round(c.x)}, "y": ${Math.round(c.y)}, "size": 26, "vy": 2.5},\n`;
+            });
+            pyCode += `]\n\n# Configurações do Player\nplayer_rect = pygame.Rect(${Math.round(player.x)}, ${Math.round(player.y)}, ${player.w}, ${player.h})\nplayer_color = (${playerRgb.r}, ${playerRgb.g}, ${playerRgb.b})\nvy = 0\ngravity = 0.5\nis_grounded = False\nhp = ${hpMaximo}\npontos = 0\n\n# Loop Principal\nrunning = True\nwhile running:\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            running = False\n\n    keys = pygame.key.get_pressed()\n    if keys[pygame.K_a] or keys[pygame.K_LEFT]: player_rect.x -= 4\n    if keys[pygame.K_d] or keys[pygame.K_RIGHT]: player_rect.x += 4\n    if (keys[pygame.K_w] or keys[pygame.K_SPACE]) and is_grounded:\n        vy = -10\n        is_grounded = False\n\n    vy += gravity\n    player_rect.y += vy\n\n    # Colisão Plataformas\n    is_grounded = False\n    for p in plataformas:\n        if p["solid"] and player_rect.colliderect(p["rect"]):\n            if vy > 0:\n                player_rect.bottom = p["rect"].top\n                vy = 0\n                is_grounded = True\n\n    screen.fill(BG_COLOR)\n    for p in plataformas:\n        pygame.draw.rect(screen, p["color"], p["rect"])\n    pygame.draw.rect(screen, player_color, player_rect)\n\n    pygame.display.flip()\n    clock.tick(60)\n\npygame.quit()\nsys.exit()\n`;
+
+            document.getElementById('codeEditor').textContent = pyCode;
+        }
+
+        function copiarCodigo() {
+            const code = document.getElementById('codeEditor').textContent;
+            navigator.clipboard.writeText(code);
+            logConsole("📋 Código Pygame copiado para a área de transferência!");
+        }
+
+        // Inicialização
+        renderizarListaAnimacoes();
+        atualizarCodigoPython();
+        gameLoop();
+    </script>
+</body>
+
+</html>

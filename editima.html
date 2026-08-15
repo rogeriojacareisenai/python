@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Processador e Recortador Avançado de GIF / Imagens</title>
+  <!-- Biblioteca para decodificação de GIFs em JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/omggif@1.0.10/omggif.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f0f2f5;
+      color: #333;
+    }
+    h2, h3 { margin-top: 0; color: #1a252f; }
+    .panel {
+      background: #ffffff;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      align-items: center;
+    }
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    label { font-size: 14px; font-weight: 600; color: #4a5568; }
+    input[type="text"] {
+      padding: 8px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="text"]:focus { border-color: #3b82f6; }
+    .frames-container {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 12px;
+      max-height: 180px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 10px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+    }
+    .frame-card {
+      flex: 0 0 auto;
+      border: 2px solid transparent;
+      padding: 6px;
+      cursor: pointer;
+      text-align: center;
+      background: #ffffff;
+      border-radius: 6px;
+      transition: all 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .frame-card:hover { border-color: #93c5fd; }
+    .frame-card.selected {
+      border-color: #2563eb;
+      background: #eff6ff;
+    }
+    .frame-card canvas {
+      max-height: 80px;
+      display: block;
+      margin: 0 auto 6px auto;
+      border-radius: 4px;
+    }
+    .frame-card span { font-size: 12px; font-weight: 600; color: #64748b; }
+    .canvas-wrapper {
+      display: inline-block;
+      position: relative;
+      background: repeating-conic-gradient(#f1f5f9 0% 25%, #fff 0% 50%) 50% / 16px 16px;
+      border: 2px solid #cbd5e1;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    canvas#editorCanvas { display: block; }
+    button {
+      padding: 9px 16px;
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    button:hover:not(:disabled) { background-color: #1d4ed8; }
+    button:active:not(:disabled) { transform: scale(0.98); }
+    button:disabled { background-color: #94a3b8; cursor: not-allowed; }
+    button.btn-success { background-color: #16a34a; }
+    button.btn-success:hover:not(:disabled) { background-color: #15803d; }
+    .info-bar { margin-top: 10px; font-size: 13px; color: #64748b; }
+  </style>
+</head>
+<body>
+
+  <h2>Processador e Recortador de Imagens & GIFs</h2>
+
+  <div class="panel">
+    <div class="controls">
+      <div class="input-group">
+        <label for="imageInput">Selecione o arquivo:</label>
+        <input type="file" id="imageInput" accept="image/gif,image/*">
+      </div>
+
+      <div class="input-group">
+        <label for="prefixInput">Nome padrão:</label>
+        <input type="text" id="prefixInput" value="quadro" placeholder="Ex: quadro">
+      </div>
+
+      <button id="saveAllFramesBtn" class="btn-success" disabled>💾 Salvar Todos os Quadros Automático</button>
+      <button id="cropSelectedBtn" disabled>✂️ Salvar Recorte do Quadro Atual</button>
+      <button id="cropAllFramesBtn" class="btn-success" disabled>✂️ Salvar Recorte de TODOS os Quadros</button>
+    </div>
+  </div>
+
+  <!-- Galeria com todos os quadros extraídos -->
+  <div class="panel">
+    <h3>Quadros / Frames (Clique para alternar)</h3>
+    <div id="framesContainer" class="frames-container">
+      <p style="color: #94a3b8; margin: 10px;">Carregue uma imagem ou GIF para visualizar os quadros.</p>
+    </div>
+  </div>
+
+  <!-- Área de Recorte e Edição do Retângulo -->
+  <div class="panel">
+    <h3>Área de Edição e Seleção</h3>
+    <div class="canvas-wrapper">
+      <canvas id="editorCanvas"></canvas>
+    </div>
+    <div class="info-bar">
+      💡 <b>Dicas:</b> Clique e arraste para criar um retângulo. Arraste pelo centro para mover. Arraste pelas <b>alças nos cantos e bordas</b> para redimensionar. O retângulo permanece na mesma posição e tamanho ao mudar de quadro.
+    </div>
+  </div>
+
+  <script>
+    const imageInput = document.getElementById('imageInput');
+    const prefixInput = document.getElementById('prefixInput');
+    const framesContainer = document.getElementById('framesContainer');
+    const saveAllFramesBtn = document.getElementById('saveAllFramesBtn');
+    const cropSelectedBtn = document.getElementById('cropSelectedBtn');
+    const cropAllFramesBtn = document.getElementById('cropAllFramesBtn');
+    const editorCanvas = document.getElementById('editorCanvas');
+    const editorCtx = editorCanvas.getContext('2d');
+
+    let framesData = []; 
+    let selectedFrameIndex = 0;
+    
+    let rect = { x: 0, y: 0, width: 0, height: 0, active: false };
+    
+    let interactionState = 'none'; // 'drawing', 'moving', 'resizing', 'none'
+    let resizeHandle = '';
+    let dragStartX = 0, dragStartY = 0;
+    let initialRect = { x: 0, y: 0, width: 0, height: 0 };
+    const HANDLE_SIZE = 8;
+
+    imageInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const nameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+      prefixInput.value = nameWithoutExt + '_frame';
+
+      framesContainer.innerHTML = '';
+      framesData = [];
+      rect.active = false;
+      updateButtonsState();
+
+      if (file.type === 'image/gif') {
+        const buffer = await file.arrayBuffer();
+        parseGif(new Uint8Array(buffer));
+      } else {
+        const img = new Image();
+        img.onload = () => {
+          const c = document.createElement('canvas');
+          c.width = img.width;
+          c.height = img.height;
+          c.getContext('2d').drawImage(img, 0, 0);
+          framesData.push(c);
+          addFrameToGallery(c, 0);
+          selectFrame(0);
+          updateButtonsState();
+        };
+        img.src = URL.createObjectURL(file);
+      }
+    });
+
+    function parseGif(uint8Array) {
+      try {
+        const reader = new GifReader(uint8Array);
+        const width = reader.width;
+        const height = reader.height;
+
+        const compositionCanvas = document.createElement('canvas');
+        compositionCanvas.width = width;
+        compositionCanvas.height = height;
+        const compCtx = compositionCanvas.getContext('2d');
+
+        for (let i = 0; i < reader.numFrames(); i++) {
+          const frameInfo = reader.frameInfo(i);
+          const imageData = compCtx.createImageData(width, height);
+          
+          reader.decodeAndBlitFrameRGBA(i, imageData.data);
+
+          const frameCanvas = document.createElement('canvas');
+          frameCanvas.width = width;
+          frameCanvas.height = height;
+
+          const tempCanvas = document.createElement('canvas');
+          tempCanvas.width = width;
+          tempCanvas.height = height;
+          tempCanvas.getContext('2d').putImageData(imageData, 0, 0);
+
+          compCtx.drawImage(tempCanvas, 0, 0);
+          frameCanvas.getContext('2d').drawImage(compositionCanvas, 0, 0);
+
+          framesData.push(frameCanvas);
+          addFrameToGallery(frameCanvas, i);
+        }
+
+        if (framesData.length > 0) {
+          selectFrame(0);
+        }
+        updateButtonsState();
+      } catch (err) {
+        alert('Erro ao processar o GIF.');
+        console.error(err);
+      }
+    }
+
+    function addFrameToGallery(frameCanvas, index) {
+      const card = document.createElement('div');
+      card.className = 'frame-card';
+      card.dataset.index = index;
+
+      const title = document.createElement('span');
+      title.innerText = `#${index + 1}`;
+
+      card.appendChild(frameCanvas.cloneNode(true));
+      card.appendChild(title);
+
+      card.addEventListener('click', () => selectFrame(index));
+      framesContainer.appendChild(card);
+    }
+
+    function selectFrame(index) {
+      selectedFrameIndex = index;
+      document.querySelectorAll('.frame-card').forEach((card, idx) => {
+        card.classList.toggle('selected', idx === index);
+      });
+
+      const currentCanvas = framesData[index];
+      editorCanvas.width = currentCanvas.width;
+      editorCanvas.height = currentCanvas.height;
+
+      drawEditor();
+    }
+
+    function updateButtonsState() {
+      const hasFrames = framesData.length > 0;
+      const hasRect = rect.active && rect.width > 0 && rect.height > 0;
+
+      saveAllFramesBtn.disabled = !hasFrames;
+      cropSelectedBtn.disabled = !(hasFrames && hasRect);
+      cropAllFramesBtn.disabled = !(hasFrames && hasRect);
+    }
+
+    function drawEditor() {
+      const currentCanvas = framesData[selectedFrameIndex];
+      if (!currentCanvas) return;
+
+      editorCtx.clearRect(0, 0, editorCanvas.width, editorCanvas.height);
+      editorCtx.drawImage(currentCanvas, 0, 0);
+
+      if (rect.active && rect.width > 0 && rect.height > 0) {
+        editorCtx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+        editorCtx.fillRect(0, 0, editorCanvas.width, editorCanvas.height);
+
+        editorCtx.clearRect(rect.x, rect.y, rect.width, rect.height);
+        editorCtx.drawImage(
+          currentCanvas,
+          rect.x, rect.y, rect.width, rect.height,
+          rect.x, rect.y, rect.width, rect.height
+        );
+
+        editorCtx.strokeStyle = '#2563eb';
+        editorCtx.lineWidth = 2;
+        editorCtx.setLineDash([6]);
+        editorCtx.strokeRect(rect.x, rect.y, rect.width, rect.height);
+        editorCtx.setLineDash([]);
+
+        drawHandles();
+      }
+    }
+
+    function getHandles() {
+      const { x, y, width, height } = rect;
+      return {
+        nw: { x: x, y: y },
+        ne: { x: x + width, y: y },
+        se: { x: x + width, y: y + height },
+        sw: { x: x, y: y + height },
+        n:  { x: x + width / 2, y: y },
+        s:  { x: x + width / 2, y: y + height },
+        e:  { x: x + width, y: y + height / 2 },
+        w:  { x: x, y: y + height / 2 }
+      };
+    }
+
+    function drawHandles() {
+      const handles = getHandles();
+      editorCtx.fillStyle = '#ffffff';
+      editorCtx.strokeStyle = '#2563eb';
+      editorCtx.lineWidth = 2;
+
+      for (let key in handles) {
+        const h = handles[key];
+        editorCtx.beginPath();
+        editorCtx.arc(h.x, h.y, HANDLE_SIZE / 2, 0, Math.PI * 2);
+        editorCtx.fill();
+        editorCtx.stroke();
+      }
+    }
+
+    function getHitHandle(pos) {
+      if (!rect.active) return null;
+      const handles = getHandles();
+      for (let key in handles) {
+        const h = handles[key];
+        const dist = Math.hypot(pos.x - h.x, pos.y - h.y);
+        if (dist <= HANDLE_SIZE) return key;
+      }
+      return null;
+    }
+
+    function isInsideRect(pos) {
+      return (
+        pos.x >= rect.x &&
+        pos.x <= rect.x + rect.width &&
+        pos.y >= rect.y &&
+        pos.y <= rect.y + rect.height
+      );
+    }
+
+    editorCanvas.addEventListener('mousedown', (e) => {
+      if (framesData.length === 0) return;
+      const pos = getMousePos(e);
+      const hitHandle = getHitHandle(pos);
+
+      if (hitHandle) {
+        interactionState = 'resizing';
+        resizeHandle = hitHandle;
+        dragStartX = pos.x;
+        dragStartY = pos.y;
+        initialRect = { ...rect };
+      } else if (isInsideRect(pos)) {
+        interactionState = 'moving';
+        dragStartX = pos.x - rect.x;
+        dragStartY = pos.y - rect.y;
+      } else {
+        interactionState = 'drawing';
+        rect = { x: pos.x, y: pos.y, width: 0, height: 0, active: true };
+      }
+      updateButtonsState();
+    });
+
+    editorCanvas.addEventListener('mousemove', (e) => {
+      const pos = getMousePos(e);
+
+      if (interactionState === 'drawing') {
+        rect.width = pos.x - rect.x;
+        rect.height = pos.y - rect.y;
+        drawEditor();
+      } else if (interactionState === 'moving') {
+        rect.x = Math.max(0, Math.min(editorCanvas.width - rect.width, pos.x - dragStartX));
+        rect.y = Math.max(0, Math.min(editorCanvas.height - rect.height, pos.y - dragStartY));
+        drawEditor();
+      } else if (interactionState === 'resizing') {
+        const dx = pos.x - dragStartX;
+        const dy = pos.y - dragStartY;
+        let { x, y, width, height } = initialRect;
+
+        if (resizeHandle.includes('e')) width += dx;
+        if (resizeHandle.includes('s')) height += dy;
+        if (resizeHandle.includes('w')) { x += dx; width -= dx; }
+        if (resizeHandle.includes('n')) { y += dy; height -= dy; }
+
+        rect = { x, y, width, height, active: true };
+        drawEditor();
+      } else {
+        const hitHandle = getHitHandle(pos);
+        if (hitHandle) {
+          const cursorMap = {
+            nw: 'nwse-resize', se: 'nwse-resize',
+            ne: 'nesw-resize', sw: 'nesw-resize',
+            n: 'ns-resize', s: 'ns-resize',
+            e: 'ew-resize', w: 'ew-resize'
+          };
+          editorCanvas.style.cursor = cursorMap[hitHandle];
+        } else if (isInsideRect(pos)) {
+          editorCanvas.style.cursor = 'move';
+        } else {
+          editorCanvas.style.cursor = 'crosshair';
+        }
+      }
+    });
+
+    editorCanvas.addEventListener('mouseup', () => {
+      if (interactionState === 'drawing' || interactionState === 'resizing') {
+        if (rect.width < 0) {
+          rect.x += rect.width;
+          rect.width = Math.abs(rect.width);
+        }
+        if (rect.height < 0) {
+          rect.y += rect.height;
+          rect.height = Math.abs(rect.height);
+        }
+      }
+      interactionState = 'none';
+      updateButtonsState();
+      drawEditor();
+    });
+
+    function getMousePos(e) {
+      const bound = editorCanvas.getBoundingClientRect();
+      const scaleX = editorCanvas.width / bound.width;
+      const scaleY = editorCanvas.height / bound.height;
+      return {
+        x: (e.clientX - bound.left) * scaleX,
+        y: (e.clientY - bound.top) * scaleY
+      };
+    }
+
+    function downloadCanvas(canvasToSave, fileName) {
+      const link = document.createElement('a');
+      link.download = fileName;
+      link.href = canvasToSave.toDataURL('image/png');
+      link.click();
+    }
+
+    function getCroppedCanvas(sourceCanvas) {
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = rect.width;
+      tempCanvas.height = rect.height;
+      tempCanvas.getContext('2d').drawImage(
+        sourceCanvas,
+        rect.x, rect.y, rect.width, rect.height,
+        0, 0, rect.width, rect.height
+      );
+      return tempCanvas;
+    }
+
+    saveAllFramesBtn.addEventListener('click', () => {
+      const prefix = prefixInput.value.trim() || 'quadro';
+      framesData.forEach((fCanvas, idx) => {
+        setTimeout(() => {
+          downloadCanvas(fCanvas, `${prefix}_${idx + 1}.png`);
+        }, idx * 150);
+      });
+    });
+
+    cropSelectedBtn.addEventListener('click', () => {
+      if (!rect.active || rect.width <= 0 || rect.height <= 0) return;
+      const prefix = prefixInput.value.trim() || 'quadro';
+      const cropped = getCroppedCanvas(framesData[selectedFrameIndex]);
+      downloadCanvas(cropped, `${prefix}_recorte_quadro_${selectedFrameIndex + 1}.png`);
+    });
+
+    cropAllFramesBtn.addEventListener('click', () => {
+      if (!rect.active || rect.width <= 0 || rect.height <= 0) return;
+      const prefix = prefixInput.value.trim() || 'quadro';
+      framesData.forEach((fCanvas, idx) => {
+        setTimeout(() => {
+          const cropped = getCroppedCanvas(fCanvas);
+          downloadCanvas(cropped, `${prefix}_recorte_${idx + 1}.png`);
+        }, idx * 150);
+      });
+    });
+  </script>
+</body>
+</html>
