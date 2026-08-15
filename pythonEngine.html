@@ -276,6 +276,12 @@
             box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
         }
 
+        .switch-btn.active-floor {
+            background: #64748b;
+            color: #ffffff;
+            box-shadow: 0 0 8px rgba(100, 116, 139, 0.4);
+        }
+
         .switch-btn.active-circle {
             background: #ec4899;
             color: #ffffff;
@@ -560,6 +566,7 @@
                 <div class="tools-grid">
                     <button id="btnSolid" class="switch-btn active-solid" onclick="definirModo('solid')">🧱 Sólida</button>
                     <button id="btnPassable" class="switch-btn" onclick="definirModo('passable')">👻 Passável</button>
+                    <button id="btnFloor" class="switch-btn" onclick="definirModo('floor')">👁️ Chão (Invisível)</button>
                     <button id="btnCircle" class="switch-btn" onclick="definirModo('circle')">🟡 Esfera</button>
                     <button id="btnSkull" class="switch-btn" onclick="definirModo('skull')">💀 Caveira</button>
                 </div>
@@ -709,7 +716,7 @@
 
     </div>
 
-    <!-- SCRIPT JS REVISADO -->
+    <!-- SCRIPT JS REVISADO COM CHÃO INVISÍVEL -->
     <script>
         const canvas = document.getElementById('pygameCanvas');
         const ctx = canvas.getContext('2d');
@@ -723,7 +730,7 @@
         let bgImgFileName = 'background.png';
 
         let corAtualHex = '#22c55e';
-        let modoAtual = 'solid';
+        let modoAtual = 'solid'; // 'solid', 'passable', 'floor', 'circle', 'skull'
         let desenhando = false;
         let pontoInicial = { x: 0, y: 0 };
         let pontoAtual = { x: 0, y: 0 };
@@ -733,7 +740,7 @@
         let hpMaximo = 100;
         let popupsText = [];
 
-        // Sistema de Animação Refatorado
+        // Sistema de Animação
         const animacoes = {}; 
         let animacaoInicial = "";
         let animacaoAtual = "";
@@ -764,9 +771,9 @@
         const keys = {};
 
         let plataformas = [
-            { x: 50, y: 380, w: 700, h: 30, color: '#22c55e', solid: true },
-            { x: 150, y: 270, w: 180, h: 20, color: '#3b82f6', solid: true },
-            { x: 450, y: 180, w: 200, h: 20, color: '#eab308', solid: false }
+            { x: 50, y: 380, w: 700, h: 30, color: '#22c55e', solid: true, isInvisibleFloor: false },
+            { x: 150, y: 270, w: 180, h: 20, color: '#3b82f6', solid: true, isInvisibleFloor: false },
+            { x: 450, y: 180, w: 200, h: 20, color: '#eab308', solid: false, isInvisibleFloor: false }
         ];
 
         let esferas = [
@@ -961,6 +968,7 @@
 
             if (modo === 'solid') document.getElementById('btnSolid').className = 'switch-btn active-solid';
             if (modo === 'passable') document.getElementById('btnPassable').className = 'switch-btn active-passable';
+            if (modo === 'floor') document.getElementById('btnFloor').className = 'switch-btn active-floor';
             if (modo === 'circle') document.getElementById('btnCircle').className = 'switch-btn active-circle';
             if (modo === 'skull') document.getElementById('btnSkull').className = 'switch-btn active-skull';
             logConsole(`Modo de criação definido para: ${modo.toUpperCase()}`);
@@ -1033,7 +1041,7 @@
             atualizarCodigoPython();
         }
 
-        // --- SISTEMA DE ANIMAÇÕES CORRIGIDO (SEM RETÂNGULO E COM PRÉ-CARREGAMENTO) ---
+        // --- SISTEMA DE ANIMAÇÕES ---
         function adicionarSequenciaAnimacao(e) {
             const files = Array.from(e.target.files);
             const nomeInput = document.getElementById('animNameInput');
@@ -1152,7 +1160,7 @@
             atualizarCodigoPython();
         }
 
-        // --- MANIPULAÇÃO DO CANVAS & CORREÇÃO DO BUG DO SPAWN AUTOMÁTICO DE CAVEIRAS ---
+        // --- MANIPULAÇÃO DO CANVAS ---
         canvas.addEventListener('mousedown', (e) => {
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
@@ -1171,7 +1179,7 @@
             }
 
             if (e.button === 0) {
-                if (modoAtual === 'solid' || modoAtual === 'passable') {
+                if (modoAtual === 'solid' || modoAtual === 'passable' || modoAtual === 'floor') {
                     desenhando = true;
                     pontoInicial = { x: mx, y: my };
                     pontoAtual = { x: mx, y: my };
@@ -1181,7 +1189,6 @@
                     logConsole(`Esfera adicionada em (${Math.round(mx)}, ${Math.round(my)})`);
                     atualizarCodigoPython();
                 } else if (modoAtual === 'skull') {
-                    // ADICIONA UMA ÚNICA CAVEIRA POR CLIQUE
                     const dmg = parseInt(document.getElementById('skullDamage').value) || 25;
                     const loss = parseInt(document.getElementById('skullPointLoss').value) || 15;
                     caveiras.push({ x: mx, y: my, w: 26, h: 26, vy: 2.5, color: corAtualHex, dano: dmg, perdaPontos: loss });
@@ -1212,9 +1219,17 @@
                 const h = Math.abs(pontoAtual.y - pontoInicial.y);
 
                 if (w > 10 && h > 6) {
-                    const isSolid = (modoAtual === 'solid');
-                    plataformas.push({ x, y, w, h, color: corAtualHex, solid: isSolid });
-                    logConsole(`Plataforma ${isSolid ? 'Sólida' : 'Passável'} criada: ${Math.round(w)}x${Math.round(h)}px`);
+                    const isSolid = (modoAtual === 'solid' || modoAtual === 'floor');
+                    const isInvisibleFloor = (modoAtual === 'floor');
+                    
+                    plataformas.push({ 
+                        x, y, w, h, 
+                        color: isInvisibleFloor ? '#38bdf8' : corAtualHex, 
+                        solid: isSolid, 
+                        isInvisibleFloor: isInvisibleFloor 
+                    });
+
+                    logConsole(`Plataforma ${isInvisibleFloor ? 'Chão Invisível' : (isSolid ? 'Sólida' : 'Passável')} criada: ${Math.round(w)}x${Math.round(h)}px`);
                     atualizarCodigoPython();
                 }
             }
@@ -1266,7 +1281,7 @@
 
         // --- UPDATE SIMULAÇÃO ---
         function update() {
-            if (estadoExecucao !== 'play') return; // Se pausado ou parado, ignora física
+            if (estadoExecucao !== 'play') return; 
 
             // Movimento Horizontal
             player.vx = 0;
@@ -1371,7 +1386,7 @@
             return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
         }
 
-        // --- DRAW / RENDER CORRIGIDO (SEM RETÂNGULO PISCANDO) ---
+        // --- DRAW / RENDER ---
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -1394,11 +1409,32 @@
 
             // Plataformas
             plataformas.forEach(p => {
-                ctx.fillStyle = p.color;
-                ctx.fillRect(p.x, p.y, p.w, p.h);
-                if (!p.solid) {
-                    ctx.fillStyle = '#ffffff';
-                    ctx.fillRect(p.x, p.y, p.w, 3);
+                // Se for Chão Invisível e o jogo estiver rodando (PLAY), NÃO RENDERIZA NADA
+                if (p.isInvisibleFloor && estadoExecucao === 'play') {
+                    return;
+                }
+
+                if (p.isInvisibleFloor) {
+                    // Renderização de modo de Edição para o Chão (Opaco / Semitransparente)
+                    ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+                    ctx.fillRect(p.x, p.y, p.w, p.h);
+                    ctx.strokeStyle = '#38bdf8';
+                    ctx.lineWidth = 1;
+                    ctx.setLineDash([4, 4]);
+                    ctx.strokeRect(p.x, p.y, p.w, p.h);
+                    ctx.setLineDash([]);
+                    
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.font = '10px sans-serif';
+                    ctx.fillText('[Chão]', p.x + 4, p.y + 12);
+                } else {
+                    // Plataforma Normal
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(p.x, p.y, p.w, p.h);
+                    if (!p.solid) {
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(p.x, p.y, p.w, 3);
+                    }
                 }
             });
 
@@ -1419,19 +1455,27 @@
                 ctx.fillRect(c.x + 2, c.y - 4, 4, 4);
             });
 
-            // Preview Plataforma
+            // Preview Plataforma ao arrastar
             if (desenhando) {
                 const x = Math.min(pontoInicial.x, pontoAtual.x);
                 const y = Math.min(pontoInicial.y, pontoAtual.y);
                 const w = Math.abs(pontoAtual.x - pontoInicial.x);
                 const h = Math.abs(pontoAtual.y - pontoInicial.y);
-                ctx.strokeStyle = corAtualHex;
+                
+                if (modoAtual === 'floor') {
+                    ctx.fillStyle = 'rgba(56, 189, 248, 0.2)';
+                    ctx.fillRect(x, y, w, h);
+                    ctx.strokeStyle = '#38bdf8';
+                } else {
+                    ctx.strokeStyle = corAtualHex;
+                }
+
                 ctx.setLineDash([4, 4]);
                 ctx.strokeRect(x, y, w, h);
                 ctx.setLineDash([]);
             }
 
-            // --- DESENHO DO PLAYER CORRIGIDO SEM RETÂNGULO FANTASMA ---
+            // --- DESENHO DO PLAYER ---
             let frameRenderizado = false;
             const currentAnimData = animacoes[animacaoAtual];
 
@@ -1444,7 +1488,6 @@
                     }
                 }
                 
-                // Valida o índice do frame de forma segura
                 if (frameIndex >= currentAnimData.frames.length) frameIndex = 0;
                 const imgFrame = currentAnimData.frames[frameIndex];
 
@@ -1462,7 +1505,6 @@
                 }
             }
 
-            // Só desenha o retângulo base do player se NENHUMA animação tiver sido configurada
             if (!frameRenderizado && Object.keys(animacoes).length === 0) {
                 ctx.fillStyle = player.color;
                 ctx.fillRect(player.x, player.y, player.w, player.h);
@@ -1499,7 +1541,7 @@
             pyCode += `\n# Elementos do Jogo\nplataformas = [\n`;
             plataformas.forEach(p => {
                 const c = hexToRgb(p.color);
-                pyCode += `    {"rect": pygame.Rect(${Math.round(p.x)}, ${Math.round(p.y)}, ${Math.round(p.w)}, ${Math.round(p.h)}), "color": (${c.r}, ${c.g}, ${c.b}), "solid": ${p.solid ? 'True' : 'False'}},\n`;
+                pyCode += `    {"rect": pygame.Rect(${Math.round(p.x)}, ${Math.round(p.y)}, ${Math.round(p.w)}, ${Math.round(p.h)}), "color": (${c.r}, ${c.g}, ${c.b}), "solid": ${p.solid ? 'True' : 'False'}, "visible": ${p.isInvisibleFloor ? 'False' : 'True'}},\n`;
             });
             pyCode += `]\n\nesferas = [\n`;
             esferas.forEach(s => {
@@ -1509,7 +1551,7 @@
             caveiras.forEach(c => {
                 pyCode += `    {"x": ${Math.round(c.x)}, "y": ${Math.round(c.y)}, "size": 26, "vy": 2.5},\n`;
             });
-            pyCode += `]\n\n# Configurações do Player\nplayer_rect = pygame.Rect(${Math.round(player.x)}, ${Math.round(player.y)}, ${player.w}, ${player.h})\nplayer_color = (${playerRgb.r}, ${playerRgb.g}, ${playerRgb.b})\nvy = 0\ngravity = 0.5\nis_grounded = False\nhp = ${hpMaximo}\npontos = 0\n\n# Loop Principal\nrunning = True\nwhile running:\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            running = False\n\n    keys = pygame.key.get_pressed()\n    if keys[pygame.K_a] or keys[pygame.K_LEFT]: player_rect.x -= 4\n    if keys[pygame.K_d] or keys[pygame.K_RIGHT]: player_rect.x += 4\n    if (keys[pygame.K_w] or keys[pygame.K_SPACE]) and is_grounded:\n        vy = -10\n        is_grounded = False\n\n    vy += gravity\n    player_rect.y += vy\n\n    # Colisão Plataformas\n    is_grounded = False\n    for p in plataformas:\n        if p["solid"] and player_rect.colliderect(p["rect"]):\n            if vy > 0:\n                player_rect.bottom = p["rect"].top\n                vy = 0\n                is_grounded = True\n\n    screen.fill(BG_COLOR)\n    for p in plataformas:\n        pygame.draw.rect(screen, p["color"], p["rect"])\n    pygame.draw.rect(screen, player_color, player_rect)\n\n    pygame.display.flip()\n    clock.tick(60)\n\npygame.quit()\nsys.exit()\n`;
+            pyCode += `]\n\n# Configurações do Player\nplayer_rect = pygame.Rect(${Math.round(player.x)}, ${Math.round(player.y)}, ${player.w}, ${player.h})\nplayer_color = (${playerRgb.r}, ${playerRgb.g}, ${playerRgb.b})\nvy = 0\ngravity = 0.5\nis_grounded = False\nhp = ${hpMaximo}\npontos = 0\n\n# Loop Principal\nrunning = True\nwhile running:\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            running = False\n\n    keys = pygame.key.get_pressed()\n    if keys[pygame.K_a] or keys[pygame.K_LEFT]: player_rect.x -= 4\n    if keys[pygame.K_d] or keys[pygame.K_RIGHT]: player_rect.x += 4\n    if (keys[pygame.K_w] or keys[pygame.K_SPACE]) and is_grounded:\n        vy = -10\n        is_grounded = False\n\n    vy += gravity\n    player_rect.y += vy\n\n    # Colisão Plataformas (Inclui o Chão Invisível)\n    is_grounded = False\n    for p in plataformas:\n        if p["solid"] and player_rect.colliderect(p["rect"]):\n            if vy > 0:\n                player_rect.bottom = p["rect"].top\n                vy = 0\n                is_grounded = True\n\n    screen.fill(BG_COLOR)\n    # Desenha apenas plataformas visíveis\n    for p in plataformas:\n        if p["visible"]:\n            pygame.draw.rect(screen, p["color"], p["rect"])\n            \n    pygame.draw.rect(screen, player_color, player_rect)\n\n    pygame.display.flip()\n    clock.tick(60)\n\npygame.quit()\nsys.exit()\n`;
 
             document.getElementById('codeEditor').textContent = pyCode;
         }
