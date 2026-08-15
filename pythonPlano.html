@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pygame - Coordenadas & Construtor de Plataformas Coloridas</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: #1e293b;
+            padding: 14px 20px;
+            border-bottom: 2px solid #3b82f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 1.3rem;
+            color: #60a5fa;
+        }
+
+        header p {
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+
+        .main-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 480px;
+            gap: 16px;
+            padding: 16px;
+            flex-grow: 1;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        @media (max-width: 1100px) {
+            .main-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .control-bar {
+            background: #1e293b;
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border: 1px solid #334155;
+        }
+
+        .color-picker-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #0f172a;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #334155;
+        }
+
+        .color-picker-section label {
+            font-size: 0.82rem;
+            font-weight: bold;
+            color: #94a3b8;
+        }
+
+        .color-palette {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .color-swatch {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.1s, border-color 0.1s;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.15);
+        }
+
+        .color-swatch.active {
+            border-color: #ffffff;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+        }
+
+        input[type="color"] {
+            -webkit-appearance: none;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        input[type="color"]::-webkit-color-swatch {
+            border: 1px solid #475569;
+            border-radius: 4px;
+        }
+
+        .buttons-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sim {
+            background-color: #3b82f6;
+            color: #ffffff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+
+        .btn-sim:hover {
+            background-color: #2563eb;
+        }
+
+        .btn-sim.danger {
+            background-color: #dc2626;
+        }
+
+        .btn-sim.danger:hover {
+            background-color: #ef4444;
+        }
+
+        .code-box {
+            background-color: #020617;
+            border: 1px solid #1e293b;
+            color: #e2e8f0;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            line-height: 1.5;
+            height: 320px;
+            overflow-y: auto;
+        }
+
+        .info-panels {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .panel {
+            background: #1e293b;
+            border-radius: 8px;
+            padding: 10px;
+            border: 1px solid #334155;
+            height: 150px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 4px;
+        }
+
+        .console-output {
+            font-family: 'Consolas', monospace;
+            font-size: 0.8rem;
+            color: #60a5fa;
+            white-space: pre-wrap;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .memory-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            overflow-y: auto;
+            font-family: 'Consolas', monospace;
+            font-size: 0.75rem;
+        }
+
+        .memory-row {
+            display: flex;
+            justify-content: space-between;
+            background: #0f172a;
+            padding: 4px 8px;
+            border-radius: 4px;
+            align-items: center;
+        }
+
+        .color-badge {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            margin-right: 6px;
+        }
+
+        .explanation-box {
+            background: #1e293b;
+            border-left: 4px solid #10b981;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+        }
+
+        .explanation-box h4 {
+            color: #34d399;
+            margin-bottom: 2px;
+        }
+
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .emulator-container {
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            padding: 12px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .emulator-title {
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .status-badge {
+            background: #020617;
+            color: #38bdf8;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            border: 1px solid #0284c7;
+        }
+
+        canvas {
+            background-color: #000000;
+            border-radius: 6px;
+            border: 1px solid #475569;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+            width: 100%;
+            max-width: 450px;
+            height: 300px;
+            cursor: crosshair;
+        }
+
+        .controls-card {
+            margin-top: 10px;
+            background: #0f172a;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            color: #cbd5e1;
+            width: 100%;
+            border: 1px solid #334155;
+        }
+
+        .controls-card kbd {
+            background: #334155;
+            color: #38bdf8;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div>
+            <h1>Pygame - Coordenadas & Plataformas Coloridas</h1>
+            <p>Escolha a cor, clique e arraste no canvas para criar plataformas personalizadas.</p>
+        </div>
+    </header>
+
+    <div class="main-wrapper">
+        <div class="left-column">
+            <div class="control-bar">
+                <div class="color-picker-section">
+                    <label>Cor da Plataforma:</label>
+                    <div class="color-palette">
+                        <div class="color-swatch active" style="background: #22c55e;" onclick="selecionarCor('#22c55e', this)"></div>
+                        <div class="color-swatch" style="background: #3b82f6;" onclick="selecionarCor('#3b82f6', this)"></div>
+                        <div class="color-swatch" style="background: #ef4444;" onclick="selecionarCor('#ef4444', this)"></div>
+                        <div class="color-swatch" style="background: #eab308;" onclick="selecionarCor('#eab308', this)"></div>
+                        <div class="color-swatch" style="background: #a855f7;" onclick="selecionarCor('#a855f7', this)"></div>
+                        <div class="color-swatch" style="background: #ec4899;" onclick="selecionarCor('#ec4899', this)"></div>
+                    </div>
+                    <input type="color" id="customColorPicker" value="#22c55e" oninput="selecionarCorCustomizada(this.value)">
+                </div>
+
+                <div class="buttons-group">
+                    <button class="btn-sim" onclick="toggleGrade()">🌐 Alternar Grade</button>
+                    <button class="btn-sim" onclick="copiarCodigo()">📋 Copiar Código Python</button>
+                    <button class="btn-sim danger" onclick="limparPlataformas()">🗑 Limpar Plataformas</button>
+                </div>
+            </div>
+
+            <div class="code-box" id="codeEditor"></div>
+
+            <div class="info-panels">
+                <div class="panel">
+                    <div class="panel-header">Console de Eventos</div>
+                    <div class="console-output" id="consoleOutput">Passe o mouse na tela para inspecionar coordenadas (X, Y).</div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">Lista de Plataformas (Pygame Rects)</div>
+                    <div class="memory-grid" id="memoryGrid"></div>
+                </div>
+            </div>
+
+            <div class="explanation-box">
+                <h4>Cores RGB no Pygame</h4>
+                <p>O Pygame representa cores através de tuplas <strong>(R, G, B)</strong> com valores de <strong>0 a 255</strong> para Vermelho, Verde e Azul.</p>
+            </div>
+        </div>
+
+        <div class="right-column">
+            <div class="emulator-container">
+                <div class="emulator-title">
+                    <span>📺 Canvas Pygame (600x400)</span>
+                    <span class="status-badge" id="coordBadge">X: 0 | Y: 0</span>
+                </div>
+                <canvas id="pygameCanvas" width="600" height="400"></canvas>
+                <div class="controls-card">
+                    💡 <strong>Como usar:</strong> Selecione a cor desejada acima e desenhe a plataforma no canvas. O código atualizará automaticamente a tupla RGB correspondente!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('pygameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let corAtualHex = '#22c55e';
+        let exibirGrade = true;
+        let desenhando = false;
+        let pontoInicial = { x: 0, y: 0 };
+        let pontoAtual = { x: 0, y: 0 };
+        let mouseCanvasPos = { x: 0, y: 0 };
+
+        let plataformas = [
+            { x: 50, y: 320, w: 500, h: 30, color: '#22c55e' },
+            { x: 150, y: 220, w: 120, h: 20, color: '#3b82f6' },
+            { x: 350, y: 150, w: 140, h: 20, color: '#eab308' }
+        ];
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : { r: 255, g: 255, b: 255 };
+        }
+
+        function selecionarCor(hex, element) {
+            corAtualHex = hex;
+            document.querySelectorAll('.color-swatch').forEach(el => el.classList.remove('active'));
+            if (element) element.classList.add('active');
+            document.getElementById('customColorPicker').value = hex;
+        }
+
+        function selecionarCorCustomizada(hex) {
+            corAtualHex = hex;
+            document.querySelectorAll('.color-swatch').forEach(el => el.classList.remove('active'));
+        }
+
+        function getCanvasCoords(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            return {
+                x: Math.round((e.clientX - rect.left) * scaleX),
+                y: Math.round((e.clientY - rect.top) * scaleY)
+            };
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            desenhando = true;
+            pontoInicial = getCanvasCoords(e);
+            pontoAtual = { ...pontoInicial };
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            mouseCanvasPos = getCanvasCoords(e);
+            document.getElementById('coordBadge').textContent = `X: ${mouseCanvasPos.x} | Y: ${mouseCanvasPos.y}`;
+
+            if (desenhando) {
+                pontoAtual = mouseCanvasPos;
+            }
+            render();
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            if (desenhando) {
+                desenhando = false;
+                const rect = calcularRect(pontoInicial, pontoAtual);
+                if (rect.w > 5 && rect.h > 5) {
+                    const novaPlataforma = { ...rect, color: corAtualHex };
+                    plataformas.push(novaPlataforma);
+                    const rgb = hexToRgb(corAtualHex);
+                    logConsole(`Nova plataforma (${corAtualHex}): Rect(x=${rect.x}, y=${rect.y}, w=${rect.w}, h=${rect.h}) RGB(${rgb.r}, ${rgb.g}, ${rgb.b})`);
+                }
+                render();
+            }
+        });
+
+        function calcularRect(p1, p2) {
+            const x = Math.min(p1.x, p2.x);
+            const y = Math.min(p1.y, p2.y);
+            const w = Math.abs(p2.x - p1.x);
+            const h = Math.abs(p2.y - p1.y);
+            return { x, y, w, h };
+        }
+
+        function toggleGrade() {
+            exibirGrade = !exibirGrade;
+            render();
+        }
+
+        function limparPlataformas() {
+            plataformas = [];
+            logConsole("Todas as plataformas foram removidas.");
+            render();
+        }
+
+        function logConsole(msg) {
+            const c = document.getElementById('consoleOutput');
+            c.innerHTML += `\n> ${msg}`;
+            c.scrollTop = c.scrollHeight;
+        }
+
+        function atualizarPainelRAM() {
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = '';
+            plataformas.forEach((p, idx) => {
+                grid.innerHTML += `
+                    <div class="memory-row">
+                        <span><span class="color-badge" style="background:${p.color}"></span>plat_${idx}</span>
+                        <strong>Rect(${p.x}, ${p.y}, ${p.w}, ${p.h})</strong>
+                    </div>`;
+            });
+        }
+
+        function atualizarCodigoPython() {
+            const editor = document.getElementById('codeEditor');
+            let pyCode = `import pygame\n\npygame.init()\ntela = pygame.display.set_mode((600, 400))\nrelogio = pygame.time.Clock()\n\n# Lista de Objetos: (Rect, Cor RGB)\nplataformas = [\n`;
+
+            plataformas.forEach((p, i) => {
+                const rgb = hexToRgb(p.color);
+                pyCode += `    {"rect": pygame.Rect(${p.x}, ${p.y}, ${p.w}, ${p.h}), "cor": (${rgb.r}, ${rgb.g}, ${rgb.b})}${i < plataformas.length - 1 ? ',' : ''}\n`;
+            });
+
+            pyCode += `]\n\nrodando = True\nwhile rodando:\n    for evento in pygame.event.get():\n        if evento.type == pygame.QUIT:\n            rodando = False\n\n    tela.fill((0, 0, 0))\n    for item in plataformas:\n        pygame.draw.rect(tela, item["cor"], item["rect"])\n\n    pygame.display.flip()\n    relogio.tick(60)\n\npygame.quit()`;
+
+            editor.innerHTML = `<pre>${escapeHTML(pyCode)}</pre>`;
+            atualizarPainelRAM();
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function copiarCodigo() {
+            const temp = document.createElement('textarea');
+            const editor = document.getElementById('codeEditor');
+            temp.value = editor.innerText;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            logConsole("Código Python copiado para a área de transferência!");
+        }
+
+        function desenharGrade() {
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 1;
+            ctx.fillStyle = '#64748b';
+            ctx.font = '10px monospace';
+
+            for (let x = 0; x <= canvas.width; x += 50) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+                if (x > 0 && x < canvas.width) {
+                    ctx.fillText(`${x}px`, x + 2, 12);
+                }
+            }
+
+            for (let y = 0; y <= canvas.height; y += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+                if (y > 0 && y < canvas.height) {
+                    ctx.fillText(`${y}px`, 2, y - 4);
+                }
+            }
+
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.arc(0, 0, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillText("(0,0) Origem", 10, 20);
+        }
+
+        function render() {
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            if (exibirGrade) desenharGrade();
+
+            // Desenhar plataformas existentes
+            plataformas.forEach((p) => {
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.w, p.h);
+
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(p.x, p.y, p.w, p.h);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '10px monospace';
+                ctx.fillText(`(${p.x},${p.y}) ${p.w}x${p.h}`, p.x + 4, p.y > 15 ? p.y - 4 : p.y + 12);
+            });
+
+            // Desenhar plataforma sendo criada
+            if (desenhando) {
+                const rect = calcularRect(pontoInicial, pontoAtual);
+                ctx.fillStyle = corAtualHex;
+                ctx.globalAlpha = 0.5;
+                ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+                ctx.globalAlpha = 1.0;
+
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4, 4]);
+                ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
+                ctx.setLineDash([]);
+
+                const rgb = hexToRgb(corAtualHex);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '11px monospace';
+                ctx.fillText(`Rect(${rect.x}, ${rect.y}, ${rect.w}, ${rect.h}) RGB(${rgb.r},${rgb.g},${rgb.b})`, rect.x, rect.y - 6);
+            }
+
+            // Guia do Mouse em Tempo Real
+            ctx.strokeStyle = 'rgba(239, 68, 68, 0.4)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(mouseCanvasPos.x, 0);
+            ctx.lineTo(mouseCanvasPos.x, canvas.height);
+            ctx.moveTo(0, mouseCanvasPos.y);
+            ctx.lineTo(canvas.width, mouseCanvasPos.y);
+            ctx.stroke();
+
+            atualizarCodigoPython();
+        }
+
+        render();
+    </script>
+</body>
+
+</html>

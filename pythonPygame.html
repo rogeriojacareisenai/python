@@ -412,7 +412,7 @@
                 </div>
                 <canvas id="pygameCanvas" width="600" height="400" tabindex="1"></canvas>
                 <div class="controls-card" id="hintBox">
-                    💡 <strong>Como testar:</strong> No <em>Modo Passo a Passo</em>, clique em "Próximo Passo" repetidamente para ver a repetição do laço.
+                    💡 <strong>Como testar:</strong> No <em>Modo Tempo Real</em> use as setas do teclado para mover o jogador.
                 </div>
             </div>
         </div>
@@ -663,49 +663,48 @@
 
         function proximoPassoStep() {
             const passos = passosPorModulo[moduloAtual];
-
-            // Se for o primeiro passo
-            if (passoAtualStep === -1) {
-                passoAtualStep = 0;
+            
+            if (passoAtualStep >= passos.length - 1) {
+                // Se chegou ao fim dos passos do ciclo, volta para o início do while
+                const loopStartIndex = passos.findIndex(p => p.isLoopStart);
+                passoAtualStep = loopStartIndex !== -1 ? loopStartIndex : 0;
             } else {
-                // Se o passo atual é o fim do loop, volta para o início do while
-                if (passos[passoAtualStep].isLoopEnd) {
-                    const loopStartIdx = passos.findIndex(p => p.isLoopStart);
-                    passoAtualStep = loopStartIdx !== -1 ? loopStartIdx : 0;
-                } else {
-                    passoAtualStep++;
-                }
+                passoAtualStep++;
             }
 
             const passo = passos[passoAtualStep];
-
-            // Destacar linha
             renderCodigo(passoAtualStep);
-            const lineElem = document.getElementById(`line-${passoAtualStep}`);
-            if (lineElem) lineElem.scrollIntoView({ block: 'nearest' });
 
-            // Atualizar Caixas de Informação
+            // Rolar linha ativa para visualização
+            const activeLineEl = document.getElementById(`line-${passoAtualStep}`);
+            if (activeLineEl) {
+                activeLineEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            // Atualiza explicações
             document.getElementById('expTitle').textContent = passo.title;
             document.getElementById('expText').textContent = passo.exp;
 
-            // Executar Ação
+            // Executa a ação da linha
             if (passo.action) passo.action();
         }
 
-        // --- LÓGICA TEMPO REAL (LOOP) ---
+        // --- LÓGICA TEMPO REAL (GAME LOOP) ---
         function toggleLoop() {
             loopRodando = !loopRodando;
             const btn = document.getElementById('btnToggleLoop');
             if (loopRodando) {
                 btn.textContent = '⏹ Parar Game Loop';
                 btn.classList.add('stop');
-                setStatus('RODANDO (60 FPS)', true);
+                setStatus('LOOP EM EXECUÇÃO', true);
+                logConsole('Game loop iniciado.');
                 canvas.focus();
                 gameLoop();
             } else {
                 btn.textContent = '▶ Iniciar Game Loop';
                 btn.classList.remove('stop');
                 setStatus('PAUSADO', false);
+                logConsole('Game loop pausado.');
                 if (animationFrameId) cancelAnimationFrame(animationFrameId);
             }
         }
@@ -713,32 +712,60 @@
         function gameLoop() {
             if (!loopRodando) return;
 
-            // Lógica por Módulo
+            // Atualiza física e entradas de acordo com o módulo
             if (moduloAtual === 'movimento') {
-                if (keys['ArrowLeft']) state.player.x -= 4;
-                if (keys['ArrowRight']) state.player.x += 4;
-                if (keys['ArrowUp']) state.player.y -= 4;
-                if (keys['ArrowDown']) state.player.y += 4;
+                if (keys['ArrowLeft'] || keys['a']) state.player.x -= 4;
+                if (keys['ArrowRight'] || keys['d']) state.player.x += 4;
+                if (keys['ArrowUp'] || keys['w']) state.player.y -= 4;
+                if (keys['ArrowDown'] || keys['s']) state.player.y += 4;
             } else if (moduloAtual === 'pulo') {
-                state.player.velY += 0.8;
+                state.player.velY += 0.8; // Gravidade
                 state.player.y += state.player.velY;
-                if (state.player.y + state.player.h >= state.plataforma.y) {
+                
+                let noChao = false;
+                if (state.player.x + state.player.w > state.plataforma.x &&
+                    state.player.x < state.plataforma.x + state.plataforma.w &&
+                    state.player.y + state.player.h >= state.plataforma.y &&
+                    state.player.y < state.plataforma.y + state.plataforma.h) {
                     state.player.y = state.plataforma.y - state.player.h;
                     state.player.velY = 0;
-                    if (keys[' '] || keys['ArrowUp']) state.player.velY = -13;
+                    noChao = true;
                 }
+
+                if ((keys['ArrowUp'] || keys[' '] || keys['w']) && noChao) {
+                    state.player.velY = -13;
+                }
+
+                if (keys['ArrowLeft'] || keys['a']) state.player.x -= 3;
+                if (keys['ArrowRight'] || keys['d']) state.player.x += 3;
             } else if (moduloAtual === 'colisao') {
-                if (keys['ArrowLeft']) state.player.x -= 4;
-                if (keys['ArrowRight']) state.player.x += 4;
-                if (state.moeda.ativa && state.player.x + state.player.w >= 270 && state.player.x <= 300) {
-                    state.moeda.ativa = false;
-                    logConsole("Moeda Coletada em Tempo Real!");
+                if (keys['ArrowLeft'] || keys['a']) state.player.x -= 4;
+                if (keys['ArrowRight'] || keys['d']) state.player.x += 4;
+
+                // Colisão simples com a moeda
+                if (state.moeda.ativa) {
+                    const dist = Math.hypot(
+                        (state.player.x + state.player.w/2) - state.moeda.x,
+                        (state.player.y + state.player.h/2) - state.moeda.y
+                    );
+                    if (dist < state.moeda.r + 20) {
+                        state.moeda.ativa = false;
+                        logConsole("Moeda coletada!");
+                    }
                 }
             } else if (moduloAtual === 'pontuacao') {
                 state.pontos += 1;
+                if (keys['ArrowLeft'] || keys['a']) state.player.x -= 4;
+                if (keys['ArrowRight'] || keys['d']) state.player.x += 4;
             }
 
+            // Manter dentro da tela na horizontal
+            if (state.player.x < 0) state.player.x = 0;
+            if (state.player.x > canvas.width - state.player.w) state.player.x = canvas.width - state.player.w;
+
+            // Renderizar frame
             render();
+
             animationFrameId = requestAnimationFrame(gameLoop);
         }
 
@@ -746,8 +773,17 @@
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
             loopRodando = false;
             passoAtualStep = -1;
-            ramState = {};
-            
+
+            const btnLoop = document.getElementById('btnToggleLoop');
+            if (btnLoop) {
+                btnLoop.textContent = '▶ Iniciar Game Loop';
+                btnLoop.classList.remove('stop');
+            }
+
+            document.getElementById('btnIniciarStep').disabled = false;
+            document.getElementById('btnProximoStep').disabled = true;
+
+            // Reinicializa variáveis do estado
             state = {
                 player: { x: 100, y: 200, w: 40, h: 60, velY: 0 },
                 plataforma: { x: 50, y: 320, w: 500, h: 30 },
@@ -755,24 +791,16 @@
                 pontos: 0,
                 loopCounter: 0
             };
+            ramState = {};
 
-            document.getElementById('btnIniciarStep').disabled = false;
-            document.getElementById('btnProximoStep').disabled = true;
-            
-            const btnLoop = document.getElementById('btnToggleLoop');
-            if (btnLoop) {
-                btnLoop.textContent = '▶ Iniciar Game Loop';
-                btnLoop.classList.remove('stop');
-            }
-
-            document.getElementById('consoleOutput').textContent = "Sistema reiniciado.";
+            document.getElementById('consoleOutput').textContent = 'Pronto para iniciar.';
             document.getElementById('memoryGrid').innerHTML = '';
             document.getElementById('expTitle').textContent = 'Explicação da Linha';
-            document.getElementById('expText').textContent = 'Clique em "Iniciar Passo a Passo" para começar a simulação do código.';
-            
-            setStatus('PRONTO', false);
-            renderCodigo(-1);
+            document.getElementById('expText').textContent = 'No modo passo a passo, cada clique exibe a instrução Python sendo executada e seu efeito gráfico.';
+
+            setStatus('AGUARDANDO', false);
             clearCanvas();
+            renderCodigo();
         }
 
         // Inicialização
