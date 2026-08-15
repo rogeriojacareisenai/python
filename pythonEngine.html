@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Engine Interativa de Games 2D - Plataforma</title>
+    <title>Engine Interativa de Games 2D - Câmera & Cenário Cíclico</title>
     <style>
         * {
             box-sizing: border-box;
@@ -102,11 +102,11 @@
 
         .tab-btn {
             flex: 1;
-            padding: 8px 4px;
+            padding: 8px 2px;
             background: transparent;
             color: #94a3b8;
             border: none;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: bold;
             cursor: pointer;
             border-bottom: 2px solid transparent;
@@ -179,7 +179,7 @@
         }
 
         .config-group input[type="number"] {
-            width: 70px;
+            width: 80px;
         }
 
         .color-palette {
@@ -422,6 +422,33 @@
             object-fit: contain;
         }
 
+        /* BARRA HORIZONTAL DE NAVEGAÇÃO DO CENÁRIO */
+        .scene-navigation-bar {
+            width: 100%;
+            max-width: 800px;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #0f172a;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid #334155;
+        }
+
+        .scene-navigation-bar label {
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #38bdf8;
+            white-space: nowrap;
+        }
+
+        .scene-navigation-bar input[type="range"] {
+            flex-grow: 1;
+            cursor: pointer;
+            accent-color: #38bdf8;
+        }
+
         .bottom-panels {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -506,6 +533,21 @@
             border-color: #dc2626;
             box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
         }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.78rem;
+            color: #cbd5e1;
+            cursor: pointer;
+        }
+
+        .checkbox-row input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -556,6 +598,7 @@
             <div class="tab-menu">
                 <button class="tab-btn active" onclick="switchTab('tab-construir', this)">🧱 Construir</button>
                 <button class="tab-btn" onclick="switchTab('tab-player', this)">🏃 Player</button>
+                <button class="tab-btn" onclick="switchTab('tab-camera', this)">🎥 Câmera & Loop</button>
                 <button class="tab-btn" onclick="switchTab('tab-cenario', this)">🖼️ Cenário</button>
                 <button class="tab-btn" onclick="switchTab('tab-regras', this)">⚙️ Regras</button>
             </div>
@@ -569,6 +612,23 @@
                     <button id="btnFloor" class="switch-btn" onclick="definirModo('floor')">👁️ Chão (Invisível)</button>
                     <button id="btnCircle" class="switch-btn" onclick="definirModo('circle')">🟡 Esfera</button>
                     <button id="btnSkull" class="switch-btn" onclick="definirModo('skull')">💀 Caveira</button>
+                </div>
+
+                <div class="section-title">Ajustar Chão Inicial (Principal)</div>
+                <div class="config-group">
+                    <div class="config-row">
+                        <label>Largura (W):</label>
+                        <input type="number" id="floorWidthInput" value="700" min="50" max="5000" step="10" onchange="alterarTamanhoChaoPrincipal()">
+                    </div>
+                    <div class="config-row">
+                        <label>Altura (H):</label>
+                        <input type="number" id="floorHeightInput" value="30" min="5" max="300" step="5" onchange="alterarTamanhoChaoPrincipal()">
+                    </div>
+                    <div class="config-row">
+                        <label>Posição Y:</label>
+                        <input type="number" id="floorPosYInput" value="380" min="0" max="1000" step="10" onchange="alterarTamanhoChaoPrincipal()">
+                    </div>
+                    <button class="btn-sim warning" style="margin-top:2px;" onclick="resetarChaoPadrao()">🔄 Resetar Chão Padrão</button>
                 </div>
 
                 <div class="section-title">Cor do Objeto</div>
@@ -645,7 +705,39 @@
                 </div>
             </div>
 
-            <!-- ABA 3: CENÁRIO -->
+            <!-- ABA 3: CÂMERA & CENÁRIO CÍCLICO -->
+            <div id="tab-camera" class="tab-content">
+                <div class="section-title">Câmera de Perseguição</div>
+                <div class="config-group">
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="cameraFollowToggle" checked onchange="toggleCameraFollow(this.checked)">
+                        Acompanhar Personagem
+                    </label>
+                    <div class="config-row">
+                        <label>Suavização (Smooth):</label>
+                        <input type="number" id="cameraSmoothInput" value="0.1" step="0.02" min="0.01" max="1" onchange="atualizarConfigCamera()">
+                    </div>
+                    <div class="config-row">
+                        <label>Offset X (Centralizar):</label>
+                        <input type="number" id="cameraOffsetXInput" value="400" step="10" onchange="atualizarConfigCamera()">
+                    </div>
+                    <button class="btn-sim warning" style="margin-top: 4px;" onclick="resetarCameraEditor()">🔄 Resetar Câmera / Posição</button>
+                </div>
+
+                <div class="section-title">Cenário Cíclico / Mundo Infinito</div>
+                <div class="config-group">
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="loopCenarioToggle" checked onchange="toggleLoopCenario(this.checked)">
+                        Ativar Fundo Cíclico
+                    </label>
+                    <div class="config-row">
+                        <label>Largura do Bloco (Tile Width):</label>
+                        <input type="number" id="tileWidthInput" value="800" min="200" step="50" onchange="atualizarConfigCamera()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- ABA 4: CENÁRIO -->
             <div id="tab-cenario" class="tab-content">
                 <div class="section-title">Estilo do Fundo</div>
                 <div class="config-group">
@@ -663,7 +755,7 @@
                 </div>
             </div>
 
-            <!-- ABA 4: REGRAS & ATRIBUTOS -->
+            <!-- ABA 5: REGRAS & ATRIBUTOS -->
             <div id="tab-regras" class="tab-content">
                 <div class="section-title">Valores Numéricos</div>
                 <div class="config-group">
@@ -698,13 +790,19 @@
                     <span class="status-badge" id="coordBadge">Player X: 100 | Y: 100</span>
                 </div>
                 <canvas id="pygameCanvas" width="800" height="450" tabindex="0"></canvas>
+                
+                <!-- BARRA HORIZONTAL DE NAVEGAÇÃO DO CENÁRIO -->
+                <div class="scene-navigation-bar">
+                    <label for="cameraScrollInput">🔍 Navegar Cenário X:</label>
+                    <input type="range" id="cameraScrollInput" min="0" max="5000" value="0" step="10" oninput="navegarCenarioHorizontal(this.value)">
+                </div>
             </div>
 
             <!-- PAINÉIS DE CONSOLE E CÓDIGO GERADO -->
             <div class="bottom-panels">
                 <div class="panel">
                     <div class="panel-header">Console de Eventos</div>
-                    <div class="console-output" id="consoleOutput">Clique em Play para testar o jogo. Use Botão Esquerdo para criar / Direito para remover elementos.</div>
+                    <div class="console-output" id="consoleOutput">Clique e arraste em uma plataforma para redimensioná-la ou movê-la! Use a aba Construir para redefinir o Chão Principal.</div>
                 </div>
 
                 <div class="panel">
@@ -716,7 +814,6 @@
 
     </div>
 
-    <!-- SCRIPT JS REVISADO COM CHÃO INVISÍVEL -->
     <script>
         const canvas = document.getElementById('pygameCanvas');
         const ctx = canvas.getContext('2d');
@@ -736,9 +833,28 @@
         let pontoAtual = { x: 0, y: 0 };
         let mouseCanvasPos = { x: 0, y: 0 };
 
+        // Variáveis de Interação de Edição (Mover / Redimensionar Plataformas)
+        let plataformaSelecionada = null;
+        let modoInteracaoPlataforma = null; // 'drag' ou 'resize'
+        let dragOffset = { x: 0, y: 0 };
+
         let pontuacao = 0;
         let hpMaximo = 100;
         let popupsText = [];
+
+        // Sistema de Câmera
+        const camera = {
+            x: 0,
+            y: 0,
+            targetX: 0,
+            targetY: 0,
+            smooth: 0.1,
+            offsetX: 400,
+            offsetY: 225,
+            follow: true,
+            loopEnabled: true,
+            tileWidth: 800
+        };
 
         // Sistema de Animação
         const animacoes = {}; 
@@ -770,8 +886,9 @@
 
         const keys = {};
 
+        // Plataforma Index 0 é considerada o "Chão Principal" por padrão
         let plataformas = [
-            { x: 50, y: 380, w: 700, h: 30, color: '#22c55e', solid: true, isInvisibleFloor: false },
+            { x: 50, y: 380, w: 700, h: 30, color: '#22c55e', solid: true, isInvisibleFloor: false, isMainFloor: true },
             { x: 150, y: 270, w: 180, h: 20, color: '#3b82f6', solid: true, isInvisibleFloor: false },
             { x: 450, y: 180, w: 200, h: 20, color: '#eab308', solid: false, isInvisibleFloor: false }
         ];
@@ -784,7 +901,51 @@
             { x: 520, y: 0, w: 26, h: 26, vy: 2.5, color: '#ef4444', dano: 25, perdaPontos: 15 }
         ];
 
-        // --- SISTEMA DE CONTROLE DE SIMULAÇÃO ---
+        // --- SISTEMA DE REDIMENSIONAMENTO DO CHÃO PRINCIPAL ---
+        function alterarTamanhoChaoPrincipal() {
+            const w = parseInt(document.getElementById('floorWidthInput').value) || 700;
+            const h = parseInt(document.getElementById('floorHeightInput').value) || 30;
+            const y = parseInt(document.getElementById('floorPosYInput').value) || 380;
+
+            let chao = plataformas.find(p => p.isMainFloor);
+            if (!chao) {
+                chao = { x: 50, y: y, w: w, h: h, color: '#22c55e', solid: true, isInvisibleFloor: false, isMainFloor: true };
+                plataformas.unshift(chao);
+            } else {
+                chao.w = Math.max(20, w);
+                chao.h = Math.max(5, h);
+                chao.y = y;
+            }
+
+            logConsole(`Chão Principal redefinido: Largura ${chao.w}px, Altura ${chao.h}px em Y:${chao.y}`);
+            atualizarCodigoPython();
+        }
+
+        function resetarChaoPadrao() {
+            document.getElementById('floorWidthInput').value = 700;
+            document.getElementById('floorHeightInput').value = 30;
+            document.getElementById('floorPosYInput').value = 380;
+            alterarTamanhoChaoPrincipal();
+        }
+
+        function atualizarInputsChao() {
+            const chao = plataformas.find(p => p.isMainFloor);
+            if (chao) {
+                document.getElementById('floorWidthInput').value = Math.round(chao.w);
+                document.getElementById('floorHeightInput').value = Math.round(chao.h);
+                document.getElementById('floorPosYInput').value = Math.round(chao.y);
+            }
+        }
+
+        // --- SISTEMA DE NAVEGAÇÃO DO CENÁRIO ---
+        function navegarCenarioHorizontal(valor) {
+            const posX = parseFloat(valor);
+            if (estadoExecucao !== 'play') {
+                camera.x = posX;
+            }
+        }
+
+        // --- CONTROLE DE SIMULAÇÃO ---
         function definirEstadoExecucao(estado) {
             estadoExecucao = estado;
             
@@ -797,7 +958,8 @@
                 logConsole("▶️ Simulação em execução.");
             } else if (estado === 'pause') {
                 document.getElementById('btnPauseState').className = 'state-btn active-pause';
-                logConsole("⏸️ Simulação pausada.");
+                resetarPlayer();
+                logConsole("⏸️ Simulação pausada e reposicionada.");
             } else if (estado === 'stop') {
                 document.getElementById('btnStopState').className = 'state-btn active-stop';
                 resetarPlayer();
@@ -805,7 +967,7 @@
             }
         }
 
-        // --- SISTEMA DE ABAS DA SIDEBAR ---
+        // --- SIDEBAR ABAS ---
         function switchTab(tabId, btnEl) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -829,7 +991,34 @@
 
         function resetarPosicaoObjeto(obj) {
             obj.y = 0;
-            obj.x = Math.floor(Math.random() * (canvas.width - obj.w));
+            const baseX = camera.x;
+            obj.x = baseX + Math.floor(Math.random() * (canvas.width - obj.w));
+        }
+
+        // --- CÂMERA ---
+        function toggleCameraFollow(enabled) {
+            camera.follow = enabled;
+            logConsole(`Câmera de perseguição: ${enabled ? 'ATIVADA' : 'DESATIVADA'}`);
+            atualizarCodigoPython();
+        }
+
+        function toggleLoopCenario(enabled) {
+            camera.loopEnabled = enabled;
+            logConsole(`Fundo Cíclico: ${enabled ? 'ATIVADO' : 'DESATIVADO'}`);
+            atualizarCodigoPython();
+        }
+
+        function atualizarConfigCamera() {
+            camera.smooth = parseFloat(document.getElementById('cameraSmoothInput').value) || 0.1;
+            camera.offsetX = parseInt(document.getElementById('cameraOffsetXInput').value) || 400;
+            camera.tileWidth = parseInt(document.getElementById('tileWidthInput').value) || 800;
+            atualizarCodigoPython();
+        }
+
+        function resetarCameraEditor() {
+            resetarPlayer();
+            document.getElementById('cameraScrollInput').value = 0;
+            logConsole("🎥 Câmera e Player redefinidos para a origem (0,0).");
         }
 
         // --- PROJETO SALVAR/CARREGAR/EXPORTAR ---
@@ -845,6 +1034,7 @@
 
             return JSON.stringify({
                 player: { x: player.x, y: player.y, w: player.w, h: player.h, color: player.color, hpMax: hpMaximo },
+                camera: { follow: camera.follow, loopEnabled: camera.loopEnabled, tileWidth: camera.tileWidth, smooth: camera.smooth },
                 corCenarioHex: corCenarioHex,
                 bgImgBase64: bgImgBase64,
                 bgImgFileName: bgImgFileName,
@@ -867,6 +1057,18 @@
                 player.color = data.player.color || '#facc15';
                 hpMaximo = data.player.hpMax || 100;
                 player.hp = hpMaximo;
+
+                if (data.camera) {
+                    camera.follow = data.camera.follow ?? true;
+                    camera.loopEnabled = data.camera.loopEnabled ?? true;
+                    camera.tileWidth = data.camera.tileWidth || 800;
+                    camera.smooth = data.camera.smooth || 0.1;
+
+                    document.getElementById('cameraFollowToggle').checked = camera.follow;
+                    document.getElementById('loopCenarioToggle').checked = camera.loopEnabled;
+                    document.getElementById('tileWidthInput').value = camera.tileWidth;
+                    document.getElementById('cameraSmoothInput').value = camera.smooth;
+                }
 
                 document.getElementById('playerWidthInput').value = player.w;
                 document.getElementById('playerHeightInput').value = player.h;
@@ -894,6 +1096,8 @@
                 plataformas = data.plataformas || [];
                 esferas = data.esferas || [];
                 caveiras = data.caveiras || [];
+
+                atualizarInputsChao();
 
                 for (let k in animacoes) delete animacoes[k];
                 const animsData = data.animacoes || {};
@@ -1166,19 +1370,55 @@
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
 
-            const mx = (e.clientX - rect.left) * scaleX;
-            const my = (e.clientY - rect.top) * scaleY;
+            const mx = (e.clientX - rect.left) * scaleX + camera.x;
+            const my = (e.clientY - rect.top) * scaleY + camera.y;
 
             if (e.button === 2) {
-                // Remover Objetos (Botão Direito)
-                plataformas = plataformas.filter(p => !(mx >= p.x && mx <= p.x + p.w && my >= p.y && my <= p.y + p.h));
+                // REMOÇÃO DE OBJETOS E PLATAFORMAS
+                let removido = false;
+
+                plataformas = plataformas.filter(p => {
+                    const atinge = (mx >= p.x && mx <= p.x + p.w && my >= p.y && my <= p.y + p.h);
+                    if (atinge) removido = true;
+                    return !atinge;
+                });
+
                 esferas = esferas.filter(s => !(mx >= s.x - s.w && mx <= s.x + s.w && my >= s.y - s.h && my <= s.y + s.h));
                 caveiras = caveiras.filter(c => !(mx >= c.x - c.w && mx <= c.x + c.w && my >= c.y - c.h && my <= c.y + c.h));
-                atualizarCodigoPython();
+
+                if (removido) {
+                    atualizarInputsChao();
+                    logConsole("🗑️ Objeto/Plataforma removida do cenário!");
+                    atualizarCodigoPython();
+                }
                 return;
             }
 
             if (e.button === 0) {
+                // Verificar se clicou para MOVER ou REDIMENSIONAR alguma plataforma existente
+                for (let i = plataformas.length - 1; i >= 0; i--) {
+                    const p = plataformas[i];
+                    
+                    // Alça de Redimensionamento (Canto inferior direito, 14x14px)
+                    const handleSize = 14;
+                    if (mx >= p.x + p.w - handleSize && mx <= p.x + p.w + handleSize &&
+                        my >= p.y + p.h - handleSize && my <= p.y + p.h + handleSize) {
+                        plataformaSelecionada = p;
+                        modoInteracaoPlataforma = 'resize';
+                        return;
+                    }
+
+                    // Clique na plataforma (Mover)
+                    if (mx >= p.x && mx <= p.x + p.w && my >= p.y && my <= p.y + p.h) {
+                        plataformaSelecionada = p;
+                        modoInteracaoPlataforma = 'drag';
+                        dragOffset.x = mx - p.x;
+                        dragOffset.y = my - p.y;
+                        return;
+                    }
+                }
+
+                // Se não clicou em nenhuma plataforma existente, inicia a criação de novo elemento
                 if (modoAtual === 'solid' || modoAtual === 'passable' || modoAtual === 'floor') {
                     desenhando = true;
                     pontoInicial = { x: mx, y: my };
@@ -1186,13 +1426,13 @@
                 } else if (modoAtual === 'circle') {
                     const pts = parseInt(document.getElementById('spherePoints').value) || 10;
                     esferas.push({ x: mx, y: my, w: 24, h: 24, vy: 2.5, color: corAtualHex, pontos: pts });
-                    logConsole(`Esfera adicionada em (${Math.round(mx)}, ${Math.round(my)})`);
+                    logConsole(`Esfera adicionada no Mundo em (${Math.round(mx)}, ${Math.round(my)})`);
                     atualizarCodigoPython();
                 } else if (modoAtual === 'skull') {
                     const dmg = parseInt(document.getElementById('skullDamage').value) || 25;
                     const loss = parseInt(document.getElementById('skullPointLoss').value) || 15;
                     caveiras.push({ x: mx, y: my, w: 26, h: 26, vy: 2.5, color: corAtualHex, dano: dmg, perdaPontos: loss });
-                    logConsole(`Caveira adicionada em (${Math.round(mx)}, ${Math.round(my)})`);
+                    logConsole(`Caveira adicionada no Mundo em (${Math.round(mx)}, ${Math.round(my)})`);
                     atualizarCodigoPython();
                 }
             }
@@ -1202,8 +1442,22 @@
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
-            mouseCanvasPos.x = (e.clientX - rect.left) * scaleX;
-            mouseCanvasPos.y = (e.clientY - rect.top) * scaleY;
+            mouseCanvasPos.x = (e.clientX - rect.left) * scaleX + camera.x;
+            mouseCanvasPos.y = (e.clientY - rect.top) * scaleY + camera.y;
+
+            // Arraste / Redimensionamento
+            if (plataformaSelecionada) {
+                if (modoInteracaoPlataforma === 'drag') {
+                    plataformaSelecionada.x = mouseCanvasPos.x - dragOffset.x;
+                    plataformaSelecionada.y = mouseCanvasPos.y - dragOffset.y;
+                } else if (modoInteracaoPlataforma === 'resize') {
+                    plataformaSelecionada.w = Math.max(20, mouseCanvasPos.x - plataformaSelecionada.x);
+                    plataformaSelecionada.h = Math.max(5, mouseCanvasPos.y - plataformaSelecionada.y);
+                }
+                atualizarInputsChao();
+                atualizarCodigoPython();
+                return;
+            }
 
             if (desenhando) {
                 pontoAtual = { x: mouseCanvasPos.x, y: mouseCanvasPos.y };
@@ -1211,6 +1465,12 @@
         });
 
         window.addEventListener('mouseup', (e) => {
+            if (plataformaSelecionada) {
+                plataformaSelecionada = null;
+                modoInteracaoPlataforma = null;
+                logConsole("Plataforma ajustada!");
+            }
+
             if (desenhando && e.button === 0) {
                 desenhando = false;
                 const x = Math.min(pontoInicial.x, pontoAtual.x);
@@ -1226,10 +1486,11 @@
                         x, y, w, h, 
                         color: isInvisibleFloor ? '#38bdf8' : corAtualHex, 
                         solid: isSolid, 
-                        isInvisibleFloor: isInvisibleFloor 
+                        isInvisibleFloor: isInvisibleFloor,
+                        isMainFloor: false
                     });
 
-                    logConsole(`Plataforma ${isInvisibleFloor ? 'Chão Invisível' : (isSolid ? 'Sólida' : 'Passável')} criada: ${Math.round(w)}x${Math.round(h)}px`);
+                    logConsole(`Plataforma ${isInvisibleFloor ? 'Chão Invisível' : (isSolid ? 'Sólida' : 'Passável')} criada: ${Math.round(w)}x${Math.round(h)}px em X:${Math.round(x)} Y:${Math.round(y)}`);
                     atualizarCodigoPython();
                 }
             }
@@ -1248,7 +1509,7 @@
         });
 
         function spawnObjetoAleatorio(tipo) {
-            const rx = Math.floor(Math.random() * (canvas.width - 30));
+            const rx = camera.x + Math.floor(Math.random() * (canvas.width - 30));
             if (tipo === 'circle') {
                 const pts = parseInt(document.getElementById('spherePoints').value) || 10;
                 esferas.push({ x: rx, y: 0, w: 24, h: 24, vy: 2.5, color: '#ec4899', pontos: pts });
@@ -1267,6 +1528,9 @@
             player.vy = 0;
             player.hp = hpMaximo;
             pontuacao = 0;
+            camera.x = 0;
+            camera.y = 0;
+            document.getElementById('cameraScrollInput').value = 0;
             document.getElementById('hpBadge').textContent = `HP: ${player.hp}`;
             document.getElementById('scoreBadge').textContent = `Pontos: ${pontuacao}`;
         }
@@ -1281,103 +1545,112 @@
 
         // --- UPDATE SIMULAÇÃO ---
         function update() {
-            if (estadoExecucao !== 'play') return; 
-
-            // Movimento Horizontal
-            player.vx = 0;
-            if (keys['KeyA'] || keys['ArrowLeft']) {
-                player.vx = -player.speed;
-                player.facingRight = false;
-            }
-            if (keys['KeyD'] || keys['ArrowRight']) {
-                player.vx = player.speed;
-                player.facingRight = true;
-            }
-
-            // Pulo
-            if ((keys['KeyW'] || keys['ArrowUp'] || keys['Space']) && player.grounded) {
-                player.vy = player.jumpForce;
-                player.grounded = false;
-            }
-
-            // Seleção Dinâmica de Animação
-            let novaAnim = animacaoInicial;
-            for (let name in animacoes) {
-                const trigger = animacoes[name].keyTrigger;
-                if (trigger === 'LEFT_RIGHT' && Math.abs(player.vx) > 0) novaAnim = name;
-                else if (trigger === 'UP_DOWN' && !player.grounded) novaAnim = name;
-                else if (trigger !== 'NONE' && trigger !== 'LEFT_RIGHT' && trigger !== 'UP_DOWN' && keys[trigger]) novaAnim = name;
-            }
-            if (novaAnim && animacoes[novaAnim]) animacaoAtual = novaAnim;
-
-            // Gravidade
-            player.vy += player.gravity;
-
-            // Colisão X
-            player.x += player.vx;
-            plataformas.forEach(p => {
-                if (p.solid && AABB(player, p)) {
-                    if (player.vx > 0) player.x = p.x - player.w;
-                    else if (player.vx < 0) player.x = p.x + p.w;
+            if (estadoExecucao === 'play') {
+                // Movimento Horizontal
+                player.vx = 0;
+                if (keys['KeyA'] || keys['ArrowLeft']) {
+                    player.vx = -player.speed;
+                    player.facingRight = false;
                 }
-            });
+                if (keys['KeyD'] || keys['ArrowRight']) {
+                    player.vx = player.speed;
+                    player.facingRight = true;
+                }
 
-            // Colisão Y
-            player.y += player.vy;
-            player.grounded = false;
+                // Pulo
+                if ((keys['KeyW'] || keys['ArrowUp'] || keys['Space']) && player.grounded) {
+                    player.vy = player.jumpForce;
+                    player.grounded = false;
+                }
 
-            plataformas.forEach(p => {
-                if (p.solid) {
-                    if (AABB(player, p)) {
-                        if (player.vy > 0) {
+                // Seleção Dinâmica de Animação
+                let novaAnim = animacaoInicial;
+                for (let name in animacoes) {
+                    const trigger = animacoes[name].keyTrigger;
+                    if (trigger === 'LEFT_RIGHT' && Math.abs(player.vx) > 0) novaAnim = name;
+                    else if (trigger === 'UP_DOWN' && !player.grounded) novaAnim = name;
+                    else if (trigger !== 'NONE' && trigger !== 'LEFT_RIGHT' && trigger !== 'UP_DOWN' && keys[trigger]) novaAnim = name;
+                }
+                if (novaAnim && animacoes[novaAnim]) animacaoAtual = novaAnim;
+
+                // Gravidade
+                player.vy += player.gravity;
+
+                // Colisão X
+                player.x += player.vx;
+                
+                plataformas.forEach(p => {
+                    if (p.solid && AABB(player, p)) {
+                        if (player.vx > 0) player.x = p.x - player.w;
+                        else if (player.vx < 0) player.x = p.x + p.w;
+                    }
+                });
+
+                // Colisão Y
+                player.y += player.vy;
+                player.grounded = false;
+
+                plataformas.forEach(p => {
+                    if (p.solid) {
+                        if (AABB(player, p)) {
+                            if (player.vy > 0) {
+                                player.y = p.y - player.h;
+                                player.vy = 0;
+                                player.grounded = true;
+                            } else if (player.vy < 0) {
+                                player.y = p.y + p.h;
+                                player.vy = 0;
+                            }
+                        }
+                    } else {
+                        if (player.vy > 0 && (player.y + player.h - player.vy) <= p.y && AABB(player, p)) {
                             player.y = p.y - player.h;
                             player.vy = 0;
                             player.grounded = true;
-                        } else if (player.vy < 0) {
-                            player.y = p.y + p.h;
-                            player.vy = 0;
                         }
                     }
-                } else {
-                    if (player.vy > 0 && (player.y + player.h - player.vy) <= p.y && AABB(player, p)) {
-                        player.y = p.y - player.h;
-                        player.vy = 0;
-                        player.grounded = true;
-                    }
-                }
-            });
+                });
 
-            // Limite inferior Canvas
-            if (player.y + player.h > canvas.height) {
-                player.y = canvas.height - player.h;
-                player.vy = 0;
-                player.grounded = true;
+                // Limite inferior do mundo
+                if (player.y + player.h > canvas.height + 200) {
+                    player.hp = 0;
+                    document.getElementById('hpBadge').textContent = `HP: ${player.hp}`;
+                    logConsole("⚠️ Player caiu no abismo!");
+                    definirEstadoExecucao('stop');
+                }
+
+                // Movimento Objetos Coletáveis
+                esferas.forEach(s => {
+                    s.y += s.vy;
+                    if (s.y > canvas.height) resetarPosicaoObjeto(s);
+                    if (AABB(player, { x: s.x - s.w / 2, y: s.y - s.h / 2, w: s.w, h: s.h })) {
+                        pontuacao += s.pontos;
+                        popupsText.push({ text: `+${s.pontos}`, x: s.x, y: s.y, color: '#4ade80', life: 30 });
+                        resetarPosicaoObjeto(s);
+                        document.getElementById('scoreBadge').textContent = `Pontos: ${pontuacao}`;
+                    }
+                });
+
+                caveiras.forEach(c => {
+                    c.y += c.vy;
+                    if (c.y > canvas.height) resetarPosicaoObjeto(c);
+                    if (AABB(player, { x: c.x - c.w / 2, y: c.y - c.h / 2, w: c.w, h: c.h })) {
+                        player.hp = Math.max(0, player.hp - c.dano);
+                        pontuacao = Math.max(0, pontuacao - c.perdaPontos);
+                        popupsText.push({ text: `-${c.dano} HP`, x: c.x, y: c.y, color: '#f87171', life: 30 });
+                        resetarPosicaoObjeto(c);
+                        document.getElementById('hpBadge').textContent = `HP: ${player.hp}`;
+                        document.getElementById('scoreBadge').textContent = `Pontos: ${pontuacao}`;
+                    }
+                });
             }
 
-            // Movimento Objetos Coletáveis
-            esferas.forEach(s => {
-                s.y += s.vy;
-                if (s.y > canvas.height) resetarPosicaoObjeto(s);
-                if (AABB(player, { x: s.x - s.w / 2, y: s.y - s.h / 2, w: s.w, h: s.h })) {
-                    pontuacao += s.pontos;
-                    popupsText.push({ text: `+${s.pontos}`, x: s.x, y: s.y, color: '#4ade80', life: 30 });
-                    resetarPosicaoObjeto(s);
-                    document.getElementById('scoreBadge').textContent = `Pontos: ${pontuacao}`;
-                }
-            });
-
-            caveiras.forEach(c => {
-                c.y += c.vy;
-                if (c.y > canvas.height) resetarPosicaoObjeto(c);
-                if (AABB(player, { x: c.x - c.w / 2, y: c.y - c.h / 2, w: c.w, h: c.h })) {
-                    player.hp = Math.max(0, player.hp - c.dano);
-                    pontuacao = Math.max(0, pontuacao - c.perdaPontos);
-                    popupsText.push({ text: `-${c.dano} HP`, x: c.x, y: c.y, color: '#f87171', life: 30 });
-                    resetarPosicaoObjeto(c);
-                    document.getElementById('hpBadge').textContent = `HP: ${player.hp}`;
-                    document.getElementById('scoreBadge').textContent = `Pontos: ${pontuacao}`;
-                }
-            });
+            // --- ATUALIZAÇÃO DA CÂMERA ---
+            if (camera.follow && estadoExecucao === 'play') {
+                camera.targetX = player.x - camera.offsetX + player.w / 2;
+                camera.x += (camera.targetX - camera.x) * camera.smooth;
+                document.getElementById('cameraScrollInput').value = camera.x;
+            }
 
             document.getElementById('coordBadge').textContent = `Player X: ${Math.round(player.x)} | Y: ${Math.round(player.y)}`;
         }
@@ -1386,36 +1659,42 @@
             return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
         }
 
-        // --- DRAW / RENDER ---
+        // --- DRAW / RENDER COM CÂMERA ---
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Fundo
-            if (bgImg) {
-                ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-            } else {
-                ctx.fillStyle = corCenarioHex;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-            }
+            ctx.save();
+            ctx.translate(-Math.round(camera.x), -Math.round(camera.y));
 
-            // Grid Suave
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-            for (let x = 0; x < canvas.width; x += 40) {
-                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
-            }
-            for (let y = 0; y < canvas.height; y += 40) {
-                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
-            }
+            // Fundo Cíclico
+            const startTile = camera.loopEnabled ? Math.floor((camera.x - canvas.width) / camera.tileWidth) : 0;
+            const endTile = camera.loopEnabled ? Math.floor((camera.x + canvas.width * 2) / camera.tileWidth) : 0;
 
-            // Plataformas
-            plataformas.forEach(p => {
-                // Se for Chão Invisível e o jogo estiver rodando (PLAY), NÃO RENDERIZA NADA
-                if (p.isInvisibleFloor && estadoExecucao === 'play') {
-                    return;
+            for (let t = startTile; t <= endTile; t++) {
+                const tileX = t * camera.tileWidth;
+
+                if (bgImg) {
+                    ctx.drawImage(bgImg, tileX, 0, camera.tileWidth, canvas.height);
+                } else {
+                    ctx.fillStyle = corCenarioHex;
+                    ctx.fillRect(tileX, 0, camera.tileWidth, canvas.height);
                 }
 
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+                for (let x = tileX; x < tileX + camera.tileWidth; x += 40) {
+                    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+                }
+            }
+
+            for (let y = 0; y < canvas.height; y += 40) {
+                ctx.beginPath(); ctx.moveTo(camera.x - canvas.width, y); ctx.lineTo(camera.x + canvas.width * 2, y); ctx.stroke();
+            }
+
+            // Renderizar Plataformas
+            plataformas.forEach(p => {
+                if (p.isInvisibleFloor && estadoExecucao === 'play') return;
+
                 if (p.isInvisibleFloor) {
-                    // Renderização de modo de Edição para o Chão (Opaco / Semitransparente)
                     ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
                     ctx.fillRect(p.x, p.y, p.w, p.h);
                     ctx.strokeStyle = '#38bdf8';
@@ -1428,13 +1707,20 @@
                     ctx.font = '10px sans-serif';
                     ctx.fillText('[Chão]', p.x + 4, p.y + 12);
                 } else {
-                    // Plataforma Normal
                     ctx.fillStyle = p.color;
                     ctx.fillRect(p.x, p.y, p.w, p.h);
                     if (!p.solid) {
                         ctx.fillStyle = '#ffffff';
                         ctx.fillRect(p.x, p.y, p.w, 3);
                     }
+                }
+
+                // Desenhar Alça de Redimensionamento no Modo Edição (Stop/Pause)
+                if (estadoExecucao !== 'play') {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(p.x + p.w - 6, p.y + p.h - 6, 6, 6);
+                    ctx.strokeStyle = '#38bdf8';
+                    ctx.strokeRect(p.x + p.w - 8, p.y + p.h - 8, 8, 8);
                 }
             });
 
@@ -1523,6 +1809,8 @@
                 pop.life--;
                 if (pop.life <= 0) popupsText.splice(i, 1);
             }
+
+            ctx.restore();
         }
 
         function gameLoop() {
@@ -1536,9 +1824,11 @@
             const bgRgb = hexToRgb(corCenarioHex);
             const playerRgb = hexToRgb(player.color);
 
-            let pyCode = `import pygame\nimport sys\n\npygame.init()\nWIDTH, HEIGHT = 800, 450\nscreen = pygame.display.set_mode((WIDTH, HEIGHT))\npygame.display.set_caption("Jogo Plataforma 2D")\nclock = pygame.time.Clock()\n\n# Cores\nBG_COLOR = (${bgRgb.r}, ${bgRgb.g}, ${bgRgb.b})\n`;
+            let pyCode = `import pygame\nimport sys\n\npygame.init()\nWIDTH, HEIGHT = 800, 450\nscreen = pygame.display.set_mode((WIDTH, HEIGHT))\npygame.display.set_caption("Jogo Plataforma 2D - Câmera & Cenário Expandido")\nclock = pygame.time.Clock()\n\n# Cores\nBG_COLOR = (${bgRgb.r}, ${bgRgb.g}, ${bgRgb.b})\n`;
 
-            pyCode += `\n# Elementos do Jogo\nplataformas = [\n`;
+            pyCode += `\n# Configurações de Câmera e Fundo Cíclico\nLOOP_BG_ENABLED = ${camera.loopEnabled ? 'True' : 'False'}\nTILE_WIDTH = ${camera.tileWidth}\ncamera_x = 0\n\n`;
+
+            pyCode += `# Plataformas Globais\nplataformas = [\n`;
             plataformas.forEach(p => {
                 const c = hexToRgb(p.color);
                 pyCode += `    {"rect": pygame.Rect(${Math.round(p.x)}, ${Math.round(p.y)}, ${Math.round(p.w)}, ${Math.round(p.h)}), "color": (${c.r}, ${c.g}, ${c.b}), "solid": ${p.solid ? 'True' : 'False'}, "visible": ${p.isInvisibleFloor ? 'False' : 'True'}},\n`;
@@ -1551,7 +1841,7 @@
             caveiras.forEach(c => {
                 pyCode += `    {"x": ${Math.round(c.x)}, "y": ${Math.round(c.y)}, "size": 26, "vy": 2.5},\n`;
             });
-            pyCode += `]\n\n# Configurações do Player\nplayer_rect = pygame.Rect(${Math.round(player.x)}, ${Math.round(player.y)}, ${player.w}, ${player.h})\nplayer_color = (${playerRgb.r}, ${playerRgb.g}, ${playerRgb.b})\nvy = 0\ngravity = 0.5\nis_grounded = False\nhp = ${hpMaximo}\npontos = 0\n\n# Loop Principal\nrunning = True\nwhile running:\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            running = False\n\n    keys = pygame.key.get_pressed()\n    if keys[pygame.K_a] or keys[pygame.K_LEFT]: player_rect.x -= 4\n    if keys[pygame.K_d] or keys[pygame.K_RIGHT]: player_rect.x += 4\n    if (keys[pygame.K_w] or keys[pygame.K_SPACE]) and is_grounded:\n        vy = -10\n        is_grounded = False\n\n    vy += gravity\n    player_rect.y += vy\n\n    # Colisão Plataformas (Inclui o Chão Invisível)\n    is_grounded = False\n    for p in plataformas:\n        if p["solid"] and player_rect.colliderect(p["rect"]):\n            if vy > 0:\n                player_rect.bottom = p["rect"].top\n                vy = 0\n                is_grounded = True\n\n    screen.fill(BG_COLOR)\n    # Desenha apenas plataformas visíveis\n    for p in plataformas:\n        if p["visible"]:\n            pygame.draw.rect(screen, p["color"], p["rect"])\n            \n    pygame.draw.rect(screen, player_color, player_rect)\n\n    pygame.display.flip()\n    clock.tick(60)\n\npygame.quit()\nsys.exit()\n`;
+            pyCode += `]\n\n# Configurações do Player\nplayer_rect = pygame.Rect(${Math.round(player.x)}, ${Math.round(player.y)}, ${player.w}, ${player.h})\nplayer_color = (${playerRgb.r}, ${playerRgb.g}, ${playerRgb.b})\nvy = 0\ngravity = 0.5\nis_grounded = False\nhp = ${hpMaximo}\npontos = 0\n\n# Loop Principal\nrunning = True\nwhile running:\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            running = False\n\n    keys = pygame.key.get_pressed()\n    if keys[pygame.K_a] or keys[pygame.K_LEFT]: player_rect.x -= 4\n    if keys[pygame.K_d] or keys[pygame.K_RIGHT]: player_rect.x += 4\n    if (keys[pygame.K_w] or keys[pygame.K_SPACE]) and is_grounded:\n        vy = -10\n        is_grounded = False\n\n    vy += gravity\n    player_rect.y += vy\n\n    # Atualiza Câmera\n    camera_x += (player_rect.x - camera_x - 400 + player_rect.width // 2) * ${camera.smooth}\n\n    # Colisão com Plataformas\n    is_grounded = False\n    for p in plataformas:\n        if p["solid"] and player_rect.colliderect(p["rect"]):\n            if vy > 0:\n                player_rect.bottom = p["rect"].top\n                vy = 0\n                is_grounded = True\n\n    screen.fill(BG_COLOR)\n\n    # Renderiza Plataformas\n    for p in plataformas:\n        if p["visible"]:\n            screen_rect = p["rect"].move(-camera_x, 0)\n            pygame.draw.rect(screen, p["color"], screen_rect)\n            \n    # Renderiza Player\n    screen_player = player_rect.move(-camera_x, 0)\n    pygame.draw.rect(screen, player_color, screen_player)\n\n    pygame.display.flip()\n    clock.tick(60)\n\npygame.quit()\nsys.exit()\n`;
 
             document.getElementById('codeEditor').textContent = pyCode;
         }
@@ -1559,11 +1849,12 @@
         function copiarCodigo() {
             const code = document.getElementById('codeEditor').textContent;
             navigator.clipboard.writeText(code);
-            logConsole("📋 Código Pygame copiado para a área de transferência!");
+            logConsole("📋 Código Pygame copiado!");
         }
 
         // Inicialização
         renderizarListaAnimacoes();
+        atualizarInputsChao();
         atualizarCodigoPython();
         gameLoop();
     </script>
