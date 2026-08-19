@@ -369,14 +369,9 @@
         .stage-header {
             width: 100%;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
             margin-bottom: 8px;
-        }
-
-        .badge-group {
-            display: flex;
-            gap: 8px;
         }
 
         .status-badge {
@@ -386,26 +381,6 @@
             border-radius: 12px;
             font-size: 0.75rem;
             border: 1px solid #0284c7;
-        }
-
-        .score-badge {
-            background: #831843;
-            color: #f472b6;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            border: 1px solid #ec4899;
-            font-weight: bold;
-        }
-
-        .hp-badge {
-            background: #7f1d1d;
-            color: #fca5a5;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            border: 1px solid #ef4444;
-            font-weight: bold;
         }
 
         canvas {
@@ -783,10 +758,6 @@
         <div class="workspace">
             <div class="stage-container">
                 <div class="stage-header">
-                    <div class="badge-group">
-                        <span class="hp-badge" id="hpBadge">HP: 100</span>
-                        <span class="score-badge" id="scoreBadge">Pontos: 0</span>
-                    </div>
                     <span class="status-badge" id="coordBadge">Player X: 100 | Y: 100</span>
                 </div>
                 <canvas id="pygameCanvas" width="800" height="450" tabindex="0"></canvas>
@@ -888,7 +859,7 @@
 
         // Plataforma Index 0 é considerada o "Chão Principal" por padrão
         let plataformas = [
-            { x: 50, y: 380, w: 700, h: 30, color: '#22c55e', solid: true, isInvisibleFloor: false, isMainFloor: true },
+            { x: -2000, y: 380, w: 10000, h: 30, color: '#22c55e', solid: true, isInvisibleFloor: false, isMainFloor: true },
             { x: 150, y: 270, w: 180, h: 20, color: '#3b82f6', solid: true, isInvisibleFloor: false },
             { x: 450, y: 180, w: 200, h: 20, color: '#eab308', solid: false, isInvisibleFloor: false }
         ];
@@ -909,15 +880,14 @@
 
             let chao = plataformas.find(p => p.isMainFloor);
             if (!chao) {
-                chao = { x: 50, y: y, w: w, h: h, color: '#22c55e', solid: true, isInvisibleFloor: false, isMainFloor: true };
+                chao = { x: -2000, y: y, w: 10000, h: h, color: '#22c55e', solid: true, isInvisibleFloor: false, isMainFloor: true };
                 plataformas.unshift(chao);
             } else {
-                chao.w = Math.max(20, w);
                 chao.h = Math.max(5, h);
                 chao.y = y;
             }
 
-            logConsole(`Chão Principal redefinido: Largura ${chao.w}px, Altura ${chao.h}px em Y:${chao.y}`);
+            logConsole(`Chão Principal redefinido: Altura ${chao.h}px em Y:${chao.y}`);
             atualizarCodigoPython();
         }
 
@@ -1074,7 +1044,6 @@
                 document.getElementById('playerHeightInput').value = player.h;
                 document.getElementById('playerColorPicker').value = player.color;
                 document.getElementById('hpInput').value = hpMaximo;
-                document.getElementById('hpBadge').textContent = `HP: ${player.hp}`;
 
                 corCenarioHex = data.corCenarioHex || '#000000';
                 document.getElementById('bgPicker').value = corCenarioHex;
@@ -1212,7 +1181,6 @@
         function alterarHPInicial(v) {
             hpMaximo = parseInt(v) || 100;
             player.hp = hpMaximo;
-            document.getElementById('hpBadge').textContent = `HP: ${player.hp}`;
             atualizarCodigoPython();
         }
 
@@ -1531,8 +1499,6 @@
             camera.x = 0;
             camera.y = 0;
             document.getElementById('cameraScrollInput').value = 0;
-            document.getElementById('hpBadge').textContent = `HP: ${player.hp}`;
-            document.getElementById('scoreBadge').textContent = `Pontos: ${pontuacao}`;
         }
 
         function limparObjetos() {
@@ -1614,7 +1580,6 @@
                 // Limite inferior do mundo
                 if (player.y + player.h > canvas.height + 200) {
                     player.hp = 0;
-                    document.getElementById('hpBadge').textContent = `HP: ${player.hp}`;
                     logConsole("⚠️ Player caiu no abismo!");
                     definirEstadoExecucao('stop');
                 }
@@ -1627,7 +1592,6 @@
                         pontuacao += s.pontos;
                         popupsText.push({ text: `+${s.pontos}`, x: s.x, y: s.y, color: '#4ade80', life: 30 });
                         resetarPosicaoObjeto(s);
-                        document.getElementById('scoreBadge').textContent = `Pontos: ${pontuacao}`;
                     }
                 });
 
@@ -1639,17 +1603,22 @@
                         pontuacao = Math.max(0, pontuacao - c.perdaPontos);
                         popupsText.push({ text: `-${c.dano} HP`, x: c.x, y: c.y, color: '#f87171', life: 30 });
                         resetarPosicaoObjeto(c);
-                        document.getElementById('hpBadge').textContent = `HP: ${player.hp}`;
-                        document.getElementById('scoreBadge').textContent = `Pontos: ${pontuacao}`;
                     }
                 });
             }
 
-            // --- ATUALIZAÇÃO DA CÂMERA ---
+            // --- ATUALIZAÇÃO DA CÂMERA & CHÃO PRINCIPAL ---
             if (camera.follow && estadoExecucao === 'play') {
                 camera.targetX = player.x - camera.offsetX + player.w / 2;
                 camera.x += (camera.targetX - camera.x) * camera.smooth;
                 document.getElementById('cameraScrollInput').value = camera.x;
+            }
+
+            // Garante que o chão acompanha dinamicamente a posição da câmera no mundo estendido
+            let chao = plataformas.find(p => p.isMainFloor);
+            if (chao) {
+                chao.x = camera.x - 2000;
+                chao.w = canvas.width + 4000;
             }
 
             document.getElementById('coordBadge').textContent = `Player X: ${Math.round(player.x)} | Y: ${Math.round(player.y)}`;
@@ -1716,7 +1685,7 @@
                 }
 
                 // Desenhar Alça de Redimensionamento no Modo Edição (Stop/Pause)
-                if (estadoExecucao !== 'play') {
+                if (estadoExecucao !== 'play' && !p.isMainFloor) {
                     ctx.fillStyle = '#ffffff';
                     ctx.fillRect(p.x + p.w - 6, p.y + p.h - 6, 6, 6);
                     ctx.strokeStyle = '#38bdf8';
@@ -1811,6 +1780,35 @@
             }
 
             ctx.restore();
+
+            // --- DESENHO DO HUD (PONTUAÇÃO E HP NO CANTO SUPERIOR FIXO DO CANVAS) ---
+            ctx.save();
+            ctx.font = 'bold 14px "Segoe UI", sans-serif';
+
+            // Badge HP
+            ctx.fillStyle = 'rgba(127, 29, 29, 0.85)';
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.roundRect(12, 12, 90, 26, 6);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#fca5a5';
+            ctx.fillText(`HP: ${player.hp}`, 22, 30);
+
+            // Badge Pontuação
+            ctx.fillStyle = 'rgba(131, 24, 67, 0.85)';
+            ctx.strokeStyle = '#ec4899';
+            ctx.beginPath();
+            ctx.roundRect(110, 12, 110, 26, 6);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#f472b6';
+            ctx.fillText(`Pontos: ${pontuacao}`, 120, 30);
+
+            ctx.restore();
         }
 
         function gameLoop() {
@@ -1824,14 +1822,14 @@
             const bgRgb = hexToRgb(corCenarioHex);
             const playerRgb = hexToRgb(player.color);
 
-            let pyCode = `import pygame\nimport sys\n\npygame.init()\nWIDTH, HEIGHT = 800, 450\nscreen = pygame.display.set_mode((WIDTH, HEIGHT))\npygame.display.set_caption("Jogo Plataforma 2D - Câmera & Cenário Expandido")\nclock = pygame.time.Clock()\n\n# Cores\nBG_COLOR = (${bgRgb.r}, ${bgRgb.g}, ${bgRgb.b})\n`;
+            let pyCode = `import pygame\nimport sys\n\npygame.init()\nWIDTH, HEIGHT = 800, 450\nscreen = pygame.display.set_mode((WIDTH, HEIGHT))\npygame.display.set_caption("Jogo Plataforma 2D - Câmera & Cenário Expandido")\nclock = pygame.time.Clock()\nfont = pygame.font.SysFont("Segoe UI", 18, bold=True)\n\n# Cores\nBG_COLOR = (${bgRgb.r}, ${bgRgb.g}, ${bgRgb.b})\n`;
 
             pyCode += `\n# Configurações de Câmera e Fundo Cíclico\nLOOP_BG_ENABLED = ${camera.loopEnabled ? 'True' : 'False'}\nTILE_WIDTH = ${camera.tileWidth}\ncamera_x = 0\n\n`;
 
             pyCode += `# Plataformas Globais\nplataformas = [\n`;
             plataformas.forEach(p => {
                 const c = hexToRgb(p.color);
-                pyCode += `    {"rect": pygame.Rect(${Math.round(p.x)}, ${Math.round(p.y)}, ${Math.round(p.w)}, ${Math.round(p.h)}), "color": (${c.r}, ${c.g}, ${c.b}), "solid": ${p.solid ? 'True' : 'False'}, "visible": ${p.isInvisibleFloor ? 'False' : 'True'}},\n`;
+                pyCode += `    {"rect": pygame.Rect(${Math.round(p.x)}, ${Math.round(p.y)}, ${Math.round(p.w)}, ${Math.round(p.h)}), "color": (${c.r}, ${c.g}, ${c.b}), "solid": ${p.solid ? 'True' : 'False'}, "visible": ${p.isInvisibleFloor ? 'False' : 'True'}, "is_main_floor": ${p.isMainFloor ? 'True' : 'False'}},\n`;
             });
             pyCode += `]\n\nesferas = [\n`;
             esferas.forEach(s => {
@@ -1841,7 +1839,7 @@
             caveiras.forEach(c => {
                 pyCode += `    {"x": ${Math.round(c.x)}, "y": ${Math.round(c.y)}, "size": 26, "vy": 2.5},\n`;
             });
-            pyCode += `]\n\n# Configurações do Player\nplayer_rect = pygame.Rect(${Math.round(player.x)}, ${Math.round(player.y)}, ${player.w}, ${player.h})\nplayer_color = (${playerRgb.r}, ${playerRgb.g}, ${playerRgb.b})\nvy = 0\ngravity = 0.5\nis_grounded = False\nhp = ${hpMaximo}\npontos = 0\n\n# Loop Principal\nrunning = True\nwhile running:\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            running = False\n\n    keys = pygame.key.get_pressed()\n    if keys[pygame.K_a] or keys[pygame.K_LEFT]: player_rect.x -= 4\n    if keys[pygame.K_d] or keys[pygame.K_RIGHT]: player_rect.x += 4\n    if (keys[pygame.K_w] or keys[pygame.K_SPACE]) and is_grounded:\n        vy = -10\n        is_grounded = False\n\n    vy += gravity\n    player_rect.y += vy\n\n    # Atualiza Câmera\n    camera_x += (player_rect.x - camera_x - 400 + player_rect.width // 2) * ${camera.smooth}\n\n    # Colisão com Plataformas\n    is_grounded = False\n    for p in plataformas:\n        if p["solid"] and player_rect.colliderect(p["rect"]):\n            if vy > 0:\n                player_rect.bottom = p["rect"].top\n                vy = 0\n                is_grounded = True\n\n    screen.fill(BG_COLOR)\n\n    # Renderiza Plataformas\n    for p in plataformas:\n        if p["visible"]:\n            screen_rect = p["rect"].move(-camera_x, 0)\n            pygame.draw.rect(screen, p["color"], screen_rect)\n            \n    # Renderiza Player\n    screen_player = player_rect.move(-camera_x, 0)\n    pygame.draw.rect(screen, player_color, screen_player)\n\n    pygame.display.flip()\n    clock.tick(60)\n\npygame.quit()\nsys.exit()\n`;
+            pyCode += `]\n\n# Configurações do Player\nplayer_rect = pygame.Rect(${Math.round(player.x)}, ${Math.round(player.y)}, ${player.w}, ${player.h})\nplayer_color = (${playerRgb.r}, ${playerRgb.g}, ${playerRgb.b})\nvy = 0\ngravity = 0.5\nis_grounded = False\nhp = ${hpMaximo}\npontos = 0\n\n# Loop Principal\nrunning = True\nwhile running:\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            running = False\n\n    keys = pygame.key.get_pressed()\n    if keys[pygame.K_a] or keys[pygame.K_LEFT]: player_rect.x -= 4\n    if keys[pygame.K_d] or keys[pygame.K_RIGHT]: player_rect.x += 4\n    if (keys[pygame.K_w] or keys[pygame.K_SPACE]) and is_grounded:\n        vy = -10\n        is_grounded = False\n\n    vy += gravity\n    player_rect.y += vy\n\n    # Atualiza Câmera\n    camera_x += (player_rect.x - camera_x - 400 + player_rect.width // 2) * ${camera.smooth}\n\n    # Atualiza Chão Principal para seguir a câmera no mundo estendido\n    for p in plataformas:\n        if p.get("is_main_floor"):\n            p["rect"].x = int(camera_x - 2000)\n            p["rect"].width = WIDTH + 4000\n\n    # Colisão com Plataformas\n    is_grounded = False\n    for p in plataformas:\n        if p["solid"] and player_rect.colliderect(p["rect"]):\n            if vy > 0:\n                player_rect.bottom = p["rect"].top\n                vy = 0\n                is_grounded = True\n\n    screen.fill(BG_COLOR)\n\n    # Renderiza Plataformas\n    for p in plataformas:\n        if p["visible"]:\n            screen_rect = p["rect"].move(-camera_x, 0)\n            pygame.draw.rect(screen, p["color"], screen_rect)\n            \n    # Renderiza Player\n    screen_player = player_rect.move(-camera_x, 0)\n    pygame.draw.rect(screen, player_color, screen_player)\n\n    # Renderiza HUD no Canto Superior Fixo\n    hp_text = font.render(f"HP: {hp}", True, (252, 165, 165))\n    score_text = font.render(f"Pontos: {pontos}", True, (244, 114, 182))\n    screen.blit(hp_text, (20, 15))\n    screen.blit(score_text, (120, 15))\n\n    pygame.display.flip()\n    clock.tick(60)\n\npygame.quit()\nsys.exit()\n`;
 
             document.getElementById('codeEditor').textContent = pyCode;
         }
