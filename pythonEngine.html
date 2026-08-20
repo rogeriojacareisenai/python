@@ -14,129 +14,167 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0f172a;
-            color: #f8fafc;
+            background-color: #f8fafc;
+            color: #0f172a;
             height: 100vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
 
+        /* --- HEADER / BARRA DE FERRAMENTAS IDE (TEMA CLARO) --- */
         header {
-            background: #1e293b;
-            padding: 8px 16px;
-            border-bottom: 2px solid #3b82f6;
+            background: #ffffff;
+            padding: 6px 16px;
+            border-bottom: 2px solid #2563eb;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-shrink: 0;
             gap: 12px;
             z-index: 10;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
-        .header-title h1 {
-            font-size: 1.1rem;
-            color: #60a5fa;
-            white-space: nowrap;
-        }
-
-        .top-nav {
+        .header-brand {
             display: flex;
             align-items: center;
             gap: 8px;
+        }
+
+        .header-title h1 {
+            font-size: 1.05rem;
+            color: #1d4ed8;
+            white-space: nowrap;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .top-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             flex-wrap: wrap;
         }
 
-        .nav-group {
+        .toolbar-group {
             display: flex;
             align-items: center;
-            gap: 6px;
-            background: #0f172a;
-            padding: 4px 8px;
+            gap: 4px;
+            background: #f1f5f9;
+            padding: 3px 6px;
             border-radius: 6px;
-            border: 1px solid #334155;
+            border: 1px solid #cbd5e1;
+        }
+
+        .toolbar-divider {
+            width: 1px;
+            height: 20px;
+            background: #cbd5e1;
+            margin: 0 2px;
         }
 
         .controls-card {
             font-size: 0.72rem;
-            color: #cbd5e1;
-            background: #0f172a;
-            padding: 4px 8px;
+            color: #334155;
+            background: #f1f5f9;
+            padding: 4px 10px;
             border-radius: 6px;
-            border: 1px solid #334155;
+            border: 1px solid #cbd5e1;
             white-space: nowrap;
         }
 
         .controls-card kbd {
-            background: #334155;
-            color: #38bdf8;
-            padding: 1px 4px;
+            background: #e2e8f0;
+            color: #0284c7;
+            padding: 1px 5px;
             border-radius: 3px;
             font-family: monospace;
+            font-weight: bold;
+            border: 1px solid #cbd5e1;
         }
 
+        /* --- LAYOUT PRINCIPAL --- */
         .main-wrapper {
             display: flex;
             flex-grow: 1;
-            height: calc(100vh - 50px);
+            height: calc(100vh - 46px);
             overflow: hidden;
         }
 
+        /* --- SIDEBAR & MENU ACCORDION (TEMA CLARO) --- */
         .sidebar {
             width: 320px;
-            background: #1e293b;
-            border-right: 1px solid #334155;
+            background: #ffffff;
+            border-right: 1px solid #e2e8f0;
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
+            overflow-y: auto;
         }
 
-        .tab-menu {
-            display: flex;
-            background: #0f172a;
-            border-bottom: 1px solid #334155;
+        .accordion-item {
+            border-bottom: 1px solid #e2e8f0;
         }
 
-        .tab-btn {
-            flex: 1;
-            padding: 8px 2px;
-            background: transparent;
-            color: #94a3b8;
-            border: none;
-            font-size: 0.7rem;
+        .accordion-header {
+            width: 100%;
+            background: #f8fafc;
+            color: #0284c7;
+            padding: 10px 12px;
+            font-size: 0.78rem;
             font-weight: bold;
+            border: none;
+            text-align: left;
             cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s, color 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .tab-btn.active {
-            color: #38bdf8;
-            border-bottom-color: #38bdf8;
-            background: #1e293b;
+        .accordion-header:hover {
+            background: #f1f5f9;
+            color: #2563eb;
         }
 
-        .tab-content {
+        .accordion-header.active {
+            background: #ffffff;
+            color: #0284c7;
+            border-left: 3px solid #0284c7;
+        }
+
+        .accordion-icon {
+            font-size: 0.7rem;
+            transition: transform 0.2s;
+        }
+
+        .accordion-header.active .accordion-icon {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
             padding: 12px;
             display: none;
             flex-direction: column;
             gap: 10px;
-            overflow-y: auto;
-            flex-grow: 1;
+            background: #ffffff;
         }
 
-        .tab-content.active {
+        .accordion-content.open {
             display: flex;
         }
 
         .section-title {
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             font-weight: bold;
-            color: #94a3b8;
+            color: #64748b;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 4px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 3px;
             margin-top: 2px;
         }
 
@@ -144,10 +182,10 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
-            background: #0f172a;
+            background: #f8fafc;
             padding: 8px;
             border-radius: 6px;
-            border: 1px solid #334155;
+            border: 1px solid #e2e8f0;
         }
 
         .config-row {
@@ -160,16 +198,16 @@
         .config-group label {
             font-size: 0.78rem;
             font-weight: bold;
-            color: #cbd5e1;
+            color: #334155;
         }
 
         .config-group input[type="number"],
         .config-group input[type="text"],
         .config-group select {
             width: 100%;
-            background: #1e293b;
-            border: 1px solid #475569;
-            color: #fff;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #0f172a;
             padding: 4px 6px;
             border-radius: 4px;
             font-size: 0.8rem;
@@ -200,8 +238,8 @@
         }
 
         .color-swatch.active {
-            border-color: #ffffff;
-            box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+            border-color: #0f172a;
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
         }
 
         input[type="color"] {
@@ -219,27 +257,27 @@
         }
 
         input[type="color"]::-webkit-color-swatch {
-            border: 1px solid #475569;
+            border: 1px solid #cbd5e1;
             border-radius: 4px;
         }
 
         .file-upload-btn {
-            background: #334155;
-            color: #f8fafc;
+            background: #e2e8f0;
+            color: #0f172a;
             font-size: 0.75rem;
             font-weight: bold;
             padding: 6px 8px;
             border-radius: 4px;
             cursor: pointer;
             text-align: center;
-            border: 1px solid #475569;
+            border: 1px solid #cbd5e1;
             transition: background 0.2s;
             width: 100%;
             display: block;
         }
 
         .file-upload-btn:hover {
-            background: #475569;
+            background: #cbd5e1;
         }
 
         .tools-grid {
@@ -249,9 +287,9 @@
         }
 
         .switch-btn {
-            background: #334155;
-            color: #94a3b8;
-            border: none;
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #cbd5e1;
             padding: 8px 6px;
             border-radius: 4px;
             font-size: 0.75rem;
@@ -264,60 +302,65 @@
         .switch-btn.active-solid {
             background: #10b981;
             color: #ffffff;
-            box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+            border-color: #059669;
+            box-shadow: 0 0 6px rgba(16, 185, 129, 0.3);
         }
 
         .switch-btn.active-passable {
             background: #f59e0b;
             color: #ffffff;
-            box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+            border-color: #d97706;
+            box-shadow: 0 0 6px rgba(245, 158, 11, 0.3);
         }
 
         .switch-btn.active-floor {
             background: #64748b;
             color: #ffffff;
-            box-shadow: 0 0 8px rgba(100, 116, 139, 0.4);
+            border-color: #475569;
+            box-shadow: 0 0 6px rgba(100, 116, 139, 0.3);
         }
 
         .switch-btn.active-circle {
             background: #ec4899;
             color: #ffffff;
-            box-shadow: 0 0 8px rgba(236, 72, 153, 0.4);
+            border-color: #db2777;
+            box-shadow: 0 0 6px rgba(236, 72, 153, 0.3);
         }
 
         .switch-btn.active-skull {
             background: #ef4444;
             color: #ffffff;
-            box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+            border-color: #dc2626;
+            box-shadow: 0 0 6px rgba(239, 68, 68, 0.3);
         }
 
         .btn-sim {
-            background-color: #3b82f6;
+            background-color: #2563eb;
             color: #ffffff;
             border: none;
-            padding: 6px 10px;
+            padding: 5px 9px;
             border-radius: 4px;
             font-weight: bold;
             cursor: pointer;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             transition: background 0.2s;
         }
 
-        .btn-sim:hover { background-color: #2563eb; }
+        .btn-sim:hover { background-color: #1d4ed8; }
         .btn-sim.special { background-color: #8b5cf6; }
         .btn-sim.special:hover { background-color: #7c3aed; }
         .btn-sim.warning { background-color: #eab308; color: #0f172a; }
         .btn-sim.warning:hover { background-color: #ca8a04; }
-        .btn-sim.danger { background-color: #dc2626; }
-        .btn-sim.danger:hover { background-color: #ef4444; }
+        .btn-sim.danger { background-color: #ef4444; }
+        .btn-sim.danger:hover { background-color: #dc2626; }
         .btn-sim.success { background-color: #10b981; }
         .btn-sim.success:hover { background-color: #059669; }
 
         .anim-item {
-            background: #1e293b;
+            background: #f8fafc;
             padding: 6px;
             border-radius: 4px;
-            border: 1px solid #475569;
+            border: 1px solid #cbd5e1;
             display: flex;
             flex-direction: column;
             gap: 4px;
@@ -330,7 +373,7 @@
             align-items: center;
             font-size: 0.75rem;
             font-weight: bold;
-            color: #38bdf8;
+            color: #0284c7;
         }
 
         .anim-item-delete {
@@ -344,16 +387,16 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: #020617;
-            border: 1px solid #334155;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
             border-radius: 6px;
             padding: 8px;
             margin-top: 4px;
         }
 
         .thumbnail-box canvas {
-            background: #0f172a;
-            border: 1px solid #475569;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
             border-radius: 4px;
             width: 80px;
             height: 80px;
@@ -361,7 +404,7 @@
 
         .thumbnail-label {
             font-size: 0.7rem;
-            color: #38bdf8;
+            color: #0284c7;
             font-weight: bold;
             margin-top: 4px;
         }
@@ -372,13 +415,13 @@
             flex-direction: column;
             padding: 12px;
             gap: 12px;
-            background: #0b1120;
+            background: #f1f5f9;
             overflow: hidden;
         }
 
         .stage-container {
-            background: #1e293b;
-            border: 2px solid #334155;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
             border-radius: 8px;
             padding: 10px;
             display: flex;
@@ -387,6 +430,7 @@
             flex-grow: 1;
             min-height: 0;
             position: relative;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
         .stage-header {
@@ -398,19 +442,20 @@
         }
 
         .status-badge {
-            background: #020617;
-            color: #38bdf8;
+            background: #f1f5f9;
+            color: #0284c7;
             padding: 3px 10px;
             border-radius: 12px;
             font-size: 0.75rem;
-            border: 1px solid #0284c7;
+            border: 1px solid #bae6fd;
+            font-weight: 600;
         }
 
         canvas#pygameCanvas {
-            background-color: #000000;
+            background-color: #ffffff;
             border-radius: 6px;
-            border: 1px solid #475569;
-            box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.9);
+            border: 1px solid #cbd5e1;
+            box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.05);
             width: 100%;
             height: 100%;
             max-width: 800px;
@@ -427,23 +472,23 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            background: #0f172a;
+            background: #f8fafc;
             padding: 6px 12px;
             border-radius: 6px;
-            border: 1px solid #334155;
+            border: 1px solid #cbd5e1;
         }
 
         .scene-navigation-bar label {
             font-size: 0.75rem;
             font-weight: bold;
-            color: #38bdf8;
+            color: #0284c7;
             white-space: nowrap;
         }
 
         .scene-navigation-bar input[type="range"] {
             flex-grow: 1;
             cursor: pointer;
-            accent-color: #38bdf8;
+            accent-color: #0284c7;
         }
 
         .bottom-panels {
@@ -455,38 +500,39 @@
         }
 
         .panel {
-            background: #1e293b;
+            background: #ffffff;
             border-radius: 8px;
             padding: 8px 12px;
-            border: 1px solid #334155;
+            border: 1px solid #cbd5e1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
         .panel-header {
-            color: #94a3b8;
+            color: #64748b;
             font-size: 0.7rem;
             font-weight: bold;
             text-transform: uppercase;
             margin-bottom: 6px;
-            border-bottom: 1px solid #334155;
+            border-bottom: 1px solid #e2e8f0;
             padding-bottom: 4px;
         }
 
         .console-output {
             font-family: 'Consolas', monospace;
             font-size: 0.78rem;
-            color: #60a5fa;
+            color: #1d4ed8;
             white-space: pre-wrap;
             overflow-y: auto;
             flex-grow: 1;
         }
 
         .code-box {
-            background-color: #020617;
-            border: 1px solid #1e293b;
-            color: #e2e8f0;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #0f172a;
             font-family: 'Consolas', 'Courier New', monospace;
             padding: 8px;
             border-radius: 4px;
@@ -498,14 +544,14 @@
         }
 
         .state-btn {
-            padding: 6px 12px;
+            padding: 4px 10px;
             font-weight: bold;
-            font-size: 0.75rem;
-            border: 1px solid #334155;
+            font-size: 0.72rem;
+            border: 1px solid #cbd5e1;
             border-radius: 4px;
             cursor: pointer;
-            background: #0f172a;
-            color: #94a3b8;
+            background: #ffffff;
+            color: #475569;
             transition: all 0.2s;
         }
 
@@ -513,21 +559,21 @@
             background: #10b981;
             color: #fff;
             border-color: #059669;
-            box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 0 6px rgba(16, 185, 129, 0.3);
         }
 
         .state-btn.active-pause {
             background: #f59e0b;
             color: #fff;
             border-color: #d97706;
-            box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+            box-shadow: 0 0 6px rgba(245, 158, 11, 0.3);
         }
 
         .state-btn.active-stop {
             background: #ef4444;
             color: #fff;
             border-color: #dc2626;
-            box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+            box-shadow: 0 0 6px rgba(239, 68, 68, 0.3);
         }
 
         .checkbox-row {
@@ -535,7 +581,7 @@
             align-items: center;
             gap: 8px;
             font-size: 0.78rem;
-            color: #cbd5e1;
+            color: #334155;
             cursor: pointer;
         }
 
@@ -553,7 +599,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(2, 6, 23, 0.85);
+            background: rgba(15, 23, 42, 0.4);
             backdrop-filter: blur(4px);
             z-index: 1000;
             justify-content: center;
@@ -561,30 +607,30 @@
         }
 
         .modal-container {
-            background: #1e293b;
-            border: 1px solid #3b82f6;
+            background: #ffffff;
+            border: 1px solid #93c5fd;
             border-radius: 8px;
             width: 90%;
             max-width: 600px;
             max-height: 80vh;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
             overflow: hidden;
         }
 
         .modal-header {
-            background: #0f172a;
+            background: #f8fafc;
             padding: 10px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #334155;
+            border-bottom: 1px solid #e2e8f0;
         }
 
         .modal-header h3 {
             font-size: 0.95rem;
-            color: #38bdf8;
+            color: #0284c7;
         }
 
         .modal-close {
@@ -610,8 +656,8 @@
         }
 
         .frame-card {
-            background: #0f172a;
-            border: 2px solid #334155;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
             border-radius: 6px;
             padding: 6px;
             display: flex;
@@ -624,25 +670,26 @@
         }
 
         .frame-card:hover {
-            border-color: #60a5fa;
+            border-color: #3b82f6;
         }
 
         .frame-card.selected {
             border-color: #10b981;
-            background: #064e3b;
+            background: #d1fae5;
         }
 
         .frame-card img {
             width: 50px;
             height: 50px;
             object-fit: contain;
-            background: #1e293b;
+            background: #ffffff;
             border-radius: 4px;
+            border: 1px solid #e2e8f0;
         }
 
         .frame-card .frame-name {
             font-size: 0.65rem;
-            color: #cbd5e1;
+            color: #334155;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -658,12 +705,12 @@
         }
 
         .modal-footer {
-            background: #0f172a;
+            background: #f8fafc;
             padding: 10px 16px;
             display: flex;
             justify-content: flex-end;
             gap: 8px;
-            border-top: 1px solid #334155;
+            border-top: 1px solid #e2e8f0;
         }
     </style>
 </head>
@@ -671,26 +718,32 @@
 <body>
 
     <header>
-        <div class="header-title">
-            <h1>Pygame Engine 2D</h1>
+        <div class="header-brand">
+            <div class="header-title">
+                <h1>🎮 Pygame Engine 2D</h1>
+            </div>
         </div>
 
-        <div class="top-nav">
-            <div class="nav-group">
+        <div class="top-toolbar">
+            <div class="toolbar-group">
                 <button id="btnPlayState" class="state-btn" onclick="definirEstadoExecucao('play')">▶️ Play</button>
                 <button id="btnPauseState" class="state-btn" onclick="definirEstadoExecucao('pause')">⏸️ Pause</button>
                 <button id="btnStopState" class="state-btn active-stop" onclick="definirEstadoExecucao('stop')">⏹️ Stop</button>
             </div>
 
-            <div class="nav-group">
+            <div class="toolbar-divider"></div>
+
+            <div class="toolbar-group">
                 <button class="btn-sim success" onclick="salvarEstadoLocal()">💾 Salvar</button>
                 <button class="btn-sim warning" onclick="carregarEstadoLocal()">📂 Carregar</button>
-                <button class="btn-sim special" onclick="exportarProjetoJSON()">📥 Exportar .JSON</button>
+                <button class="btn-sim special" onclick="exportarProjetoJSON()">📥 Exportar</button>
                 <label for="importJsonInput" class="btn-sim special" style="margin: 0; cursor: pointer;">📤 Importar</label>
                 <input type="file" id="importJsonInput" accept=".json" onchange="importarProjetoJSON(event)" style="display: none;">
             </div>
 
-            <div class="nav-group">
+            <div class="toolbar-divider"></div>
+
+            <div class="toolbar-group">
                 <button class="btn-sim success" onclick="copiarCodigo()">📋 Copiar Código</button>
                 <button class="btn-sim danger" onclick="limparObjetos()">🗑 Limpar</button>
             </div>
@@ -706,233 +759,262 @@
 
     <div class="main-wrapper">
         <div class="sidebar">
-            <div class="tab-menu">
-                <button class="tab-btn active" onclick="switchTab('tab-construir', this)">🧱 Construir</button>
-                <button class="tab-btn" onclick="switchTab('tab-player', this)">🏃 Player</button>
-                <button class="tab-btn" onclick="switchTab('tab-camera', this)">🎥 Câmera & Loop</button>
-                <button class="tab-btn" onclick="switchTab('tab-cenario', this)">🖼️ Cenário</button>
-                <button class="tab-btn" onclick="switchTab('tab-regras', this)">⚙️ Regras</button>
-            </div>
 
-            <div id="tab-construir" class="tab-content active">
-                <div class="section-title">Modos de Edição</div>
-                <div class="tools-grid">
-                    <button id="btnSolid" class="switch-btn active-solid" onclick="definirModo('solid')">🧱 Sólida</button>
-                    <button id="btnPassable" class="switch-btn" onclick="definirModo('passable')">👻 Passável</button>
-                    <button id="btnFloor" class="switch-btn" onclick="definirModo('floor')">👁️ Chão (Invisível)</button>
-                    <button id="btnCircle" class="switch-btn" onclick="definirModo('circle')">🟡 Esfera</button>
-                    <button id="btnSkull" class="switch-btn" onclick="definirModo('skull')">💀 Caveira</button>
-                </div>
+            <!-- Accordion 1: Construir -->
+            <div class="accordion-item">
+                <button class="accordion-header active" onclick="toggleAccordion(this)">
+                    <span>🧱 Construir & Objetos</span>
+                    <span class="accordion-icon">▲</span>
+                </button>
+                <div class="accordion-content open">
+                    <div class="section-title">Modos de Edição</div>
+                    <div class="tools-grid">
+                        <button id="btnSolid" class="switch-btn active-solid" onclick="definirModo('solid')">🧱 Sólida</button>
+                        <button id="btnPassable" class="switch-btn" onclick="definirModo('passable')">👻 Passável</button>
+                        <button id="btnFloor" class="switch-btn" onclick="definirModo('floor')">👁️ Chão (Invisível)</button>
+                        <button id="btnCircle" class="switch-btn" onclick="definirModo('circle')">🟡 Esfera</button>
+                        <button id="btnSkull" class="switch-btn" onclick="definirModo('skull')">💀 Caveira</button>
+                    </div>
 
-                <div class="section-title">Ajustar Chão Inicial (Principal)</div>
-                <div class="config-group">
-                    <div class="config-row">
-                        <label>Largura (W):</label>
-                        <input type="number" id="floorWidthInput" value="700" min="50" max="5000" step="10" onchange="alterarTamanhoChaoPrincipal()">
-                    </div>
-                    <div class="config-row">
-                        <label>Altura (H):</label>
-                        <input type="number" id="floorHeightInput" value="30" min="5" max="300" step="5" onchange="alterarTamanhoChaoPrincipal()">
-                    </div>
-                    <div class="config-row">
-                        <label>Posição Y:</label>
-                        <input type="number" id="floorPosYInput" value="380" min="0" max="1000" step="10" onchange="alterarTamanhoChaoPrincipal()">
-                    </div>
-                    <button class="btn-sim warning" style="margin-top:2px;" onclick="resetarChaoPadrao()">🔄 Resetar Chão Padrão</button>
-                </div>
-
-                <div class="section-title">Cor do Objeto</div>
-                <div class="config-group">
-                    <div class="config-row">
-                        <div class="color-palette">
-                            <div class="color-swatch active" style="background: #22c55e;" onclick="selecionarCor('#22c55e', this)"></div>
-                            <div class="color-swatch" style="background: #3b82f6;" onclick="selecionarCor('#3b82f6', this)"></div>
-                            <div class="color-swatch" style="background: #ef4444;" onclick="selecionarCor('#ef4444', this)"></div>
-                            <div class="color-swatch" style="background: #eab308;" onclick="selecionarCor('#eab308', this)"></div>
-                            <div class="color-swatch" style="background: #a855f7;" onclick="selecionarCor('#a855f7', this)"></div>
+                    <div class="section-title">Ajustar Chão Inicial (Principal)</div>
+                    <div class="config-group">
+                        <div class="config-row">
+                            <label>Largura (W):</label>
+                            <input type="number" id="floorWidthInput" value="700" min="50" max="5000" step="10" onchange="alterarTamanhoChaoPrincipal()">
                         </div>
-                        <input type="color" id="customColorPicker" value="#22c55e" oninput="selecionarCorCustomizada(this.value)">
-                    </div>
-                </div>
-
-                <div class="section-title">Ações do Editor</div>
-                <div class="config-group">
-                    <button class="btn-sim special" onclick="spawnObjetoAleatorio('circle')">🎲 Spawn Esfera</button>
-                    <button class="btn-sim danger" onclick="spawnObjetoAleatorio('skull')">💀 Spawn Caveira</button>
-                </div>
-            </div>
-
-            <div id="tab-player" class="tab-content">
-                <div class="section-title">1. Dimensões & Aparência Base</div>
-                <div class="config-group">
-                    <div class="config-row">
-                        <label>Cor Base:</label>
-                        <input type="color" id="playerColorPicker" value="#facc15" oninput="alterarCorPlayer(this.value)">
-                    </div>
-                    <div class="config-row">
-                        <label>Largura (W):</label>
-                        <input type="number" id="playerWidthInput" value="24" min="8" max="120" onchange="alterarTamanhoPlayer()">
-                    </div>
-                    <div class="config-row">
-                        <label>Altura (H):</label>
-                        <input type="number" id="playerHeightInput" value="32" min="8" max="120" onchange="alterarTamanhoPlayer()">
-                    </div>
-                </div>
-
-                <div class="section-title">2. Preview de Animação</div>
-                <div class="config-group">
-                    <div class="config-row">
-                        <label>Animação Ativa / Preview:</label>
-                        <select id="previewAnimSelect" onchange="selecionarAnimacaoPreview(this.value)">
-                            <option value="">Nenhuma (Cor Sólida)</option>
-                        </select>
+                        <div class="config-row">
+                            <label>Altura (H):</label>
+                            <input type="number" id="floorHeightInput" value="30" min="5" max="300" step="5" onchange="alterarTamanhoChaoPrincipal()">
+                        </div>
+                        <div class="config-row">
+                            <label>Posição Y:</label>
+                            <input type="number" id="floorPosYInput" value="380" min="0" max="1000" step="10" onchange="alterarTamanhoChaoPrincipal()">
+                        </div>
+                        <button class="btn-sim warning" style="margin-top:2px;" onclick="resetarChaoPadrao()">🔄 Resetar Chão Padrão</button>
                     </div>
 
-                    <div class="thumbnail-box">
-                        <canvas id="thumbCanvas" width="80" height="80"></canvas>
-                        <span id="thumbLabel" class="thumbnail-label">Sem Animação</span>
-                    </div>
-                </div>
-
-                <div class="section-title">3. Biblioteca de Imagens (Frames)</div>
-                <div class="config-group">
-                    <label for="animFilesInput" class="file-upload-btn">📁 Importar Imagens / Frames (PNG)</label>
-                    <input type="file" id="animFilesInput" accept="image/png, image/jpeg, image/gif" multiple onchange="importarFramesParaBiblioteca(event)" style="display: none;">
-                    <div style="font-size:0.7rem; color:#94a3b8;" id="libraryCountText">0 frames na biblioteca</div>
-                </div>
-
-                <div class="section-title">4. Associar Animações a Teclas</div>
-                <div class="config-group">
-                    <button class="btn-sim special" onclick="abrirModalNovaAnimacao()">➕ Associar Tecla a Animação</button>
-                </div>
-
-                <div class="config-group">
-                    <div class="config-row">
-                        <label>Animação Idle (Padrão):</label>
-                        <select id="initialAnimSelect" onchange="definirAnimacaoInicial(this.value)">
-                            <option value="">Nenhuma (Cor Sólida)</option>
-                        </select>
+                    <div class="section-title">Cor do Objeto</div>
+                    <div class="config-group">
+                        <div class="config-row">
+                            <div class="color-palette">
+                                <div class="color-swatch active" style="background: #22c55e;" onclick="selecionarCor('#22c55e', this)"></div>
+                                <div class="color-swatch" style="background: #3b82f6;" onclick="selecionarCor('#3b82f6', this)"></div>
+                                <div class="color-swatch" style="background: #ef4444;" onclick="selecionarCor('#ef4444', this)"></div>
+                                <div class="color-swatch" style="background: #eab308;" onclick="selecionarCor('#eab308', this)"></div>
+                                <div class="color-swatch" style="background: #a855f7;" onclick="selecionarCor('#a855f7', this)"></div>
+                            </div>
+                            <input type="color" id="customColorPicker" value="#22c55e" oninput="selecionarCorCustomizada(this.value)">
+                        </div>
                     </div>
 
-                    <div id="animList" style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;"></div>
-                    <button class="switch-btn" id="btnRemoverAnims" onclick="limparAnimacoes()" style="display: none; margin-top: 4px;">Remover Todas as Animações</button>
-                </div>
-
-                <div class="section-title">5. Habilidade: Corda Vertical</div>
-                <div class="config-group">
-                    <label class="checkbox-row">
-                        <input type="checkbox" id="ropeEnabledToggle" checked onchange="atualizarConfigCorda()">
-                        Habilitar Corda Vertical
-                    </label>
-
-                    <div class="config-row" style="margin-top: 4px;">
-                        <label>Tecla de Ativação:</label>
-                        <select id="ropeKeyInput" onchange="atualizarConfigCorda()">
-                            <option value="KeyE" selected>Tecla E</option>
-                            <option value="KeyQ">Tecla Q</option>
-                            <option value="KeyF">Tecla F</option>
-                            <option value="ShiftLeft">Shift Esquerdo</option>
-                            <option value="Space">Barra de Espaço</option>
-                        </select>
-                    </div>
-
-                    <div class="config-row" style="margin-top: 4px;">
-                        <label>Cor da Corda:</label>
-                        <input type="color" id="ropeColorInput" value="#38bdf8" oninput="atualizarConfigCorda()">
-                    </div>
-
-                    <div class="config-row" style="margin-top: 4px;">
-                        <label>Velocidade de Puxar:</label>
-                        <select id="ropeSpeedSelect" onchange="atualizarConfigCorda()">
-                            <option value="slow">Devagar</option>
-                            <option value="normal" selected>Normal</option>
-                            <option value="fast">Rápido</option>
-                        </select>
-                    </div>
-
-                    <div class="config-row" style="margin-top: 4px;">
-                        <label>Animação da Corda:</label>
-                        <select id="ropeAnimSelect" onchange="atualizarConfigCorda()">
-                            <option value="">Nenhuma (Usar Padrão)</option>
-                        </select>
-                    </div>
-
-                    <div class="config-row" style="margin-top: 4px;">
-                        <label>Espessura da Corda:</label>
-                        <input type="number" id="ropeThicknessInput" value="3" min="1" max="20" step="1" onchange="atualizarConfigCorda()">
+                    <div class="section-title">Ações do Editor</div>
+                    <div class="config-group">
+                        <button class="btn-sim special" onclick="spawnObjetoAleatorio('circle')">🎲 Spawn Esfera</button>
+                        <button class="btn-sim danger" onclick="spawnObjetoAleatorio('skull')">💀 Spawn Caveira</button>
                     </div>
                 </div>
             </div>
 
-            <div id="tab-camera" class="tab-content">
-                <div class="section-title">Câmera de Perseguição</div>
-                <div class="config-group">
-                    <label class="checkbox-row">
-                        <input type="checkbox" id="cameraFollowToggle" checked onchange="toggleCameraFollow(this.checked)">
-                        Acompanhar Personagem
-                    </label>
-                    <div class="config-row">
-                        <label>Suavização (Smooth):</label>
-                        <input type="number" id="cameraSmoothInput" value="0.1" step="0.02" min="0.01" max="1" onchange="atualizarConfigCamera()">
+            <!-- Accordion 2: Player -->
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>🏃 Player & Animações</span>
+                    <span class="accordion-icon">▼</span>
+                </button>
+                <div class="accordion-content">
+                    <div class="section-title">1. Dimensões & Aparência Base</div>
+                    <div class="config-group">
+                        <div class="config-row">
+                            <label>Cor Base:</label>
+                            <input type="color" id="playerColorPicker" value="#eab308" oninput="alterarCorPlayer(this.value)">
+                        </div>
+                        <div class="config-row">
+                            <label>Largura (W):</label>
+                            <input type="number" id="playerWidthInput" value="24" min="8" max="120" onchange="alterarTamanhoPlayer()">
+                        </div>
+                        <div class="config-row">
+                            <label>Altura (H):</label>
+                            <input type="number" id="playerHeightInput" value="32" min="8" max="120" onchange="alterarTamanhoPlayer()">
+                        </div>
                     </div>
-                    <div class="config-row">
-                        <label>Offset X (Centralizar):</label>
-                        <input type="number" id="cameraOffsetXInput" value="400" step="10" onchange="atualizarConfigCamera()">
-                    </div>
-                    <button class="btn-sim warning" style="margin-top: 4px;" onclick="resetarCameraEditor()">🔄 Resetar Câmera / Posição</button>
-                </div>
 
-                <div class="section-title">Cenário Cíclico / Mundo Infinito</div>
-                <div class="config-group">
-                    <label class="checkbox-row">
-                        <input type="checkbox" id="loopCenarioToggle" checked onchange="toggleLoopCenario(this.checked)">
-                        Ativar Fundo Cíclico
-                    </label>
-                    <div class="config-row">
-                        <label>Largura do Bloco (Tile Width):</label>
-                        <input type="number" id="tileWidthInput" value="800" min="200" step="50" onchange="atualizarConfigCamera()">
+                    <div class="section-title">2. Preview de Animação</div>
+                    <div class="config-group">
+                        <div class="config-row">
+                            <label>Animação Ativa / Preview:</label>
+                            <select id="previewAnimSelect" onchange="selecionarAnimacaoPreview(this.value)">
+                                <option value="">Nenhuma (Cor Sólida)</option>
+                            </select>
+                        </div>
+
+                        <div class="thumbnail-box">
+                            <canvas id="thumbCanvas" width="80" height="80"></canvas>
+                            <span id="thumbLabel" class="thumbnail-label">Sem Animação</span>
+                        </div>
+                    </div>
+
+                    <div class="section-title">3. Biblioteca de Imagens (Frames)</div>
+                    <div class="config-group">
+                        <label for="animFilesInput" class="file-upload-btn">📁 Importar Imagens / Frames (PNG)</label>
+                        <input type="file" id="animFilesInput" accept="image/png, image/jpeg, image/gif" multiple onchange="importarFramesParaBiblioteca(event)" style="display: none;">
+                        <div style="font-size:0.7rem; color:#64748b;" id="libraryCountText">0 frames na biblioteca</div>
+                    </div>
+
+                    <div class="section-title">4. Associar Animações a Teclas</div>
+                    <div class="config-group">
+                        <button class="btn-sim special" onclick="abrirModalNovaAnimacao()">➕ Associar Tecla a Animação</button>
+                    </div>
+
+                    <div class="config-group">
+                        <div class="config-row">
+                            <label>Animação Idle (Padrão):</label>
+                            <select id="initialAnimSelect" onchange="definirAnimacaoInicial(this.value)">
+                                <option value="">Nenhuma (Cor Sólida)</option>
+                            </select>
+                        </div>
+
+                        <div id="animList" style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;"></div>
+                        <button class="switch-btn" id="btnRemoverAnims" onclick="limparAnimacoes()" style="display: none; margin-top: 4px;">Remover Todas as Animações</button>
+                    </div>
+
+                    <div class="section-title">5. Habilidade: Corda Vertical</div>
+                    <div class="config-group">
+                        <label class="checkbox-row">
+                            <input type="checkbox" id="ropeEnabledToggle" checked onchange="atualizarConfigCorda()">
+                            Habilitar Corda Vertical
+                        </label>
+
+                        <div class="config-row" style="margin-top: 4px;">
+                            <label>Tecla de Ativação:</label>
+                            <select id="ropeKeyInput" onchange="atualizarConfigCorda()">
+                                <option value="KeyE" selected>Tecla E</option>
+                                <option value="KeyQ">Tecla Q</option>
+                                <option value="KeyF">Tecla F</option>
+                                <option value="ShiftLeft">Shift Esquerdo</option>
+                                <option value="Space">Barra de Espaço</option>
+                            </select>
+                        </div>
+
+                        <div class="config-row" style="margin-top: 4px;">
+                            <label>Cor da Corda:</label>
+                            <input type="color" id="ropeColorInput" value="#0284c7" oninput="atualizarConfigCorda()">
+                        </div>
+
+                        <div class="config-row" style="margin-top: 4px;">
+                            <label>Velocidade de Puxar:</label>
+                            <select id="ropeSpeedSelect" onchange="atualizarConfigCorda()">
+                                <option value="slow">Devagar</option>
+                                <option value="normal" selected>Normal</option>
+                                <option value="fast">Rápido</option>
+                            </select>
+                        </div>
+
+                        <div class="config-row" style="margin-top: 4px;">
+                            <label>Animação da Corda:</label>
+                            <select id="ropeAnimSelect" onchange="atualizarConfigCorda()">
+                                <option value="">Nenhuma (Usar Padrão)</option>
+                            </select>
+                        </div>
+
+                        <div class="config-row" style="margin-top: 4px;">
+                            <label>Espessura da Corda:</label>
+                            <input type="number" id="ropeThicknessInput" value="3" min="1" max="20" step="1" onchange="atualizarConfigCorda()">
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div id="tab-cenario" class="tab-content">
-                <div class="section-title">Estilo do Fundo</div>
-                <div class="config-group">
-                    <div class="config-row">
-                        <label>Cor de Fundo:</label>
-                        <input type="color" id="bgPicker" value="#000000" oninput="alterarCenario(this.value)">
+            <!-- Accordion 3: Câmera & Loop -->
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>🎥 Câmera & Mundo</span>
+                    <span class="accordion-icon">▼</span>
+                </button>
+                <div class="accordion-content">
+                    <div class="section-title">Câmera de Perseguição</div>
+                    <div class="config-group">
+                        <label class="checkbox-row">
+                            <input type="checkbox" id="cameraFollowToggle" checked onchange="toggleCameraFollow(this.checked)">
+                            Acompanhar Personagem
+                        </label>
+                        <div class="config-row">
+                            <label>Suavização (Smooth):</label>
+                            <input type="number" id="cameraSmoothInput" value="0.1" step="0.02" min="0.01" max="1" onchange="atualizarConfigCamera()">
+                        </div>
+                        <div class="config-row">
+                            <label>Offset X (Centralizar):</label>
+                            <input type="number" id="cameraOffsetXInput" value="400" step="10" onchange="atualizarConfigCamera()">
+                        </div>
+                        <button class="btn-sim warning" style="margin-top: 4px;" onclick="resetarCameraEditor()">🔄 Resetar Câmera / Posição</button>
                     </div>
-                </div>
 
-                <div class="config-group">
-                    <label>Imagem do Cenário (PNG/JPG):</label>
-                    <label for="bgImageInput" class="file-upload-btn">🖼️ Upload Imagem de Fundo</label>
-                    <input type="file" id="bgImageInput" accept="image/png, image/jpeg, image/gif" onchange="carregarImagemCenario(event)" style="display: none;">
-                    <button class="switch-btn" id="btnRemoverBgImg" onclick="removerImagemCenario()" style="display: none; margin-top: 4px;">Usar Cor Sólida</button>
+                    <div class="section-title">Cenário Cíclico / Mundo Infinito</div>
+                    <div class="config-group">
+                        <label class="checkbox-row">
+                            <input type="checkbox" id="loopCenarioToggle" checked onchange="toggleLoopCenario(this.checked)">
+                            Ativar Fundo Cíclico
+                        </label>
+                        <div class="config-row">
+                            <label>Largura do Bloco (Tile Width):</label>
+                            <input type="number" id="tileWidthInput" value="800" min="200" step="50" onchange="atualizarConfigCamera()">
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div id="tab-regras" class="tab-content">
-                <div class="section-title">Valores Numéricos</div>
-                <div class="config-group">
-                    <div class="config-row">
-                        <label>HP Inicial:</label>
-                        <input type="number" id="hpInput" value="100" min="10" max="500" onchange="alterarHPInicial(this.value)">
+            <!-- Accordion 4: Cenário -->
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>🖼️ Estilo do Cenário</span>
+                    <span class="accordion-icon">▼</span>
+                </button>
+                <div class="accordion-content">
+                    <div class="section-title">Estilo do Fundo</div>
+                    <div class="config-group">
+                        <div class="config-row">
+                            <label>Cor de Fundo:</label>
+                            <input type="color" id="bgPicker" value="#ffffff" oninput="alterarCenario(this.value)">
+                        </div>
                     </div>
-                    <div class="config-row">
-                        <label>Pontos Esfera (+):</label>
-                        <input type="number" id="spherePoints" value="10" step="5" min="1" onchange="atualizarCodigoPython()">
-                    </div>
-                    <div class="config-row">
-                        <label>Dano Caveira (-):</label>
-                        <input type="number" id="skullDamage" value="25" min="0" step="5" onchange="atualizarCodigoPython()">
-                    </div>
-                    <div class="config-row">
-                        <label>Perda Pontos (-):</label>
-                        <input type="number" id="skullPointLoss" value="15" min="0" step="5" onchange="atualizarCodigoPython()">
+
+                    <div class="config-group">
+                        <label>Imagem do Cenário (PNG/JPG):</label>
+                        <label for="bgImageInput" class="file-upload-btn">🖼️ Upload Imagem de Fundo</label>
+                        <input type="file" id="bgImageInput" accept="image/png, image/jpeg, image/gif" onchange="carregarImagemCenario(event)" style="display: none;">
+                        <button class="switch-btn" id="btnRemoverBgImg" onclick="removerImagemCenario()" style="display: none; margin-top: 4px;">Usar Cor Sólida</button>
                     </div>
                 </div>
             </div>
+
+            <!-- Accordion 5: Regras -->
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>⚙️ Regras do Jogo</span>
+                    <span class="accordion-icon">▼</span>
+                </button>
+                <div class="accordion-content">
+                    <div class="section-title">Valores Numéricos</div>
+                    <div class="config-group">
+                        <div class="config-row">
+                            <label>HP Inicial:</label>
+                            <input type="number" id="hpInput" value="100" min="10" max="500" onchange="alterarHPInicial(this.value)">
+                        </div>
+                        <div class="config-row">
+                            <label>Pontos Esfera (+):</label>
+                            <input type="number" id="spherePoints" value="10" step="5" min="1" onchange="atualizarCodigoPython()">
+                        </div>
+                        <div class="config-row">
+                            <label>Dano Caveira (-):</label>
+                            <input type="number" id="skullDamage" value="25" min="0" step="5" onchange="atualizarCodigoPython()">
+                        </div>
+                        <div class="config-row">
+                            <label>Perda Pontos (-):</label>
+                            <input type="number" id="skullPointLoss" value="15" min="0" step="5" onchange="atualizarCodigoPython()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <div class="workspace">
@@ -1002,6 +1084,24 @@
     </div>
 
     <script>
+        /* FUNÇÃO PARA O MENU ACCORDION */
+        function toggleAccordion(button) {
+            const content = button.nextElementSibling;
+            const isOpen = content.classList.contains('open');
+
+            document.querySelectorAll('.accordion-content').forEach(c => c.classList.remove('open'));
+            document.querySelectorAll('.accordion-header').forEach(h => {
+                h.classList.remove('active');
+                h.querySelector('.accordion-icon').textContent = '▼';
+            });
+
+            if (!isOpen) {
+                content.classList.add('open');
+                button.classList.add('active');
+                button.querySelector('.accordion-icon').textContent = '▲';
+            }
+        }
+
         const canvas = document.getElementById('pygameCanvas');
         const ctx = canvas.getContext('2d');
 
@@ -1013,7 +1113,7 @@
 
         let estadoExecucao = 'stop';
 
-        let corCenarioHex = '#000000';
+        let corCenarioHex = '#ffffff';
         let bgImg = null;
         let bgImgBase64 = null;
         let bgImgFileName = 'background.png';
@@ -1052,10 +1152,7 @@
             fast: 22
         };
 
-        // Biblioteca de frames disponíveis
-        const bibliotecaFrames = []; // { id, name, img, base64 }
-
-        // Animações configuradas
+        const bibliotecaFrames = [];
         const animacoes = {}; 
         let animacaoInicial = "";
         let animacaoAtual = "";
@@ -1063,7 +1160,7 @@
         let frameTimer = 0;
         const FRAME_SPEED = 8;
 
-        let editandoAnimNome = null; // nome da animação em edição (se houver)
+        let editandoAnimNome = null;
 
         const cordaConfig = {
             enabled: true,
@@ -1071,7 +1168,7 @@
             anim: '',
             speedPreset: 'normal',
             speed: 12,
-            color: '#38bdf8',
+            color: '#0284c7',
             thickness: 3
         };
 
@@ -1099,7 +1196,7 @@
             gravity: 0.5,
             grounded: false,
             facingRight: true,
-            color: '#facc15',
+            color: '#eab308',
             hp: 100
         };
 
@@ -1123,7 +1220,7 @@
             cordaConfig.enabled = document.getElementById('ropeEnabledToggle').checked;
             cordaConfig.key = document.getElementById('ropeKeyInput').value;
             cordaConfig.anim = document.getElementById('ropeAnimSelect').value;
-            cordaConfig.color = document.getElementById('ropeColorInput').value || '#38bdf8';
+            cordaConfig.color = document.getElementById('ropeColorInput').value || '#0284c7';
             cordaConfig.speedPreset = document.getElementById('ropeSpeedSelect').value;
             cordaConfig.speed = ropeSpeeds[cordaConfig.speedPreset] || 12;
             cordaConfig.thickness = parseInt(document.getElementById('ropeThicknessInput').value) || 3;
@@ -1239,13 +1336,6 @@
             }
         }
 
-        function switchTab(tabId, btnEl) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            btnEl.classList.add('active');
-        }
-
         function logConsole(msg) {
             const consoleOut = document.getElementById('consoleOutput');
             consoleOut.textContent = `> ${msg}\n` + consoleOut.textContent;
@@ -1331,7 +1421,7 @@
                 player.y = data.player.y || 100;
                 player.w = data.player.w || 24;
                 player.h = data.player.h || 32;
-                player.color = data.player.color || '#facc15';
+                player.color = data.player.color || '#eab308';
                 hpMaximo = data.player.hpMax || 100;
                 player.hp = hpMaximo;
 
@@ -1341,7 +1431,7 @@
                     cordaConfig.anim = data.cordaConfig.anim || '';
                     cordaConfig.speedPreset = data.cordaConfig.speedPreset || 'normal';
                     cordaConfig.speed = data.cordaConfig.speed || ropeSpeeds[cordaConfig.speedPreset] || 12;
-                    cordaConfig.color = data.cordaConfig.color || '#38bdf8';
+                    cordaConfig.color = data.cordaConfig.color || '#0284c7';
                     cordaConfig.thickness = data.cordaConfig.thickness || 3;
 
                     document.getElementById('ropeEnabledToggle').checked = cordaConfig.enabled;
@@ -1368,7 +1458,7 @@
                 document.getElementById('playerColorPicker').value = player.color;
                 document.getElementById('hpInput').value = hpMaximo;
 
-                corCenarioHex = data.corCenarioHex || '#000000';
+                corCenarioHex = data.corCenarioHex || '#ffffff';
                 document.getElementById('bgPicker').value = corCenarioHex;
 
                 bgImgBase64 = data.bgImgBase64 || null;
@@ -1740,7 +1830,7 @@
                         <span class="anim-item-delete" onclick="removerAnimacao('${nome}')">✖</span>
                     </div>
                     <div class="config-row" style="margin-top:2px;">
-                        <span style="font-size:0.7rem; color:#cbd5e1;">Gatilho: <b>${item.keyTrigger}</b></span>
+                        <span style="font-size:0.7rem; color:#475569;">Gatilho: <b>${item.keyTrigger}</b></span>
                         <button class="btn-sim" style="padding:2px 6px; font-size:0.68rem;" onclick="abrirModalNovaAnimacao('${nome}')">✏️ Editar Frames/Tecla</button>
                     </div>
                 `;
@@ -1928,7 +2018,7 @@
                     
                     plataformas.push({ 
                         x, y, w, h, 
-                        color: isInvisibleFloor ? '#38bdf8' : corAtualHex, 
+                        color: isInvisibleFloor ? '#0284c7' : corAtualHex, 
                         solid: isSolid, 
                         isInvisibleFloor: isInvisibleFloor,
                         isMainFloor: false
@@ -2113,7 +2203,7 @@
                     if (s.y > canvas.height) resetarPosicaoObjeto(s);
                     if (AABB(player, { x: s.x - s.w / 2, y: s.y - s.h / 2, w: s.w, h: s.h })) {
                         pontuacao += s.pontos;
-                        popupsText.push({ text: `+${s.pontos}`, x: s.x, y: s.y, color: '#4ade80', life: 30 });
+                        popupsText.push({ text: `+${s.pontos}`, x: s.x, y: s.y, color: '#16a34a', life: 30 });
                         resetarPosicaoObjeto(s);
                     }
                 });
@@ -2124,7 +2214,7 @@
                     if (AABB(player, { x: c.x - c.w / 2, y: c.y - c.h / 2, w: c.w, h: c.h })) {
                         player.hp = Math.max(0, player.hp - c.dano);
                         pontuacao = Math.max(0, pontuacao - c.perdaPontos);
-                        popupsText.push({ text: `-${c.dano} HP`, x: c.x, y: c.y, color: '#f87171', life: 30 });
+                        popupsText.push({ text: `-${c.dano} HP`, x: c.x, y: c.y, color: '#dc2626', life: 30 });
                         resetarPosicaoObjeto(c);
                     }
                 });
@@ -2169,7 +2259,7 @@
                     ctx.fillRect(tileX, 0, camera.tileWidth, canvas.height);
                 }
 
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
                 for (let x = tileX; x < tileX + camera.tileWidth; x += 40) {
                     ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
                 }
@@ -2183,15 +2273,15 @@
                 if (p.isInvisibleFloor && estadoExecucao === 'play') return;
 
                 if (p.isInvisibleFloor) {
-                    ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+                    ctx.fillStyle = 'rgba(2, 132, 199, 0.15)';
                     ctx.fillRect(p.x, p.y, p.w, p.h);
-                    ctx.strokeStyle = '#38bdf8';
+                    ctx.strokeStyle = '#0284c7';
                     ctx.lineWidth = 1;
                     ctx.setLineDash([4, 4]);
                     ctx.strokeRect(p.x, p.y, p.w, p.h);
                     ctx.setLineDash([]);
                     
-                    ctx.fillStyle = '#38bdf8';
+                    ctx.fillStyle = '#0284c7';
                     ctx.font = '10px sans-serif';
                     ctx.fillText('[Chão]', p.x + 4, p.y + 12);
                 } else {
@@ -2204,9 +2294,9 @@
                 }
 
                 if (estadoExecucao !== 'play' && !p.isMainFloor) {
-                    ctx.fillStyle = '#ffffff';
+                    ctx.fillStyle = '#0f172a';
                     ctx.fillRect(p.x + p.w - 6, p.y + p.h - 6, 6, 6);
-                    ctx.strokeStyle = '#38bdf8';
+                    ctx.strokeStyle = '#0284c7';
                     ctx.strokeRect(p.x + p.w - 8, p.y + p.h - 8, 8, 8);
                 }
             });
@@ -2221,7 +2311,7 @@
             caveiras.forEach(c => {
                 ctx.fillStyle = c.color;
                 ctx.fillRect(c.x - c.w / 2, c.y - c.h / 2, c.w, c.h);
-                ctx.fillStyle = '#000000';
+                ctx.fillStyle = '#ffffff';
                 ctx.fillRect(c.x - 6, c.y - 4, 4, 4);
                 ctx.fillRect(c.x + 2, c.y - 4, 4, 4);
             });
@@ -2237,7 +2327,7 @@
                 ctx.lineTo(cordaState.anchorX, cordaState.anchorY);
                 ctx.stroke();
 
-                ctx.fillStyle = '#f59e0b';
+                ctx.fillStyle = '#d97706';
                 ctx.beginPath();
                 ctx.arc(cordaState.anchorX, cordaState.anchorY, 5, 0, Math.PI * 2);
                 ctx.fill();
@@ -2250,9 +2340,9 @@
                 const h = Math.abs(pontoAtual.y - pontoInicial.y);
                 
                 if (modoAtual === 'floor') {
-                    ctx.fillStyle = 'rgba(56, 189, 248, 0.2)';
+                    ctx.fillStyle = 'rgba(2, 132, 199, 0.15)';
                     ctx.fillRect(x, y, w, h);
-                    ctx.strokeStyle = '#38bdf8';
+                    ctx.strokeStyle = '#0284c7';
                 } else {
                     ctx.strokeStyle = corAtualHex;
                 }
@@ -2314,25 +2404,25 @@
             ctx.save();
             ctx.font = 'bold 14px "Segoe UI", sans-serif';
 
-            ctx.fillStyle = 'rgba(127, 29, 29, 0.85)';
-            ctx.strokeStyle = '#ef4444';
+            ctx.fillStyle = '#fef2f2';
+            ctx.strokeStyle = '#fca5a5';
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.roundRect(12, 12, 90, 26, 6);
             ctx.fill();
             ctx.stroke();
 
-            ctx.fillStyle = '#fca5a5';
+            ctx.fillStyle = '#dc2626';
             ctx.fillText(`HP: ${player.hp}`, 22, 30);
 
-            ctx.fillStyle = 'rgba(131, 24, 67, 0.85)';
-            ctx.strokeStyle = '#ec4899';
+            ctx.fillStyle = '#fdf2f8';
+            ctx.strokeStyle = '#fbcfe8';
             ctx.beginPath();
             ctx.roundRect(110, 12, 110, 26, 6);
             ctx.fill();
             ctx.stroke();
 
-            ctx.fillStyle = '#f472b6';
+            ctx.fillStyle = '#db2777';
             ctx.fillText(`Pontos: ${pontuacao}`, 120, 30);
 
             ctx.restore();
