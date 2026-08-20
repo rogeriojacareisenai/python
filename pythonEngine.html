@@ -544,6 +544,127 @@
             height: 16px;
             cursor: pointer;
         }
+
+        /* Modal Visualizador de Frames */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(2, 6, 23, 0.85);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-container {
+            background: #1e293b;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: #0f172a;
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #334155;
+        }
+
+        .modal-header h3 {
+            font-size: 0.95rem;
+            color: #38bdf8;
+        }
+
+        .modal-close {
+            color: #ef4444;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+
+        .modal-body {
+            padding: 12px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex-grow: 1;
+        }
+
+        .frames-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+            gap: 10px;
+        }
+
+        .frame-card {
+            background: #0f172a;
+            border: 2px solid #334155;
+            border-radius: 6px;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .frame-card:hover {
+            border-color: #60a5fa;
+        }
+
+        .frame-card.selected {
+            border-color: #10b981;
+            background: #064e3b;
+        }
+
+        .frame-card img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            background: #1e293b;
+            border-radius: 4px;
+        }
+
+        .frame-card .frame-name {
+            font-size: 0.65rem;
+            color: #cbd5e1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+            text-align: center;
+        }
+
+        .frame-card .frame-checkbox {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            accent-color: #10b981;
+        }
+
+        .modal-footer {
+            background: #0f172a;
+            padding: 10px 16px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            border-top: 1px solid #334155;
+        }
     </style>
 </head>
 
@@ -658,7 +779,7 @@
                     </div>
                 </div>
 
-                <div class="section-title">2. Animação Selecionada & Preview</div>
+                <div class="section-title">2. Preview de Animação</div>
                 <div class="config-group">
                     <div class="config-row">
                         <label>Animação Ativa / Preview:</label>
@@ -673,7 +794,31 @@
                     </div>
                 </div>
 
-                <div class="section-title">3. Habilidade: Corda Vertical</div>
+                <div class="section-title">3. Biblioteca de Imagens (Frames)</div>
+                <div class="config-group">
+                    <label for="animFilesInput" class="file-upload-btn">📁 Importar Imagens / Frames (PNG)</label>
+                    <input type="file" id="animFilesInput" accept="image/png, image/jpeg, image/gif" multiple onchange="importarFramesParaBiblioteca(event)" style="display: none;">
+                    <div style="font-size:0.7rem; color:#94a3b8;" id="libraryCountText">0 frames na biblioteca</div>
+                </div>
+
+                <div class="section-title">4. Associar Animações a Teclas</div>
+                <div class="config-group">
+                    <button class="btn-sim special" onclick="abrirModalNovaAnimacao()">➕ Associar Tecla a Animação</button>
+                </div>
+
+                <div class="config-group">
+                    <div class="config-row">
+                        <label>Animação Idle (Padrão):</label>
+                        <select id="initialAnimSelect" onchange="definirAnimacaoInicial(this.value)">
+                            <option value="">Nenhuma (Cor Sólida)</option>
+                        </select>
+                    </div>
+
+                    <div id="animList" style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;"></div>
+                    <button class="switch-btn" id="btnRemoverAnims" onclick="limparAnimacoes()" style="display: none; margin-top: 4px;">Remover Todas as Animações</button>
+                </div>
+
+                <div class="section-title">5. Habilidade: Corda Vertical</div>
                 <div class="config-group">
                     <label class="checkbox-row">
                         <input type="checkbox" id="ropeEnabledToggle" checked onchange="atualizarConfigCorda()">
@@ -716,41 +861,6 @@
                         <label>Espessura da Corda:</label>
                         <input type="number" id="ropeThicknessInput" value="3" min="1" max="20" step="1" onchange="atualizarConfigCorda()">
                     </div>
-                </div>
-
-                <div class="section-title">4. Importar & Gerenciar Animações</div>
-                <div class="config-group">
-                    <label>Nome da Nova Animação:</label>
-                    <input type="text" id="animNameInput" placeholder="Ex: andar, pular, corda...">
-                    
-                    <div class="config-row" style="margin-top: 4px;">
-                        <label style="font-size: 0.7rem;">Gatilho / Tecla:</label>
-                        <select id="animKeyInput">
-                            <option value="NONE">Nenhuma (Parado / Idle)</option>
-                            <option value="LEFT_RIGHT">↔️ Esquerda / Direita (Andar)</option>
-                            <option value="UP_DOWN">↕️ Cima / Baixo (Pulo/Ar)</option>
-                            <option value="KeyA">Tecla A / Esquerda</option>
-                            <option value="KeyD">Tecla D / Direita</option>
-                            <option value="KeyW">Tecla W / Espaço / Pulo</option>
-                            <option value="KeyS">Tecla S / Baixo</option>
-                            <option value="KeyE">Tecla E (Ação)</option>
-                        </select>
-                    </div>
-
-                    <label for="animFilesInput" class="file-upload-btn" style="margin-top: 6px;">📁 Selecionar Frames (PNG)</label>
-                    <input type="file" id="animFilesInput" accept="image/png, image/jpeg, image/gif" multiple onchange="adicionarSequenciaAnimacao(event)" style="display: none;">
-                </div>
-
-                <div class="config-group">
-                    <div class="config-row">
-                        <label>Animação Idle (Padrão):</label>
-                        <select id="initialAnimSelect" onchange="definirAnimacaoInicial(this.value)">
-                            <option value="">Nenhuma (Cor Sólida)</option>
-                        </select>
-                    </div>
-
-                    <div id="animList" style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;"></div>
-                    <button class="switch-btn" id="btnRemoverAnims" onclick="limparAnimacoes()" style="display: none; margin-top: 4px;">Remover Animações</button>
                 </div>
             </div>
 
@@ -853,6 +963,44 @@
 
     </div>
 
+    <!-- Modal de Seleção Visual de Frames -->
+    <div id="animModal" class="modal-backdrop">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 id="modalTitle">Associar Tecla a Animação</h3>
+                <span class="modal-close" onclick="fecharModalAnimacao()">✖</span>
+            </div>
+            <div class="modal-body">
+                <div class="config-group">
+                    <div class="config-row">
+                        <label>Nome da Animação:</label>
+                        <input type="text" id="modalAnimName" placeholder="Ex: andar, pular, corda...">
+                    </div>
+                    <div class="config-row">
+                        <label>Gatilho / Tecla:</label>
+                        <select id="modalAnimKey">
+                            <option value="NONE">Nenhuma (Parado / Idle)</option>
+                            <option value="LEFT_RIGHT">↔️ Esquerda / Direita (Andar)</option>
+                            <option value="UP_DOWN">↕️ Cima / Baixo (Pulo/Ar)</option>
+                            <option value="KeyA">Tecla A / Esquerda</option>
+                            <option value="KeyD">Tecla D / Direita</option>
+                            <option value="KeyW">Tecla W / Espaço / Pulo</option>
+                            <option value="KeyS">Tecla S / Baixo</option>
+                            <option value="KeyE">Tecla E (Ação)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="section-title">Escolha um ou mais frames para compor a sequência:</div>
+                <div id="modalFramesGrid" class="frames-grid"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-sim warning" onclick="fecharModalAnimacao()">Cancelar</button>
+                <button class="btn-sim success" onclick="salvarAnimacaoModal()">Salvar Animação</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const canvas = document.getElementById('pygameCanvas');
         const ctx = canvas.getContext('2d');
@@ -904,12 +1052,18 @@
             fast: 22
         };
 
+        // Biblioteca de frames disponíveis
+        const bibliotecaFrames = []; // { id, name, img, base64 }
+
+        // Animações configuradas
         const animacoes = {}; 
         let animacaoInicial = "";
         let animacaoAtual = "";
         let frameIndex = 0;
         let frameTimer = 0;
         const FRAME_SPEED = 8;
+
+        let editandoAnimNome = null; // nome da animação em edição (se houver)
 
         const cordaConfig = {
             enabled: true,
@@ -1142,10 +1296,15 @@
             for (let name in animacoes) {
                 animacoesData[name] = {
                     keyTrigger: animacoes[name].keyTrigger,
-                    filenames: animacoes[name].filenames,
-                    base64Frames: animacoes[name].base64Frames || []
+                    frameIds: animacoes[name].frameIds || []
                 };
             }
+
+            const bibliotecaData = bibliotecaFrames.map(f => ({
+                id: f.id,
+                name: f.name,
+                base64: f.base64
+            }));
 
             return JSON.stringify({
                 player: { x: player.x, y: player.y, w: player.w, h: player.h, color: player.color, hpMax: hpMaximo },
@@ -1157,6 +1316,7 @@
                 plataformas: plataformas,
                 esferas: esferas,
                 caveiras: caveiras,
+                bibliotecaFrames: bibliotecaData,
                 animacoes: animacoesData,
                 animacaoInicial: animacaoInicial,
                 animacaoPreviewSelecionada: animacaoPreviewSelecionada
@@ -1231,25 +1391,35 @@
 
                 atualizarInputsChao();
 
+                bibliotecaFrames.length = 0;
+                const libData = data.bibliotecaFrames || [];
+                libData.forEach(item => {
+                    const img = new Image();
+                    img.src = item.base64;
+                    bibliotecaFrames.push({
+                        id: item.id,
+                        name: item.name,
+                        img: img,
+                        base64: item.base64
+                    });
+                });
+                atualizarTextoBiblioteca();
+
                 for (let k in animacoes) delete animacoes[k];
                 const animsData = data.animacoes || {};
                 
                 for (let name in animsData) {
                     const item = animsData[name];
-                    const loadedFrames = [];
-                    if (item.base64Frames) {
-                        item.base64Frames.forEach(b64 => {
-                            const img = new Image();
-                            img.src = b64;
-                            loadedFrames.push(img);
-                        });
-                    }
+                    const frameIds = item.frameIds || [];
+                    const loadedFrames = frameIds.map(id => {
+                        const found = bibliotecaFrames.find(b => b.id === id);
+                        return found ? found.img : null;
+                    }).filter(img => img !== null);
+
                     animacoes[name] = {
                         frames: loadedFrames,
-                        filenames: item.filenames || [],
-                        base64Frames: item.base64Frames || [],
-                        keyTrigger: item.keyTrigger || "NONE",
-                        loaded: true
+                        frameIds: frameIds,
+                        keyTrigger: item.keyTrigger || "NONE"
                     };
                 }
 
@@ -1383,55 +1553,148 @@
             label.textContent = nome && animacoes[nome] ? nome : 'Sem Animação';
         }
 
-        function adicionarSequenciaAnimacao(e) {
+        function atualizarTextoBiblioteca() {
+            document.getElementById('libraryCountText').textContent = `${bibliotecaFrames.length} frame(s) na biblioteca`;
+        }
+
+        function importarFramesParaBiblioteca(e) {
             const files = Array.from(e.target.files);
-            const nomeInput = document.getElementById('animNameInput');
-            let nomeAnim = nomeInput.value.trim().toLowerCase();
-            const keyTrigger = document.getElementById('animKeyInput').value;
-
             if (!files.length) return;
-            if (!nomeAnim) nomeAnim = `anim_${Object.keys(animacoes).length + 1}`;
 
-            const framesArray = [];
-            const fileNamesArray = [];
-            const base64Array = [];
-            let carregadas = 0;
-
-            files.forEach((file) => {
-                fileNamesArray.push(file.name);
+            let carregados = 0;
+            files.forEach(file => {
                 const reader = new FileReader();
                 reader.onload = function (event) {
                     const b64 = event.target.result;
-                    base64Array.push(b64);
                     const img = new Image();
                     img.onload = function () {
-                        framesArray.push(img);
-                        carregadas++;
-                        if (carregadas === files.length) {
-                            animacoes[nomeAnim] = {
-                                frames: framesArray,
-                                filenames: fileNamesArray,
-                                base64Frames: base64Array,
-                                keyTrigger: keyTrigger,
-                                loaded: true
-                            };
-                            if (!animacaoInicial) {
-                                animacaoInicial = nomeAnim;
-                                animacaoAtual = nomeAnim;
-                            }
-                            if (!animacaoPreviewSelecionada) {
-                                animacaoPreviewSelecionada = nomeAnim;
-                            }
-                            nomeInput.value = '';
-                            renderizarListaAnimacoes();
-                            atualizarCodigoPython();
-                            logConsole(`Animação '${nomeAnim}' carregada com ${files.length} frames.`);
+                        const id = 'frame_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+                        bibliotecaFrames.push({
+                            id: id,
+                            name: file.name,
+                            img: img,
+                            base64: b64
+                        });
+                        carregados++;
+                        if (carregados === files.length) {
+                            atualizarTextoBiblioteca();
+                            logConsole(`${files.length} frame(s) importado(s) para a biblioteca.`);
                         }
                     };
                     img.src = b64;
                 };
                 reader.readAsDataURL(file);
             });
+        }
+
+        function abrirModalNovaAnimacao(nomeExistente = null) {
+            if (bibliotecaFrames.length === 0) {
+                alert("Importe pelo menos uma imagem/frame na Biblioteca de Imagens antes de criar ou associar uma animação!");
+                return;
+            }
+
+            editandoAnimNome = nomeExistente;
+            const modal = document.getElementById('animModal');
+            const title = document.getElementById('modalTitle');
+            const nameInput = document.getElementById('modalAnimName');
+            const keySelect = document.getElementById('modalAnimKey');
+            const grid = document.getElementById('modalFramesGrid');
+
+            grid.innerHTML = '';
+
+            let selectedFrameIds = [];
+
+            if (nomeExistente && animacoes[nomeExistente]) {
+                title.textContent = `Editar Animação '${nomeExistente}'`;
+                nameInput.value = nomeExistente;
+                keySelect.value = animacoes[nomeExistente].keyTrigger;
+                selectedFrameIds = animacoes[nomeExistente].frameIds || [];
+            } else {
+                title.textContent = 'Associar Tecla a Animação';
+                nameInput.value = `anim_${Object.keys(animacoes).length + 1}`;
+                keySelect.value = 'NONE';
+            }
+
+            bibliotecaFrames.forEach(f => {
+                const isChecked = selectedFrameIds.includes(f.id);
+                
+                const card = document.createElement('div');
+                card.className = `frame-card ${isChecked ? 'selected' : ''}`;
+                card.innerHTML = `
+                    <input type="checkbox" class="frame-checkbox" value="${f.id}" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation(); toggleFrameSelection(this, '${f.id}')">
+                    <img src="${f.base64}" alt="${f.name}">
+                    <span class="frame-name" title="${f.name}">${f.name}</span>
+                `;
+                card.onclick = () => {
+                    const chk = card.querySelector('.frame-checkbox');
+                    chk.checked = !chk.checked;
+                    toggleFrameSelection(chk, f.id);
+                };
+                grid.appendChild(card);
+            });
+
+            modal.style.display = 'flex';
+        }
+
+        function toggleFrameSelection(checkbox, frameId) {
+            const card = checkbox.closest('.frame-card');
+            if (checkbox.checked) {
+                card.classList.add('selected');
+            } else {
+                card.classList.remove('selected');
+            }
+        }
+
+        function fecharModalAnimacao() {
+            document.getElementById('animModal').style.display = 'none';
+            editandoAnimNome = null;
+        }
+
+        function salvarAnimacaoModal() {
+            const nameInput = document.getElementById('modalAnimName');
+            let nomeAnim = nameInput.value.trim().toLowerCase();
+            const keyTrigger = document.getElementById('modalAnimKey').value;
+
+            if (!nomeAnim) {
+                alert("Informe um nome para a animação!");
+                return;
+            }
+
+            const checkboxes = document.querySelectorAll('#modalFramesGrid .frame-checkbox:checked');
+            const selectedIds = Array.from(checkboxes).map(c => c.value);
+
+            if (selectedIds.length === 0) {
+                alert("Selecione pelo menos um frame para compor a animação!");
+                return;
+            }
+
+            const selectedFrames = selectedIds.map(id => {
+                const found = bibliotecaFrames.find(b => b.id === id);
+                return found ? found.img : null;
+            }).filter(img => img !== null);
+
+            if (editandoAnimNome && editandoAnimNome !== nomeAnim) {
+                delete animacoes[editandoAnimNome];
+            }
+
+            animacoes[nomeAnim] = {
+                frames: selectedFrames,
+                frameIds: selectedIds,
+                keyTrigger: keyTrigger
+            };
+
+            if (!animacaoInicial) {
+                animacaoInicial = nomeAnim;
+                animacaoAtual = nomeAnim;
+            }
+            if (!animacaoPreviewSelecionada) {
+                animacaoPreviewSelecionada = nomeAnim;
+            }
+
+            renderizarListaAnimacoes();
+            atualizarCodigoPython();
+            fecharModalAnimacao();
+            logConsole(`Animação '${nomeAnim}' configurada com ${selectedFrames.length} frame(s) para a tecla '${keyTrigger}'.`);
         }
 
         function renderizarListaAnimacoes() {
@@ -1477,17 +1740,8 @@
                         <span class="anim-item-delete" onclick="removerAnimacao('${nome}')">✖</span>
                     </div>
                     <div class="config-row" style="margin-top:2px;">
-                        <label style="font-size:0.68rem;">Tecla:</label>
-                        <select style="font-size:0.7rem; padding:2px;" onchange="reassociarTeclaAnimacao('${nome}', this.value)">
-                            <option value="NONE" ${item.keyTrigger==='NONE'?'selected':''}>Nenhuma (Idle)</option>
-                            <option value="LEFT_RIGHT" ${item.keyTrigger==='LEFT_RIGHT'?'selected':''}>↔️ Esquerda / Direita</option>
-                            <option value="UP_DOWN" ${item.keyTrigger==='UP_DOWN'?'selected':''}>↕️ Cima / Baixo</option>
-                            <option value="KeyA" ${item.keyTrigger==='KeyA'?'selected':''}>Tecla A</option>
-                            <option value="KeyD" ${item.keyTrigger==='KeyD'?'selected':''}>Tecla D</option>
-                            <option value="KeyW" ${item.keyTrigger==='KeyW'?'selected':''}>Tecla W / Espaço</option>
-                            <option value="KeyS" ${item.keyTrigger==='KeyS'?'selected':''}>Tecla S</option>
-                            <option value="KeyE" ${item.keyTrigger==='KeyE'?'selected':''}>Tecla E</option>
-                        </select>
+                        <span style="font-size:0.7rem; color:#cbd5e1;">Gatilho: <b>${item.keyTrigger}</b></span>
+                        <button class="btn-sim" style="padding:2px 6px; font-size:0.68rem;" onclick="abrirModalNovaAnimacao('${nome}')">✏️ Editar Frames/Tecla</button>
                     </div>
                 `;
                 listContainer.appendChild(div);
