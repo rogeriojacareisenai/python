@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Guia Interativo - O que é Pandas & Principais Funções</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0fdf4;
+            color: #14532d;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        header {
+            background: linear-gradient(135deg, #065f46, #064e3b);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 3px solid #10b981;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .btn-back {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .btn-back:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        @media (max-width: 600px) {
+            header { padding-top: 55px; }
+            .btn-back { top: 15px; transform: none; }
+        }
+
+        header h1 {
+            font-size: 1.7rem;
+            color: #a7f3d0;
+            margin-bottom: 4px;
+        }
+
+        header p {
+            color: #d1fae5;
+            font-size: 0.9rem;
+        }
+
+        .container {
+            width: 94%;
+            max-width: 1200px;
+            margin: 15px auto;
+            flex-grow: 1;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 6px 18px rgba(6, 95, 70, 0.08);
+            border: 1px solid #a7f3d0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Card de Definição */
+        .intro-card {
+            background-color: #ecfdf5;
+            border-left: 5px solid #059669;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .intro-card h2 {
+            font-size: 1.2rem;
+            color: #065f46;
+            margin-bottom: 6px;
+        }
+
+        .intro-card p {
+            font-size: 0.9rem;
+            color: #047857;
+            line-height: 1.5;
+        }
+
+        /* Seletor de Categorias e Funções */
+        .controls-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+        }
+
+        .category-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tab-cat {
+            background-color: #e2e8f0;
+            color: #334155;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-cat.active {
+            background-color: #059669;
+            color: #ffffff;
+        }
+
+        .fn-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 5px;
+        }
+
+        .btn-fn {
+            background-color: #ffffff;
+            border: 1px solid #10b981;
+            color: #065f46;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-fn:hover {
+            background-color: #d1fae5;
+        }
+
+        .btn-fn.active {
+            background-color: #065f46;
+            color: #ffffff;
+            border-color: #064e3b;
+        }
+
+        /* Painel Principal de Demonstração */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 850px) {
+            .grid-layout { grid-template-columns: 1fr; }
+        }
+
+        .code-box {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .code-content {
+            white-space: pre-wrap;
+        }
+
+        .kw-func { color: #dcdcaa; }
+        .kw-import { color: #c586c0; font-weight: bold; }
+        .kw-str { color: #ce9178; }
+        .kw-comment { color: #6a9955; }
+
+        .btn-run {
+            margin-top: 15px;
+            background-color: #10b981;
+            color: #000;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            align-self: flex-start;
+            transition: background-color 0.2s;
+        }
+
+        .btn-run:hover { background-color: #34d399; }
+
+        .output-box {
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .output-header {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #047857;
+            text-transform: uppercase;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 4px;
+        }
+
+        .explanation-text {
+            font-size: 0.88rem;
+            color: #1e293b;
+            line-height: 1.4;
+        }
+
+        .data-table-wrapper {
+            overflow-x: auto;
+            max-height: 220px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            font-family: 'Consolas', monospace;
+        }
+
+        .data-table th, .data-table td {
+            border: 1px solid #cbd5e1;
+            padding: 5px 8px;
+            text-align: left;
+        }
+
+        .data-table th {
+            background-color: #065f46;
+            color: #ffffff;
+        }
+
+        .data-table tr:nth-child(even) { background-color: #f8fafc; }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #d1fae5;
+            color: #065f46;
+            border-top: 1px solid #a7f3d0;
+            font-size: 0.85rem;
+            margin-top: auto;
+            padding-bottom: calc(15px + env(safe-area-inset-bottom));
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <button class="btn-back" onclick="voltarPagina()">⬅ Voltar</button>
+        <h1>O que é Pandas? Guia Interativo de Funções</h1>
+        <p>Aprenda os conceitos fundamentais e teste as principais funções da biblioteca na prática.</p>
+    </header>
+
+    <div class="container">
+        
+        <!-- O que é Pandas -->
+        <div class="intro-card">
+            <h2>🐼 O que é o Pandas?</h2>
+            <p>
+                <strong>Pandas</strong> é a biblioteca open-source mais popular do ecossistema Python para análise, manipulação e limpeza de dados. 
+                Seu nome deriva de <em>"Panel Data"</em>. Suas duas estruturas estruturais fundamentais são:
+                <strong>Series</strong> (uma coluna de dados unidimensional) e <strong>DataFrame</strong> (uma tabela bidimensional estruturada em linhas e colunas, similar a uma planilha do Excel ou tabela SQL).
+            </p>
+        </div>
+
+        <!-- Seletor de Categorias e Funções -->
+        <div class="controls-panel">
+            <div style="font-size: 0.8rem; font-weight: bold; color: #475569; text-transform: uppercase;">1. Selecione a Categoria:</div>
+            <div class="category-tabs">
+                <button class="tab-cat active" onclick="filtrarCategoria('io')">Leitura & Escrita</button>
+                <button class="tab-cat" onclick="filtrarCategoria('inspecao')">Inspeção & Visualização</button>
+                <button class="tab-cat" onclick="filtrarCategoria('selecao')">Seleção & Filtros</button>
+                <button class="tab-cat" onclick="filtrarCategoria('limpeza')">Limpeza de Dados</button>
+                <button class="tab-cat" onclick="filtrarCategoria('agregacao')">Agrupamento & Estatística</button>
+            </div>
+
+            <div style="font-size: 0.8rem; font-weight: bold; color: #475569; text-transform: uppercase; margin-top: 5px;">2. Escolha uma Função para Explorar:</div>
+            <div class="fn-selector" id="fnSelector"></div>
+        </div>
+
+        <!-- Demonstração de Código e Saída -->
+        <div class="grid-layout">
+            <div class="code-box">
+                <div>
+                    <div style="font-size: 0.75rem; color: #888; border-bottom: 1px solid #333; padding-bottom: 4px; margin-bottom: 10px;">CÓDIGO PYTHON (PANDAS)</div>
+                    <div class="code-content" id="codeDisplay"></div>
+                </div>
+                <button class="btn-run" onclick="executarFuncao()">▶ Executar Código</button>
+            </div>
+
+            <div class="output-box">
+                <div class="output-header">Explicação & Resultado</div>
+                <div class="explanation-text" id="explanationText"></div>
+                <div class="data-table-wrapper" id="outputTableWrapper"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        Data Science & Analytics • Biblioteca Pandas em Python
+    </footer>
+
+    <script>
+        function voltarPagina() {
+            window.history.back();
+        }
+
+        // Base de dados mockada para simulação
+        const datasetOriginal = [
+            { ID: 101, Categoria: 'Eletrônicos', Produto: 'Teclado', Preco: 250.0, Estoque: 15, Avaliacao: 4.5 },
+            { ID: 102, Categoria: 'Eletrônicos', Produto: 'Mouse', Preco: 120.0, Estoque: 30, Avaliacao: 4.2 },
+            { ID: 103, Categoria: 'Móveis', Produto: 'Cadeira Erg.', Preco: 890.0, Estoque: null, Avaliacao: 4.8 },
+            { ID: 104, Categoria: 'Eletrônicos', Produto: 'Monitor 24"', Preco: 950.0, Estoque: 8, Avaliacao: 4.7 },
+            { ID: 105, Categoria: 'Móveis', Produto: 'Mesa Gamer', Preco: 650.0, Estoque: 5, Avaliacao: null },
+            { ID: 106, Categoria: 'Acessórios', Produto: 'Headset', Preco: 310.0, Estoque: 20, Avaliacao: 4.1 }
+        ];
+
+        // Catálogo de Funções explicadas
+        const funcoesPandas = {
+            'pd.read_csv()': {
+                cat: 'io',
+                code: `<span class="kw-import">import</span> pandas <span class="kw-import">as</span> pd\n\n<span class="kw-comment"># Carrega um arquivo CSV diretamente para um DataFrame</span>\ndf = pd.<span class="kw-func">read_csv</span>(<span class="kw-str">"produtos.csv"</span>)`,
+                desc: "<strong>pd.read_csv()</strong>: É a função mais utilizada para importar dados de arquivos delimitados (CSV, TXT) convertendo-os automaticamente em um DataFrame com colunas e tipos inferidos.",
+                run: () => datasetOriginal
+            },
+            'df.to_excel()': {
+                cat: 'io',
+                code: `<span class="kw-import">import</span> pandas <span class="kw-import">as</span> pd\n\n<span class="kw-comment"># Exporta o DataFrame atual para uma planilha Excel</span>\ndf.<span class="kw-func">to_excel</span>(<span class="kw-str">"relatorio_vendas.xlsx"</span>, index=<span class="kw-import">False</span>)`,
+                desc: "<strong>df.to_excel()</strong>: Exporta a estrutura do DataFrame para um arquivo `.xlsx`. O parâmetro `index=False` evita que os índices numéricos das linhas sejam gravados como uma coluna extra.",
+                run: () => [{ Mensagem: "Arquivo 'relatorio_vendas.xlsx' gerado com sucesso contendo 6 linhas." }]
+            },
+            'df.head()': {
+                cat: 'inspecao',
+                code: `<span class="kw-import">import</span> pandas <span class="kw-import">as</span> pd\n\n<span class="kw-comment"># Exibe as primeiras N linhas do DataFrame (padrão: 5)</span>\nresultado = df.<span class="kw-func">head</span>(<span class="kw-str">3</span>)`,
+                desc: "<strong>df.head(n)</strong>: Retorna as primeiras <em>n</em> linhas do dataset. Essencial para ter uma visualização rápida da estrutura das colunas e formato dos dados sem carregar tabelas gigantes na tela.",
+                run: () => datasetOriginal.slice(0, 3)
+            },
+            'df.info()': {
+                cat: 'inspecao',
+                code: `<span class="kw-import">import</span> pandas <span class="kw-import">as</span> pd\n\n<span class="kw-comment"># Exibe o resumo técnico do DataFrame</span>\ndf.<span class="kw-func">info</span>()`,
+                desc: "<strong>df.info()</strong>: Mostra um resumo do DataFrame: quantidade de linhas, total de colunas, nomes, presença de valores nulos (Null/NaN) e tipos de dados de cada coluna (int64, float64, object).",
+                run: () => [
+                    { Coluna: "ID", Nao_Nulos: "6 non-null", Tipo: "int64" },
+                    { Coluna: "Categoria", Nao_Nulos: "6 non-null", Tipo: "object (string)" },
+                    { Coluna: "Produto", Nao_Nulos: "6 non-null", Tipo: "object (string)" },
+                    { Coluna: "Preco", Nao_Nulos: "6 non-null", Tipo: "float64" },
+                    { Coluna: "Estoque", Nao_Nulos: "5 non-null", Tipo: "float64 (1 Nulo)" },
+                    { Coluna: "Avaliacao", Nao_Nulos: "5 non-null", Tipo: "float64 (1 Nulo)" }
+                ]
+            },
+            'df.loc[] / iloc[]': {
+                cat: 'selecao',
+                code: `<span class="kw-import">import</span> pandas <span class="kw-import">as</span> pd\n\n<span class="kw-comment"># Seleciona linhas por condição booleana (Rotular)</span>\nresultado = df.<span class="kw-func">loc</span>[df[<span class="kw-str">"Preco"</span>] > <span class="kw-str">300.0</span>, [<span class="kw-str">"Produto"</span>, <span class="kw-str">"Preco"</span>]]`,
+                desc: "<strong>df.loc[]</strong> (baseado em rótulos/condições) e <strong>df.iloc[]</strong> (baseado em posições numéricas de índice): Permitem fatiar (slice) o DataFrame selecionando linhas e colunas específicas.",
+                run: () => datasetOriginal.filter(x => x.Preco > 300.0).map(x => ({ Produto: x.Produto, Preco: x.Preco }))
+            },
+            'df[condicao]': {
+                cat: 'selecao',
+                code: `<span class="kw-import">import</span> pandas <span class="kw-import">as</span> pd\n\n<span class="kw-comment"># Filtragem Booleana simples</span>\neletronicos = df[df[<span class="kw-str">"Categoria"</span>] == <span class="kw-str">"Eletrônicos"</span>]`,
+                desc: "<strong>Filtragem Booleana</strong>: Filtra os registros da tabela passando uma comparação direta dentro dos colchetes. Retorna apenas as linhas onde a expressão resulta em True.",
+                run: () => datasetOriginal.filter(x => x.Categoria === 'Eletrônicos')
+            },
+            'df.fillna()': {
+                cat: 'limpeza',
+                code: `<span class="kw-import">import</span> pandas <span class="kw-import">as</span> pd\n\n<span class="kw-comment"># Substitui valores ausentes/nulos por um valor padrão</span>\ndf[<span class="kw-str">"Estoque"</span>] = df[<span class="kw-str">"Estoque"</span>].<span class="kw-func">fillna</span>(<span class="kw-str">0</span>)`,
+                desc: "<strong>df.fillna()</strong>: Preenche campos nulos (NaN) com valores predefinidos (ex: 0, a média ou mediana). Evita que cálculos deem erro por ausência de dados.",
+                run: () => datasetOriginal.map(x => ({ ...x, Estoque: x.Estoque === null ? 0 : x.Estoque }))
+            },
+            'df.dropna()': {
+                cat: 'limpeza',
+                code: `<span class="kw-import">import</span> pandas <span class="kw-import">as</span> pd\n\n<span class="kw-comment"># Remove todas as linhas que contenham ao menos 1 valor nulo</span>\ndf_limpo = df.<span class="kw-func">dropna</span>()`,
+                desc: "<strong>df.dropna()</strong>: Descarta todas as linhas que possuem um ou mais valores em falta. É uma técnica comum de saneamento rápido para bases de dados sanitizadas.",
+                run: () => datasetOriginal.filter(x => x.Estoque !== null && x.Avaliacao !== null)
+            },
+            'df.groupby()': {
+                cat: 'agregacao',
+                code: `<span class="kw-import">import</span> pandas <span class="kw-import">as</span> pd\n\n<span class="kw-comment"># Agrupa por categoria e calcula o preço médio</span>\nresultado = df.<span class="kw-func">groupby</span>(<span class="kw-str">"Categoria"</span>)[<span class="kw-str">"Preco"</span>].<span class="kw-func">mean</span>()`,
+                desc: "<strong>df.groupby()</strong>: Executa a estratégia 'Split-Apply-Combine' (Dividir, Aplicar e Combinar). Agrupa os dados por categorias e aplica funções agregadoras como média, soma ou contagem.",
+                run: () => [
+                    { Categoria: "Acessórios", Preco_Medio: "R$ 310.00" },
+                    { Categoria: "Eletrônicos", Preco_Medio: "R$ 440.00" },
+                    { Categoria: "Móveis", Preco_Medio: "R$ 770.00" }
+                ]
+            },
+            'df.describe()': {
+                cat: 'agregacao',
+                code: `<span class="kw-import">import</span> pandas <span class="kw-import">as</span> pd\n\n<span class="kw-comment"># Gera resumo de estatística descritiva</span>\nresultado = df.<span class="kw-func">describe</span>()`,
+                desc: "<strong>df.describe()</strong>: Calcula automaticamente as principais métricas estatísticas das colunas numéricas: contagem, média, desvio padrão, valores mínimo e máximo, e percentis (25%, 50%, 75%).",
+                run: () => [
+                    { Metrica: "count", Preco: "6.00", Estoque: "5.00" },
+                    { Metrica: "mean", Preco: "528.33", Estoque: "14.40" },
+                    { Metrica: "min", Preco: "120.00", Estoque: "5.00" },
+                    { Metrica: "max", Preco: "950.00", Estoque: "30.00" }
+                ]
+            }
+        };
+
+        let funcaoSelecionada = 'pd.read_csv()';
+        let categoriaAtual = 'io';
+
+        function filtrarCategoria(cat) {
+            categoriaAtual = cat;
+            
+            document.querySelectorAll('.tab-cat').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+
+            renderizarSeletorFuncoes();
+        }
+
+        function renderizarSeletorFuncoes() {
+            const container = document.getElementById('fnSelector');
+            container.innerHTML = '';
+
+            let primeiraEncontrada = null;
+
+            for (let [nome, dados] of Object.entries(funcoesPandas)) {
+                if (dados.cat === categoriaAtual) {
+                    if (!primeiraEncontrada) primeiraEncontrada = nome;
+
+                    const btn = document.createElement('button');
+                    btn.className = 'btn-fn' + (nome === funcaoSelecionada ? ' active' : '');
+                    btn.innerText = nome;
+                    btn.onclick = () => selecionarFuncao(nome);
+                    container.appendChild(btn);
+                }
+            }
+
+            if (primeiraEncontrada && !Object.keys(funcoesPandas).filter(k => funcoesPandas[k].cat === categoriaAtual).includes(funcaoSelecionada)) {
+                selecionarFuncao(primeiraEncontrada);
+            }
+        }
+
+        function selecionarFuncao(nome) {
+            funcaoSelecionada = nome;
+            
+            document.querySelectorAll('.btn-fn').forEach(b => {
+                b.classList.toggle('active', b.innerText === nome);
+            });
+
+            const obj = funcoesPandas[nome];
+            document.getElementById('codeDisplay').innerHTML = obj.code;
+            document.getElementById('explanationText').innerHTML = obj.desc;
+            document.getElementById('outputTableWrapper').innerHTML = `<p style="font-size:0.8rem; color:#888; font-style:italic;">Clique em "▶ Executar Código" para visualizar o resultado desta função no dataset.</p>`;
+        }
+
+        function executarFuncao() {
+            const obj = funcoesPandas[funcaoSelecionada];
+            const resultado = obj.run();
+
+            if (!resultado || resultado.length === 0) return;
+
+            const colunas = Object.keys(resultado[0]);
+
+            let html = `<table class="data-table"><thead><tr>`;
+            colunas.forEach(col => { html += `<th>${col}</th>`; });
+            html += `</tr></thead><tbody>`;
+
+            resultado.forEach(row => {
+                html += `<tr>`;
+                colunas.forEach(col => {
+                    let val = row[col] === null ? '<span style="color:#ef4444; font-style:italic;">NaN</span>' : row[col];
+                    html += `<td>${val}</td>`;
+                });
+                html += `</tr>`;
+            });
+
+            html += `</tbody></table>`;
+            document.getElementById('outputTableWrapper').innerHTML = html;
+        }
+
+        // Inicialização
+        renderizarSeletorFuncoes();
+        selecionarFuncao('pd.read_csv()');
+    </script>
+</body>
+</html>

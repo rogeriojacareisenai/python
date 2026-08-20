@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Simulador de Data Science - Pandas vs Python Puro</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0fdf4;
+            color: #14532d;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        header {
+            background: linear-gradient(135deg, #065f46, #064e3b);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 3px solid #10b981;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .btn-back {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .btn-back:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        @media (max-width: 600px) {
+            header { padding-top: 55px; }
+            .btn-back { top: 15px; transform: none; }
+        }
+
+        header h1 {
+            font-size: 1.7rem;
+            color: #a7f3d0;
+            margin-bottom: 4px;
+        }
+
+        header p {
+            color: #d1fae5;
+            font-size: 0.9rem;
+        }
+
+        .container {
+            width: 94%;
+            max-width: 1200px;
+            margin: 15px auto;
+            flex-grow: 1;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 6px 18px rgba(6, 95, 70, 0.08);
+            border: 1px solid #a7f3d0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .mode-tabs {
+            display: flex;
+            gap: 10px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            background-color: #e2e8f0;
+            color: #334155;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background-color: #059669;
+            color: #ffffff;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sim {
+            background-color: #065f46;
+            color: #ffffff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .btn-sim:hover:not(:disabled) { background-color: #059669; }
+        .btn-sim:disabled { background-color: #aaa; cursor: not-allowed; }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 900px) {
+            .grid-layout { grid-template-columns: 1fr; }
+        }
+
+        .code-box {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            height: 320px;
+            overflow-y: auto;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+        }
+
+        .code-line {
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            display: flex;
+            align-items: center;
+        }
+
+        .code-pointer {
+            display: inline-block;
+            width: 20px;
+            color: #34d399;
+            font-weight: bold;
+            visibility: hidden;
+        }
+
+        .code-line.active .code-pointer { visibility: visible; }
+        .code-line.active {
+            background-color: #065f46;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .kw-comment { color: #6a9955; }
+        .kw-func { color: #dcdcaa; }
+        .kw-import { color: #c586c0; font-weight: bold; }
+
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .card-panel {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .card-header {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #047857;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 4px;
+        }
+
+        .explanation-card {
+            background-color: #ecfdf5;
+            border-left: 4px solid #059669;
+        }
+
+        .explanation-card h3 {
+            font-size: 1rem;
+            color: #065f46;
+            margin-bottom: 4px;
+        }
+
+        .explanation-card p {
+            font-size: 0.88rem;
+            color: #047857;
+            line-height: 1.4;
+        }
+
+        .fn-badge {
+            display: inline-block;
+            background: #059669;
+            color: white;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin-bottom: 6px;
+        }
+
+        .console-box {
+            background-color: #0c0c0c;
+            color: #34d399;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            height: 120px;
+            overflow-y: auto;
+            border: 1px solid #333;
+        }
+
+        .input-inline {
+            background: #111;
+            border: 1px solid #34d399;
+            color: #34d399;
+            font-family: inherit;
+            font-size: 0.85rem;
+            width: 100px;
+            outline: none;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .btn-confirm-input {
+            background: #34d399;
+            color: #000;
+            border: none;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.75rem;
+            margin-left: 6px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+            margin-top: 5px;
+        }
+
+        .data-table th, .data-table td {
+            border: 1px solid #cbd5e1;
+            padding: 6px 8px;
+            text-align: left;
+        }
+
+        .data-table th {
+            background-color: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .data-table tr.filtered-out {
+            background-color: #fee2e2;
+            color: #991b1b;
+            text-decoration: line-through;
+        }
+
+        .data-table tr.kept {
+            background-color: #d1fae5;
+            color: #065f46;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #d1fae5;
+            color: #065f46;
+            border-top: 1px solid #a7f3d0;
+            font-size: 0.85rem;
+            margin-top: auto;
+            padding-bottom: calc(15px + env(safe-area-inset-bottom));
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <button class="btn-back" onclick="voltarPagina()">⬅ Voltar</button>
+        <h1>Análise Passo a Passo de Funções e Resultados</h1>
+        <p>Acompanhe a execução, o papel de cada função Python/Pandas e o impacto no Dataset.</p>
+    </header>
+
+    <div class="container">
+        
+        <div class="mode-tabs">            
+            <button class="tab-btn active" id="tabPandas" onclick="trocarModo('pandas')">Pandas (DataFrame)</button>
+            <button class="tab-btn" id="tabPythonPuro" onclick="trocarModo('python_puro')">Python Puro (Listas)</button>
+        </div>
+
+        <div class="controls">
+            <button class="btn-sim" id="btnIniciar" onclick="iniciarSimulacao()">▶ Iniciar Execução</button>
+            <button class="btn-sim" id="btnProximo" onclick="proximoPasso()" disabled>⏭ Próximo Passo</button>
+            <button class="btn-sim" id="btnReiniciar" onclick="reiniciarSimulacao()">🔄 Reiniciar</button>
+        </div>
+
+        <div class="grid-layout">
+            <div class="code-box" id="codeEditor"></div>
+
+            <div class="side-panel">
+                <div class="card-panel explanation-card">
+                    <div class="card-header">1. Função/Mecanismo Executado</div>
+                    <span class="fn-badge" id="fnName">Nenhuma</span>
+                    <h3 id="expTitle">Aguardando Execução</h3>
+                    <p id="expText">Clique em "Iniciar Execução" para avançar linha por linha e entender o papel de cada instrução.</p>
+                </div>
+
+                <div class="card-panel">
+                    <div class="card-header">2. Estado Atual do Dataset (Resultado)</div>
+                    <div id="datasetState">
+                        <p style="font-size: 0.8rem; color: #666; font-style: italic;">Dados ainda não carregados na memória.</p>
+                    </div>
+                </div>
+
+                <div class="console-box" id="consoleBox">
+                    <div style="color: #666; font-size: 0.75rem; border-bottom: 1px solid #222; margin-bottom: 4px; padding-bottom: 2px;">CONSOLE</div>
+                    <div id="consoleOutput">Aguardando início...</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        Data Science & Analytics • Explicação Detalhada de Funções
+    </footer>
+
+    <script>
+        function voltarPagina() {
+            window.history.back();
+        }
+
+        const codigoPandas = [
+            { id: 1, text: 'import pandas as pd', fn: 'import', expTitle: 'Carregamento de Módulo', expText: 'A instrução `import` disponibiliza a biblioteca Pandas no código sob o alias `pd`. Ela traz métodos otimizados em C para manipulação de tabelas.', status: 'biblioteca_carregada' },
+            { id: 2, text: '# Definindo limite para saneamento de outliers', fn: '# comentário', expTitle: 'Linha Documental', expText: 'Linhas iniciadas por `#` são ignoradas pelo interpretador. Servem para documentar o objetivo do trecho de código.', status: 'sem_alteracao' },
+            { id: 3, text: 'limite_corte = float(input("Digite o limite de corte (R$): "))', fn: 'input() + float()', expTitle: 'Entrada e Conversão de Tipo', expText: '`input()` captura o texto digitado pelo usuário. Em seguida, `float()` converte a string em um número decimal com precisão dupla.', status: 'aguarda_input' },
+            { id: 4, text: 'vendas = [1200.0, 3500.0, 800.0, 15000.0, 2100.0]', fn: 'list []', expTitle: 'Criação de Vetor/Lista', expText: 'Cria uma lista em memória contendo os valores originais das vendas, incluindo um valor atípico (outlier) de R$ 15.000,00.', status: 'lista_criada' },
+            { id: 5, text: 'df = pd.DataFrame({"Vendas": vendas})', fn: 'pd.DataFrame()', expTitle: 'Conversão para Estrutura Tabular', expText: 'Transforma a lista unidimensional em uma estrutura bidimensional rotulada (DataFrame) com a coluna "Vendas" e índices numéricos.', status: 'dataframe_criado' },
+            { id: 6, text: 'df_filtrado = df[df["Vendas"] <= limite_corte]', fn: 'Boolean Indexing', expTitle: 'Filtragem Vetorial Acelerada', expText: 'Cria uma máscara booleana linha a linha. Apenas os registros onde a condição é True pertencem ao novo DataFrame `df_filtrado`.', status: 'dataframe_filtrado' },
+            { id: 7, text: 'media_vendas = df_filtrado["Vendas"].mean()', fn: '.mean()', expTitle: 'Cálculo Estatístico de Média', expText: 'Método nativo do Pandas que soma todos os elementos da coluna e divide pelo número total de registros válidos.', status: 'media_calculada' },
+            { id: 8, text: 'total_vendas = df_filtrado["Vendas"].sum()', fn: '.sum()', expTitle: 'Agregação por Soma', expText: 'Método do Pandas que consolida a soma acumulada de todos os valores da Series selecionada.', status: 'soma_calculada' },
+            { id: 9, text: 'print(f"Total: R$ {total_vendas:.2f} | Media: R$ {media_vendas:.2f}")', fn: 'print() + f-string', expTitle: 'Impressão Formatada', expText: 'Formatadores f-string integram variáveis diretamente na saída de texto, formatando casas decimais com `:.2f`.', status: 'concluido' }
+        ];
+
+        const codigoPythonPuro = [
+            { id: 1, text: '# Análise estatística nativa em Python', fn: '# comentário', expTitle: 'Linha Documental', expText: 'Documenta o script focado em recursos nativos sem dependências externas.', status: 'sem_alteracao' },
+            { id: 2, text: 'limite_corte = float(input("Digite o limite de corte (R$): "))', fn: 'input() + float()', expTitle: 'Entrada e Conversão de Tipo', expText: 'Lê a entrada do usuário via terminal e faz o cast para valor numérico decimal (`float`).', status: 'aguarda_input' },
+            { id: 3, text: 'vendas = [1200.0, 3500.0, 800.0, 15000.0, 2100.0]', fn: 'list []', expTitle: 'Alocação de Lista', expText: 'Aloca no espaço de memória uma sequência contígua com 5 elementos numéricos.', status: 'lista_criada' },
+            { id: 4, text: 'vendas_filtradas = [v for v in vendas if v <= limite_corte]', fn: 'List Comprehension', expTitle: 'Iteração Funcional em Lista', expText: 'Constrói uma nova lista percorrendo cada item da lista original e aplicando o filtro condicional `if v <= limite`.', status: 'lista_filtrada' },
+            { id: 5, text: 'total_vendas = sum(vendas_filtradas)', fn: 'sum()', expTitle: 'Função Embutida Sum', expText: 'Função built-in do Python que percorre a coleção acumulando a soma de seus elementos.', status: 'soma_calculada' },
+            { id: 6, text: 'media_vendas = total_vendas / len(vendas_filtradas)', fn: 'len() + /', expTitle: 'Comprimento e Divisão', expText: '`len()` retorna o número total de elementos válidos da lista. Em seguida, realiza a divisão aritmética.', status: 'media_calculada' },
+            { id: 7, text: 'print(f"Total: R$ {total_vendas:.2f} | Media: R$ {media_vendas:.2f}")', fn: 'print() + f-string', expTitle: 'Formatador de Saída', expText: 'Exibe os indicadores calculados no terminal.', status: 'concluido' }
+        ];
+
+        let modoAtual = 'pandas';
+        let passoAtual = 0;
+        let emExecucao = false;
+        let aguardandoInput = false;
+        let consoleTexto = "";
+
+        let estadoDados = {
+            corte: 5000,
+            original: [1200.0, 3500.0, 800.0, 15000.0, 2100.0],
+            filtrado: [],
+            total: 0,
+            media: 0
+        };
+
+        function trocarModo(modo) {
+            if (emExecucao) reiniciarSimulacao();
+            modoAtual = modo;
+            
+            document.getElementById('tabPandas').classList.toggle('active', modo === 'pandas');
+            document.getElementById('tabPythonPuro').classList.toggle('active', modo === 'python_puro');
+
+            renderizarCodigo();
+            atualizarPainelExplicativo("Nenhuma", "Aguardando Execução", "Clique em \"Iniciar Execução\" para acompanhar linha por linha.");
+            document.getElementById('datasetState').innerHTML = `<p style="font-size: 0.8rem; color: #666; font-style: italic;">Dados ainda não carregados na memória.</p>`;
+        }
+
+        function formatarSintaxe(str) {
+            let res = str;
+            if (res.trim().startsWith('#')) {
+                return `<span class="kw-comment">${res}</span>`;
+            }
+            res = res.replace(/\b(import|as|for|in|if)\b/g, '<span class="kw-import">$1</span>');
+            res = res.replace(/\b(float|input|print|pd|DataFrame|sum|len|mean)\b/g, '<span class="kw-func">$1</span>');
+            return res;
+        }
+
+        function getCodigoAtual() {
+            return modoAtual === 'pandas' ? codigoPandas : codigoPythonPuro;
+        }
+
+        function renderizarCodigo() {
+            const editor = document.getElementById('codeEditor');
+            editor.innerHTML = '';
+            const lista = getCodigoAtual();
+
+            lista.forEach((linha, index) => {
+                const lineDiv = document.createElement('div');
+                lineDiv.className = 'code-line' + (index === passoAtual - 1 ? ' active' : '');
+                lineDiv.id = `line-${index + 1}`;
+                
+                const ptr = document.createElement('span');
+                ptr.className = 'code-pointer';
+                ptr.innerText = '➔';
+                
+                const txt = document.createElement('span');
+                txt.innerHTML = formatarSintaxe(linha.text);
+                
+                lineDiv.appendChild(ptr);
+                lineDiv.appendChild(txt);
+                editor.appendChild(lineDiv);
+            });
+        }
+
+        function atualizarPainelExplicativo(fn, titulo, texto) {
+            document.getElementById('fnName').innerText = fn;
+            document.getElementById('expTitle').innerText = titulo;
+            document.getElementById('expText').innerText = texto;
+        }
+
+        function renderizarDataset(estagio) {
+            const container = document.getElementById('datasetState');
+
+            if (estagio === 'lista_criada' || estagio === 'dataframe_criado') {
+                let html = `<p style="font-size: 0.8rem; margin-bottom: 4px;">Dataset Carregado (Bruto):</p>`;
+                html += `<table class="data-table"><tr><th>Índice</th><th>Valor (R$)</th></tr>`;
+                estadoDados.original.forEach((v, i) => {
+                    html += `<tr><td>${i}</td><td>R$ ${v.toFixed(2)}</td></tr>`;
+                });
+                html += `</table>`;
+                container.innerHTML = html;
+            } 
+            else if (estagio === 'dataframe_filtrado' || estagio === 'lista_filtrada' || estagio === 'media_calculada' || estagio === 'soma_calculada' || estagio === 'concluido') {
+                let html = `<p style="font-size: 0.8rem; margin-bottom: 4px;">Filtro Aplicado: <= R$ ${estadoDados.corte.toFixed(2)}</p>`;
+                html += `<table class="data-table"><tr><th>Índice</th><th>Valor (R$)</th><th>Status</th></tr>`;
+                
+                estadoDados.original.forEach((v, i) => {
+                    let mantido = v <= estadoDados.corte;
+                    html += `<tr class="${mantido ? 'kept' : 'filtered-out'}">
+                        <td>${i}</td>
+                        <td>R$ ${v.toFixed(2)}</td>
+                        <td>${mantido ? 'Mantido' : 'Outlier (Removido)'}</td>
+                    </tr>`;
+                });
+                html += `</table>`;
+
+                if (estagio === 'media_calculada' || estagio === 'soma_calculada' || estagio === 'concluido') {
+                    html += `<div style="margin-top: 8px; font-size: 0.82rem; font-weight: bold;">`;
+                    if (estadoDados.total > 0) html += `<div>Total Válido: R$ ${estadoDados.total.toFixed(2)}</div>`;
+                    if (estadoDados.media > 0) html += `<div>Média Válida: R$ ${estadoDados.media.toFixed(2)}</div>`;
+                    html += `</div>`;
+                }
+
+                container.innerHTML = html;
+            }
+        }
+
+        function iniciarSimulacao() {
+            reiniciarSimulacao();
+            emExecucao = true;
+            document.getElementById('btnIniciar').disabled = true;
+            document.getElementById('btnProximo').disabled = false;
+            proximoPasso();
+        }
+
+        function proximoPasso() {
+            const lista = getCodigoAtual();
+            if (aguardandoInput || passoAtual >= lista.length) return;
+
+            passoAtual++;
+            const instrucao = lista[passoAtual - 1];
+
+            renderizarCodigo();
+            atualizarPainelExplicativo(instrucao.fn, instrucao.expTitle, instrucao.expText);
+
+            if (instrucao.status === 'aguarda_input') {
+                consoleTexto += "Digite o limite de corte (R$): ";
+                document.getElementById('consoleOutput').innerText = consoleTexto;
+                solicitarInput();
+            } else {
+                processarLogica(instrucao.status);
+            }
+        }
+
+        function solicitarInput() {
+            aguardandoInput = true;
+            document.getElementById('btnProximo').disabled = true;
+
+            const consoleBox = document.getElementById('consoleOutput');
+            
+            const inputWrapper = document.createElement('span');
+            const inputEl = document.createElement('input');
+            inputEl.type = 'number';
+            inputEl.value = '5000';
+            inputEl.className = 'input-inline';
+            
+            const btnConfirm = document.createElement('button');
+            btnConfirm.className = 'btn-confirm-input';
+            btnConfirm.innerText = 'Confirmar';
+
+            inputWrapper.appendChild(inputEl);
+            inputWrapper.appendChild(btnConfirm);
+            consoleBox.appendChild(inputWrapper);
+
+            inputEl.focus();
+
+            const confirmar = () => {
+                const valInput = parseFloat(inputEl.value) || 5000;
+                estadoDados.corte = valInput;
+
+                consoleTexto += valInput.toFixed(2) + "\n";
+                consoleBox.innerText = consoleTexto;
+
+                aguardandoInput = false;
+                document.getElementById('btnProximo').disabled = false;
+                proximoPasso();
+            };
+
+            btnConfirm.onclick = confirmar;
+            inputEl.onkeydown = (e) => { if (e.key === 'Enter') confirmar(); };
+        }
+
+        function processarLogica(status) {
+            if (status === 'biblioteca_carregada') {
+                consoleTexto = "[Kernel] Pandas 2.x carregado na memória.\n";
+            } 
+            else if (status === 'lista_criada' || status === 'dataframe_criado') {
+                renderizarDataset(status);
+            } 
+            else if (status === 'dataframe_filtrado' || status === 'lista_filtrada') {
+                estadoDados.filtrado = estadoDados.original.filter(v => v <= estadoDados.corte);
+                renderizarDataset(status);
+            } 
+            else if (status === 'media_calculada' || status === 'soma_calculada') {
+                estadoDados.filtrado = estadoDados.original.filter(v => v <= estadoDados.corte);
+                estadoDados.total = estadoDados.filtrado.reduce((a, b) => a + b, 0);
+                estadoDados.media = estadoDados.filtrado.length > 0 ? estadoDados.total / estadoDados.filtrado.length : 0;
+                renderizarDataset(status);
+            } 
+            else if (status === 'concluido') {
+                consoleTexto += `Total: R$ ${estadoDados.total.toFixed(2)} | Media: R$ ${estadoDados.media.toFixed(2)}\n`;
+                consoleTexto += "\n*** Execução Finalizada ***";
+                document.getElementById('btnProximo').disabled = true;
+                renderizarDataset(status);
+            }
+
+            document.getElementById('consoleOutput').innerText = consoleTexto;
+        }
+
+        function reiniciarSimulacao() {
+            passoAtual = 0;
+            emExecucao = false;
+            aguardandoInput = false;
+            consoleTexto = "";
+
+            estadoDados = {
+                corte: 5000,
+                original: [1200.0, 3500.0, 800.0, 15000.0, 2100.0],
+                filtrado: [],
+                total: 0,
+                media: 0
+            };
+
+            document.getElementById('btnIniciar').disabled = false;
+            document.getElementById('btnProximo').disabled = true;
+            document.getElementById('consoleOutput').innerText = "Aguardando início...";
+            document.getElementById('datasetState').innerHTML = `<p style="font-size: 0.8rem; color: #666; font-style: italic;">Dados ainda não carregados na memória.</p>`;
+
+            renderizarCodigo();
+            atualizarPainelExplicativo("Nenhuma", "Aguardando Execução", "Clique em \"Iniciar Execução\" para acompanhar o pipeline.");
+        }
+
+        renderizarCodigo();
+    </script>
+</body>
+</html>

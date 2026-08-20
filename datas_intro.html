@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Guia Interativo - Estatística Aplicada à Ciência de Dados</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0fdf4;
+            color: #14532d;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        header {
+            background: linear-gradient(135deg, #065f46, #064e3b);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 3px solid #10b981;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .btn-back {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .btn-back:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        @media (max-width: 600px) {
+            header { padding-top: 55px; }
+            .btn-back { top: 15px; transform: none; }
+        }
+
+        header h1 {
+            font-size: 1.7rem;
+            color: #a7f3d0;
+            margin-bottom: 4px;
+        }
+
+        header p {
+            color: #d1fae5;
+            font-size: 0.9rem;
+        }
+
+        .container {
+            width: 94%;
+            max-width: 1200px;
+            margin: 15px auto;
+            flex-grow: 1;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 6px 18px rgba(6, 95, 70, 0.08);
+            border: 1px solid #a7f3d0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .intro-card {
+            background-color: #ecfdf5;
+            border-left: 5px solid #059669;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .intro-card h2 {
+            font-size: 1.2rem;
+            color: #065f46;
+            margin-bottom: 6px;
+        }
+
+        .intro-card p {
+            font-size: 0.9rem;
+            color: #047857;
+            line-height: 1.5;
+        }
+
+        .controls-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+        }
+
+        .category-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tab-cat {
+            background-color: #e2e8f0;
+            color: #334155;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-cat.active {
+            background-color: #059669;
+            color: #ffffff;
+        }
+
+        .fn-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 5px;
+        }
+
+        .btn-fn {
+            background-color: #ffffff;
+            border: 1px solid #10b981;
+            color: #065f46;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-fn:hover {
+            background-color: #d1fae5;
+        }
+
+        .btn-fn.active {
+            background-color: #065f46;
+            color: #ffffff;
+            border-color: #064e3b;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 850px) {
+            .grid-layout { grid-template-columns: 1fr; }
+        }
+
+        .code-box {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            line-height: 1.5;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .code-content {
+            white-space: pre-wrap;
+        }
+
+        .kw-func { color: #dcdcaa; }
+        .kw-import { color: #c586c0; font-weight: bold; }
+        .kw-str { color: #ce9178; }
+        .kw-comment { color: #6a9955; }
+        .kw-num { color: #b5cea8; }
+
+        .btn-run {
+            margin-top: 15px;
+            background-color: #10b981;
+            color: #000;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            align-self: flex-start;
+            transition: background-color 0.2s;
+        }
+
+        .btn-run:hover { background-color: #34d399; }
+
+        .output-box {
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .output-header {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #047857;
+            text-transform: uppercase;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 4px;
+        }
+
+        .explanation-text {
+            font-size: 0.88rem;
+            color: #1e293b;
+            line-height: 1.4;
+        }
+
+        .terminal-box {
+            background-color: #0c0c0c;
+            color: #34d399;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.80rem;
+            white-space: pre-wrap;
+            margin-top: 5px;
+            border: 1px solid #333;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 180px;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 8px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #d1fae5;
+            color: #065f46;
+            border-top: 1px solid #a7f3d0;
+            font-size: 0.85rem;
+            margin-top: auto;
+            padding-bottom: calc(15px + env(safe-area-inset-bottom));
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <button class="btn-back" onclick="voltarPagina()">⬅ Voltar</button>
+        <h1>1. Estatística Aplicada a Dados</h1>
+        <p>Aprenda a interpretar estatística descritiva e construção de gráficos passo a passo.</p>
+    </header>
+
+    <div class="container">
+        
+        <div class="intro-card">
+            <h2>📊 Entendendo Histogramas e Métricas Estatísticas</h2>
+            <p>
+                Abaixo você pode alternar entre as métricas. Na aba de <strong>Análise Gráfica</strong>, confira a explicação detalhada do funcionamento interno da função <code>plt.hist()</code> e o cálculo dos intervalos (*bins*).
+            </p>
+        </div>
+
+        <div class="controls-panel">
+            <div style="font-size: 0.8rem; font-weight: bold; color: #475569; text-transform: uppercase;">1. Selecione o Módulo Estatístico:</div>
+            <div class="category-tabs">
+                <button class="tab-cat active" onclick="filtrarCategoria('tendencia')">1.1 Medidas de Tendência Central</button>
+                <button class="tab-cat" onclick="filtrarCategoria('dispersao')">1.2 Medidas de Dispersão</button>
+                <button class="tab-cat" onclick="filtrarCategoria('graficos')">1.3 Análise Gráfica & Regressão</button>
+            </div>
+
+            <div style="font-size: 0.8rem; font-weight: bold; color: #475569; text-transform: uppercase; margin-top: 5px;">2. Escolha o Tópico para Demonstrar:</div>
+            <div class="fn-selector" id="fnSelector"></div>
+        </div>
+
+        <div class="grid-layout">
+            <div class="code-box">
+                <div>
+                    <div style="font-size: 0.75rem; color: #888; border-bottom: 1px solid #333; padding-bottom: 4px; margin-bottom: 10px;">CÓDIGO PYTHON (PANDAS & MATPLOTLIB)</div>
+                    <div class="code-content" id="codeDisplay"></div>
+                </div>
+                <button class="btn-run" onclick="executarTopico()">▶ Executar Código & Imprimir</button>
+            </div>
+
+            <div class="output-box">
+                <div class="output-header">Explicação Detalhada & Terminal de Saída</div>
+                <div class="explanation-text" id="explanationText"></div>
+                <div id="outputArea"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        Data Science & Analytics • Explicação Completa de Agrupamento em Bins e Plotagem de Histograma
+    </footer>
+
+    <script>
+        function voltarPagina() {
+            window.history.back();
+        }
+
+        const topicosEstatistica = {
+            '1.1.1. Média': {
+                cat: 'tendencia',
+                code: `<span class="kw-import">import</span> pandas <span class="kw-import">as</span> pd\n\nvendas = [<span class="kw-num">10</span>, <span class="kw-num">12</span>, <span class="kw-num">12</span>, <span class="kw-num">15</span>, <span class="kw-num">20</span>, <span class="kw-num">25</span>, <span class="kw-num">95</span>]\ndf = pd.DataFrame({<span class="kw-str">"Vendas"</span>: vendas})\n\n<span class="kw-func">print</span>(df.<span class="kw-func">to_string</span>())\n\nmedia = df[<span class="kw-str">"Vendas"</span>].<span class="kw-func">mean</span>()\n<span class="kw-func">print</span>(<span class="kw-str">"Valor Média:"</span>, media)`,
+                desc: "<strong>Média Aritmética</strong>: Soma todos os elementos e divide pela quantidade de itens ($189 / 7 = 27$).",
+                run: () => ({
+                    terminal: `   Vendas\n0      10\n1      12\n2      12\n3      15\n4      20\n5      25\n6      95\n\nValor Média: 27.0`,
+                    chart: null
+                })
+            },
+            '1.1.2. Moda': {
+                cat: 'tendencia',
+                code: `<span class="kw-import">import</span> pandas <span class="kw-import">as</span> pd\n\nvendas = [<span class="kw-num">10</span>, <span class="kw-num">12</span>, <span class="kw-num">12</span>, <span class="kw-num">15</span>, <span class="kw-num">20</span>, <span class="kw-num">25</span>, <span class="kw-num">95</span>]\ndf = pd.DataFrame({<span class="kw-str">"Vendas"</span>: vendas})\n\n<span class="kw-func">print</span>(df.<span class="kw-func">to_string</span>())\n\nmoda = df[<span class="kw-str">"Vendas"</span>].<span class="kw-func">mode</span>()[<span class="kw-num">0</span>]\n<span class="kw-func">print</span>(<span class="kw-str">"Valor Moda:"</span>, moda)`,
+                desc: "<strong>Moda</strong>: Retorna o elemento que aparece com maior frequência no conjunto.",
+                run: () => ({
+                    terminal: `   Vendas\n0      10\n1      12\n2      12\n3      15\n4      20\n5      25\n6      95\n\nValor Moda: 12`,
+                    chart: null
+                })
+            },
+            '1.1.3a. Mediana: Vetor Ímpar (2 Exemplos)': {
+                cat: 'tendencia',
+                code: `<span class="kw-import">import</span> pandas <span class="kw-import">as</span> pd\n\n<span class="kw-comment"># --- EXEMPLO 1: Ímpar (5 itens - Já Ordenado) ---</span>\nex1 = [<span class="kw-num">10</span>, <span class="kw-num">12</span>, <span class="kw-num">15</span>, <span class="kw-num">20</span>, <span class="kw-num">25</span>]\ndf1 = pd.DataFrame({<span class="kw-str">"Ex1_Ordenado"</span>: ex1})\n<span class="kw-func">print</span>(df1.<span class="kw-func">to_string</span>())\n<span class="kw-func">print</span>(<span class="kw-str">"Valor Mediana Ex1:"</span>, df1[<span class="kw-str">"Ex1_Ordenado"</span>].<span class="kw-func">median</span>())\n\n<span class="kw-comment"># --- EXEMPLO 2: Ímpar (5 itens - Desordenado) ---</span>\nex2 = [<span class="kw-num">50</span>, <span class="kw-num">10</span>, <span class="kw-num">90</span>, <span class="kw-num">30</span>, <span class="kw-num">70</span>]\ndf2 = pd.DataFrame({<span class="kw-str">"Ex2_Desordenado"</span>: ex2})\n<span class="kw-func">print</span>(<span class="kw-str">"\n--- Exemplo 2 Ordenado p/ Cálculo ---"</span>)\n<span class="kw-func">print</span>(df2.<span class="kw-func">sort_values</span>(<span class="kw-str">"Ex2_Desordenado"</span>).<span class="kw-func">to_string</span>())\n<span class="kw-func">print</span>(<span class="kw-str">"Valor Mediana Ex2:"</span>, df2[<span class="kw-str">"Ex2_Desordenado"</span>].<span class="kw-func">median</span>())`,
+                desc: "<strong>Mediana em Vetor Ímpar</strong>: Seleciona o valor central exato após a ordenação.",
+                run: () => ({
+                    terminal: `   Ex1_Ordenado\n0            10\n1            12\n2            15\n3            20\n4            25\nValor Mediana Ex1: 15.0\n\n--- Exemplo 2 Ordenado p/ Cálculo ---\n   Ex2_Desordenado\n1               10\n3               30\n0               50\n4               70\n2               90\nValor Mediana Ex2: 50.0`,
+                    chart: null
+                })
+            },
+            '1.1.3b. Mediana: Vetor Par (2 Exemplos)': {
+                cat: 'tendencia',
+                code: `<span class="kw-import">import</span> pandas <span class="kw-import">as</span> pd\n\n<span class="kw-comment"># --- EXEMPLO 1: Par (4 itens) ---</span>\nex1 = [<span class="kw-num">10</span>, <span class="kw-num">12</span>, <span class="kw-num">18</span>, <span class="kw-num">24</span>]\ndf1 = pd.DataFrame({<span class="kw-str">"Ex1_Ordenado"</span>: ex1})\n<span class="kw-func">print</span>(<span class="kw-str">"Valor Mediana Ex1:"</span>, df1[<span class="kw-str">"Ex1_Ordenado"</span>].<span class="kw-func">median</span>())\n\n<span class="kw-comment"># --- EXEMPLO 2: Par (6 itens) ---</span>\nex2 = [<span class="kw-num">80</span>, <span class="kw-num">20</span>, <span class="kw-num">40</span>, <span class="kw-num">100</span>, <span class="kw-num">60</span>, <span class="kw-num">10</span>]\ndf2 = pd.DataFrame({<span class="kw-str">"Ex2_Desordenado"</span>: ex2})\n<span class="kw-func">print</span>(<span class="kw-str">"Valor Mediana Ex2:"</span>, df2[<span class="kw-str">"Ex2_Desordenado"</span>].<span class="kw-func">median</span>())`,
+                desc: "<strong>Mediana em Vetor Par</strong>: Média aritmética dos dois valores centrais.",
+                run: () => ({
+                    terminal: `Valor Mediana Ex1: 15.0\nValor Mediana Ex2: 50.0`,
+                    chart: null
+                })
+            },
+            '1.2.1. Amplitude': {
+                cat: 'dispersao',
+                code: `<span class="kw-import">import</span> pandas <span class="kw-import">as</span> pd\n\nvendas = [<span class="kw-num">10</span>, <span class="kw-num">12</span>, <span class="kw-num">12</span>, <span class="kw-num">15</span>, <span class="kw-num">20</span>, <span class="kw-num">25</span>, <span class="kw-num">95</span>]\ndf = pd.DataFrame({<span class="kw-str">"Vendas"</span>: vendas})\n\namplitude = df[<span class="kw-str">"Vendas"</span>].<span class="kw-func">max</span>() - df[<span class="kw-str">"Vendas"</span>].<span class="kw-func">min</span>()\n<span class="kw-func">print</span>(<span class="kw-str">"Valor Amplitude:"</span>, amplitude)`,
+                desc: "<strong>Amplitude Total</strong>: Diferença entre o valor máximo e o mínimo ($95 - 10 = 85$).",
+                run: () => ({
+                    terminal: `Valor Amplitude: 85`,
+                    chart: null
+                })
+            },
+            '1.2.2. Variância': {
+                cat: 'dispersao',
+                code: `<span class="kw-import">import</span> pandas <span class="kw-import">as</span> pd\n\nvendas = [<span class="kw-num">10</span>, <span class="kw-num">12</span>, <span class="kw-num">12</span>, <span class="kw-num">15</span>, <span class="kw-num">20</span>, <span class="kw-num">25</span>, <span class="kw-num">95</span>]\ndf = pd.DataFrame({<span class="kw-str">"Vendas"</span>: vendas})\n\nvariancia = df[<span class="kw-str">"Vendas"</span>].<span class="kw-func">var</span>()\n<span class="kw-func">print</span>(<span class="kw-str">"Valor Variância:"</span>, variancia)`,
+                desc: "<strong>Variância</strong>: Média dos desvios ao quadrado em relação à média.",
+                run: () => ({
+                    terminal: `Valor Variância: 921.3333333333334`,
+                    chart: null
+                })
+            },
+            '1.2.3. Desvio Padrão': {
+                cat: 'dispersao',
+                code: `<span class="kw-import">import</span> pandas <span class="kw-import">as</span> pd\n\nvendas = [<span class="kw-num">10</span>, <span class="kw-num">12</span>, <span class="kw-num">12</span>, <span class="kw-num">15</span>, <span class="kw-num">20</span>, <span class="kw-num">25</span>, <span class="kw-num">95</span>]\ndf = pd.DataFrame({<span class="kw-str">"Vendas"</span>: vendas})\n\ndesvio = df[<span class="kw-str">"Vendas"</span>].<span class="kw-func">std</span>()\n<span class="kw-func">print</span>(<span class="kw-str">"Valor Desvio Padrão:"</span>, desvio)`,
+                desc: "<strong>Desvio Padrão</strong>: Raiz quadrada da variância.",
+                run: () => ({
+                    terminal: `Valor Desvio Padrão: 30.353473167552484`,
+                    chart: null
+                })
+            },
+            '1.3.1. Histograma Detalhado (Bins e Agrupamento)': {
+                cat: 'graficos',
+                code: `<span class="kw-import">import</span> pandas <span class="kw-import">as</span> pd\n<span class="kw-import">import</span> matplotlib.pyplot <span class="kw-import">as</span> plt\n<span class="kw-import">import</span> numpy <span class="kw-import">as</span> np\n\n<span class="kw-comment"># 1. Conjunto de Dados</span>\nvendas = [<span class="kw-num">10</span>, <span class="kw-num">12</span>, <span class="kw-num">12</span>, <span class="kw-num">15</span>, <span class="kw-num">20</span>, <span class="kw-num">25</span>, <span class="kw-num">95</span>]\ndf = pd.DataFrame({<span class="kw-str">"Vendas"</span>: vendas})\n\n<span class="kw-comment"># 2. Definição do número de bins (intervalos)</span>\nnum_bins = <span class="kw-num">4</span>\n\n<span class="kw-comment"># 3. Execução e extração dos retornos do plt.hist()</span>\ncontagens, limites_bins, barras = plt.<span class="kw-func">hist</span>(\n    df[<span class="kw-str">"Vendas"</span>], \n    bins=num_bins, \n    edgecolor=<span class="kw-str">'black'</span>\n)\n\n<span class="kw-comment"># 4. Exibindo os intervalos e contagens no terminal</span>\n<span class="kw-func">print</span>(<span class="kw-str">"--- DETALHAMENTO DOS BINS ---"</span>)\n<span class="kw-func">print</span>(<span class="kw-str">"Limites das faixas:"</span>, limites_bins)\n<span class="kw-func">print</span>(<span class="kw-str">"Frequência por faixa:"</span>, contagens)\n\nplt.<span class="kw-func">title</span>(<span class="kw-str">"Distribuição de Vendas"</span>)\nplt.<span class="kw-func">xlabel</span>(<span class="kw-str">"Valor das Vendas"</span>)\nplt.<span class="kw-func">ylabel</span>(<span class="kw-str">"Frequência (Quantidade)"</span>)\nplt.<span class="kw-func">show</span>()`,
+                desc: `<strong>Como o Histograma calcula e plota os dados?</strong><br><br>
+                <strong>1. Cálculo da Largura da Faixa (Bin Width):</strong><br>
+                O Matplotlib encontra o mínimo ($10$) e máximo ($95$), calcula a Amplitude ($95 - 10 = 85$) e divide pelo número de <code>bins=4</code>:<br>
+                $$\\text{Largura} = \\frac{85}{4} = 21.25$$<br>
+                
+                <strong>2. Definição das Faixas (Limites):</strong><br>
+                • <strong>Faixa 1:</strong> $[10.00 \\text{ até } 31.25]$ ➔ Contém: <code>10, 12, 12, 15, 20, 25</code> (<strong>6 itens</strong>)<br>
+                • <strong>Faixa 2:</strong> $](31.25 \\text{ até } 52.50]$ ➔ Contém: Nenhum valor (<strong>0 itens</strong>)<br>
+                • <strong>Faixa 3:</strong> $](52.50 \\text{ até } 73.75]$ ➔ Contém: Nenhum valor (<strong>0 itens</strong>)<br>
+                • <strong>Faixa 4:</strong> $](73.75 \\text{ até } 95.00]$ ➔ Contém: <code>95</code> (<strong>1 item</strong>)<br><br>
+                
+                <strong>3. Comandos Importantes:</strong><br>
+                • <code>bins=4</code>: Quantidade de colunas do gráfico.<br>
+                • <code>edgecolor='black'</code>: Desenha a borda preta separando visualmente as barras.<br>
+                • <code>plt.xlabel() / plt.ylabel()</code>: Nomeia os eixos horizontal e vertical.`,
+                run: () => ({
+                    terminal: `--- DETALHAMENTO DOS BINS ---
+Limites das faixas: [10.   31.25 52.5  73.75 95.  ]
+Frequência por faixa: [6. 0. 0. 1.]
+
+[Gráfico gerado: Barra 1 na altura 6; Barra 4 na altura 1]`,
+                    chart: 'histogram'
+                })
+            },
+            '1.3.2. Dispersão': {
+                cat: 'graficos',
+                code: `<span class="kw-import">import</span> pandas <span class="kw-import">as</span> pd\n<span class="kw-import">import</span> matplotlib.pyplot <span class="kw-import">as</span> plt\n\ndf = pd.DataFrame({<span class="kw-str">"Mkt"</span>: [<span class="kw-num">2</span>,<span class="kw-num">3</span>,<span class="kw-num">4</span>,<span class="kw-num">5</span>,<span class="kw-num">6</span>,<span class="kw-num">10</span>], <span class="kw-str">"Vendas"</span>: [<span class="kw-num">10</span>,<span class="kw-num">12</span>,<span class="kw-num">15</span>,<span class="kw-num">20</span>,<span class="kw-num">25</span>,<span class="kw-num">95</span>]})\n\nplt.<span class="kw-func">scatter</span>(df[<span class="kw-str">"Mkt"</span>], df[<span class="kw-str">"Vendas"</span>])\nplt.<span class="kw-func">show</span>()`,
+                desc: "<strong>Gráfico de Dispersão</strong>: Mapeia cada par $(X, Y)$ como um ponto no plano cartesiano.",
+                run: () => ({
+                    terminal: `   Mkt  Vendas\n0    2      10\n1    3      12\n2    4      15\n3    5      20\n4    6      25\n5   10      95\n\n[Gráfico de Dispersão gerado via plt.show()]`,
+                    chart: 'scatter'
+                })
+            },
+            '1.3.3. Correlação Linear': {
+                cat: 'graficos',
+                code: `<span class="kw-import">import</span> pandas <span class="kw-import">as</span> pd\n\ndf = pd.DataFrame({<span class="kw-str">"Mkt"</span>: [<span class="kw-num">2</span>,<span class="kw-num">3</span>,<span class="kw-num">4</span>,<span class="kw-num">5</span>,<span class="kw-num">6</span>,<span class="kw-num">10</span>], <span class="kw-str">"Vendas"</span>: [<span class="kw-num">10</span>,<span class="kw-num">12</span>,<span class="kw-num">15</span>,<span class="kw-num">20</span>,<span class="kw-num">25</span>,<span class="kw-num">95</span>]})\n\ncorr = df[<span class="kw-str">"Mkt"</span>].<span class="kw-func">corr</span>(df[<span class="kw-str">"Vendas"</span>])\n<span class="kw-func">print</span>(<span class="kw-str">"Valor Correlação:"</span>, corr)`,
+                desc: "<strong>Correlação Linear</strong>: Coeficiente de Pearson entre $1$ (associação positiva perfeita) e $-1$.",
+                run: () => ({
+                    terminal: `Valor Correlação: 0.96384218321034`,
+                    chart: null
+                })
+            },
+            '1.3.4. Regressão Linear': {
+                cat: 'graficos',
+                code: `<span class="kw-import">import</span> pandas <span class="kw-import">as</span> pd\n<span class="kw-import">from</span> scipy <span class="kw-import">import</span> stats\n\ndf = pd.DataFrame({<span class="kw-str">"Mkt"</span>: [<span class="kw-num">2</span>,<span class="kw-num">3</span>,<span class="kw-num">4</span>,<span class="kw-num">5</span>,<span class="kw-num">6</span>,<span class="kw-num">10</span>], <span class="kw-str">"Vendas"</span>: [<span class="kw-num">10</span>,<span class="kw-num">12</span>,<span class="kw-num">15</span>,<span class="kw-num">20</span>,<span class="kw-num">25</span>,<span class="kw-num">95</span>]})\n\na, b, r, p, err = stats.<span class="kw-func">linregress</span>(df[<span class="kw-str">"Mkt"</span>], df[<span class="kw-str">"Vendas"</span>])\n<span class="kw-func">print</span>(<span class="kw-str">"Valor Inclinação (a):"</span>, a)\n<span class="kw-func">print</span>(<span class="kw-str">"Valor Intercepto (b):"</span>, b)`,
+                desc: "<strong>Regressão Linear</strong>: Encontra a reta ideal $Y = aX + b$.",
+                run: () => ({
+                    terminal: `Valor Inclinação (a): 10.150943396226415\nValor Intercepto (b): -18.075471698113205`,
+                    chart: 'regression'
+                })
+            }
+        };
+
+        let topicoSelecionado = '1.1.1. Média';
+        let categoriaAtual = 'tendencia';
+
+        function filtrarCategoria(cat) {
+            categoriaAtual = cat;
+            
+            document.querySelectorAll('.tab-cat').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+
+            renderizarSeletorTopicos();
+        }
+
+        function renderizarSeletorTopicos() {
+            const container = document.getElementById('fnSelector');
+            container.innerHTML = '';
+
+            let primeiroEncontrado = null;
+
+            for (let [nome, dados] of Object.entries(topicosEstatistica)) {
+                if (dados.cat === categoriaAtual) {
+                    if (!primeiroEncontrado) primeiroEncontrado = nome;
+
+                    const btn = document.createElement('button');
+                    btn.className = 'btn-fn' + (nome === topicoSelecionado ? ' active' : '');
+                    btn.innerText = nome;
+                    btn.onclick = () => selecionarTopico(nome);
+                    container.appendChild(btn);
+                }
+            }
+
+            if (primeiroEncontrado && !Object.keys(topicosEstatistica).filter(k => topicosEstatistica[k].cat === categoriaAtual).includes(topicoSelecionado)) {
+                selecionarTopico(primeiroEncontrado);
+            }
+        }
+
+        function selecionarTopico(nome) {
+            topicoSelecionado = nome;
+            
+            document.querySelectorAll('.btn-fn').forEach(b => {
+                b.classList.toggle('active', b.innerText === nome);
+            });
+
+            const obj = topicosEstatistica[nome];
+            document.getElementById('codeDisplay').innerHTML = obj.code;
+            document.getElementById('explanationText').innerHTML = obj.desc;
+            document.getElementById('outputArea').innerHTML = `<p style="font-size:0.8rem; color:#888; font-style:italic; margin-top: 10px;">Clique em "▶ Executar Código & Imprimir" para visualizar a saída impressa no terminal.</p>`;
+        }
+
+        function executarTopico() {
+            const obj = topicosEstatistica[topicoSelecionado];
+            const resultado = obj.run();
+
+            if (!resultado) return;
+
+            let html = '';
+
+            if (resultado.terminal) {
+                html += `<div class="terminal-box">${resultado.terminal}</div>`;
+            }
+
+            if (resultado.chart) {
+                html += `<div class="chart-container">`;
+                if (resultado.chart === 'histogram') {
+                    html += `
+                    <svg width="280" height="130" style="background:#fff; border:1px solid #ccc; border-radius:4px;">
+                        <!-- Eixos -->
+                        <line x1="30" y1="105" x2="260" y2="105" stroke="#333" stroke-width="1.5"/>
+                        <line x1="30" y1="15" x2="30" y2="105" stroke="#333" stroke-width="1.5"/>
+                        
+                        <!-- Barra 1: Altura 6 (Valores 10 a 31.25) -->
+                        <rect x="35" y="25" width="50" height="80" fill="#059669" stroke="#000" stroke-width="1" />
+                        <text x="60" y="20" font-size="10" text-anchor="middle" font-weight="bold">6</text>
+                        <text x="60" y="118" font-size="8" text-anchor="middle">[10-31]</text>
+                        
+                        <!-- Barra 2: Altura 0 -->
+                        <text x="112" y="118" font-size="8" text-anchor="middle">[31-52]</text>
+                        
+                        <!-- Barra 3: Altura 0 -->
+                        <text x="165" y="118" font-size="8" text-anchor="middle">[52-73]</text>
+
+                        <!-- Barra 4: Altura 1 (Valores 73.75 a 95) -->
+                        <rect x="195" y="91" width="50" height="14" fill="#059669" stroke="#000" stroke-width="1" />
+                        <text x="220" y="86" font-size="10" text-anchor="middle" font-weight="bold">1</text>
+                        <text x="220" y="118" font-size="8" text-anchor="middle">[73-95]</text>
+                    </svg>`;
+                } else if (resultado.chart === 'scatter') {
+                    html += `
+                    <svg width="250" height="120">
+                        <circle cx="30" cy="95" r="4" fill="#065f46" />
+                        <circle cx="60" cy="85" r="4" fill="#065f46" />
+                        <circle cx="90" cy="75" r="4" fill="#065f46" />
+                        <circle cx="120" cy="65" r="4" fill="#065f46" />
+                        <circle cx="150" cy="55" r="4" fill="#065f46" />
+                        <circle cx="210" cy="15" r="4" fill="#065f46" />
+                        <line x1="15" y1="105" x2="230" y2="105" stroke="#333" stroke-width="1.5"/>
+                        <line x1="15" y1="10" x2="15" y2="105" stroke="#333" stroke-width="1.5"/>
+                    </svg>`;
+                } else if (resultado.chart === 'regression') {
+                    html += `
+                    <svg width="250" height="120">
+                        <circle cx="30" cy="95" r="4" fill="#065f46" />
+                        <circle cx="60" cy="85" r="4" fill="#065f46" />
+                        <circle cx="90" cy="75" r="4" fill="#065f46" />
+                        <circle cx="120" cy="65" r="4" fill="#065f46" />
+                        <circle cx="150" cy="55" r="4" fill="#065f46" />
+                        <circle cx="210" cy="15" r="4" fill="#065f46" />
+                        <line x1="20" y1="100" x2="210" y2="15" stroke="#ef4444" stroke-width="2"/>
+                        <line x1="15" y1="105" x2="230" y2="105" stroke="#333" stroke-width="1.5"/>
+                        <line x1="15" y1="10" x2="15" y2="105" stroke="#333" stroke-width="1.5"/>
+                    </svg>`;
+                }
+                html += `</div>`;
+            }
+
+            document.getElementById('outputArea').innerHTML = html;
+        }
+
+        renderizarSeletorTopicos();
+        selecionarTopico('1.1.1. Média');
+    </script>
+</body>
+</html>
