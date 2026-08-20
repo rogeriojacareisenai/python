@@ -22,7 +22,7 @@
             overflow: hidden;
         }
 
-        /* --- HEADER / BARRA DE FERRAMENTAS IDE (TEMA CLARO) --- */
+        /* --- HEADER / BARRA DE FERRAMENTAS IDE --- */
         header {
             background: #ffffff;
             padding: 6px 16px;
@@ -102,7 +102,7 @@
             overflow: hidden;
         }
 
-        /* --- SIDEBAR & MENU ACCORDION (TEMA CLARO) --- */
+        /* --- SIDEBAR REFORMULADA (SISTEMA DE ABAS SEM SCROLL) --- */
         .sidebar {
             width: 320px;
             background: #ffffff;
@@ -110,60 +110,60 @@
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
-            overflow-y: auto;
+            overflow: hidden; /* Impede a rolagem global da sidebar */
         }
 
-        .accordion-item {
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .accordion-header {
-            width: 100%;
-            background: #f8fafc;
-            color: #0284c7;
-            padding: 10px 12px;
-            font-size: 0.78rem;
-            font-weight: bold;
-            border: none;
-            text-align: left;
-            cursor: pointer;
+        .tab-menu {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: background 0.2s, color 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            flex-wrap: wrap;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 4px;
+            gap: 4px;
         }
 
-        .accordion-header:hover {
+        .tab-btn {
+            flex: 1 1 30%;
             background: #f1f5f9;
-            color: #2563eb;
-        }
-
-        .accordion-header.active {
-            background: #ffffff;
-            color: #0284c7;
-            border-left: 3px solid #0284c7;
-        }
-
-        .accordion-icon {
+            color: #475569;
+            border: 1px solid #cbd5e1;
+            padding: 6px 4px;
+            border-radius: 4px;
             font-size: 0.7rem;
-            transition: transform 0.2s;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .accordion-header.active .accordion-icon {
-            transform: rotate(180deg);
+        .tab-btn:hover {
+            background: #e2e8f0;
+            color: #0f172a;
         }
 
-        .accordion-content {
+        .tab-btn.active {
+            background: #2563eb;
+            color: #ffffff;
+            border-color: #1d4ed8;
+            box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3);
+        }
+
+        .tab-content-container {
+            flex-grow: 1;
+            overflow-y: auto; /* Permite rolagem apenas no conteúdo da aba se necessário */
             padding: 12px;
+        }
+
+        .tab-content {
             display: none;
             flex-direction: column;
             gap: 10px;
-            background: #ffffff;
         }
 
-        .accordion-content.open {
+        .tab-content.active {
             display: flex;
         }
 
@@ -760,13 +760,19 @@
     <div class="main-wrapper">
         <div class="sidebar">
 
-            <!-- Accordion 1: Construir -->
-            <div class="accordion-item">
-                <button class="accordion-header active" onclick="toggleAccordion(this)">
-                    <span>🧱 Construir & Objetos</span>
-                    <span class="accordion-icon">▲</span>
-                </button>
-                <div class="accordion-content open">
+            <!-- BOTOES DE NAVEGACAO POR ABAS -->
+            <div class="tab-menu">
+                <button class="tab-btn active" onclick="selecionarAba('tab-construir', this)">🧱 Objetos</button>
+                <button class="tab-btn" onclick="selecionarAba('tab-player', this)">🏃 Player</button>
+                <button class="tab-btn" onclick="selecionarAba('tab-camera', this)">🎥 Câmera</button>
+                <button class="tab-btn" onclick="selecionarAba('tab-cenario', this)">🖼️ Estilo</button>
+                <button class="tab-btn" onclick="selecionarAba('tab-regras', this)">⚙️ Regras</button>
+            </div>
+
+            <div class="tab-content-container">
+
+                <!-- Aba 1: Construir -->
+                <div id="tab-construir" class="tab-content active">
                     <div class="section-title">Modos de Edição</div>
                     <div class="tools-grid">
                         <button id="btnSolid" class="switch-btn active-solid" onclick="definirModo('solid')">🧱 Sólida</button>
@@ -813,15 +819,9 @@
                         <button class="btn-sim danger" onclick="spawnObjetoAleatorio('skull')">💀 Spawn Caveira</button>
                     </div>
                 </div>
-            </div>
 
-            <!-- Accordion 2: Player -->
-            <div class="accordion-item">
-                <button class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>🏃 Player & Animações</span>
-                    <span class="accordion-icon">▼</span>
-                </button>
-                <div class="accordion-content">
+                <!-- Aba 2: Player -->
+                <div id="tab-player" class="tab-content">
                     <div class="section-title">1. Dimensões & Aparência Base</div>
                     <div class="config-group">
                         <div class="config-row">
@@ -922,15 +922,9 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Accordion 3: Câmera & Loop -->
-            <div class="accordion-item">
-                <button class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>🎥 Câmera & Mundo</span>
-                    <span class="accordion-icon">▼</span>
-                </button>
-                <div class="accordion-content">
+                <!-- Aba 3: Câmera -->
+                <div id="tab-camera" class="tab-content">
                     <div class="section-title">Câmera de Perseguição</div>
                     <div class="config-group">
                         <label class="checkbox-row">
@@ -960,15 +954,9 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Accordion 4: Cenário -->
-            <div class="accordion-item">
-                <button class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>🖼️ Estilo do Cenário</span>
-                    <span class="accordion-icon">▼</span>
-                </button>
-                <div class="accordion-content">
+                <!-- Aba 4: Cenário -->
+                <div id="tab-cenario" class="tab-content">
                     <div class="section-title">Estilo do Fundo</div>
                     <div class="config-group">
                         <div class="config-row">
@@ -984,15 +972,9 @@
                         <button class="switch-btn" id="btnRemoverBgImg" onclick="removerImagemCenario()" style="display: none; margin-top: 4px;">Usar Cor Sólida</button>
                     </div>
                 </div>
-            </div>
 
-            <!-- Accordion 5: Regras -->
-            <div class="accordion-item">
-                <button class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>⚙️ Regras do Jogo</span>
-                    <span class="accordion-icon">▼</span>
-                </button>
-                <div class="accordion-content">
+                <!-- Aba 5: Regras -->
+                <div id="tab-regras" class="tab-content">
                     <div class="section-title">Valores Numéricos</div>
                     <div class="config-group">
                         <div class="config-row">
@@ -1013,6 +995,7 @@
                         </div>
                     </div>
                 </div>
+
             </div>
 
         </div>
@@ -1084,22 +1067,13 @@
     </div>
 
     <script>
-        /* FUNÇÃO PARA O MENU ACCORDION */
-        function toggleAccordion(button) {
-            const content = button.nextElementSibling;
-            const isOpen = content.classList.contains('open');
+        /* FUNÇÃO PARA SELEÇÃO DE ABAS */
+        function selecionarAba(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
 
-            document.querySelectorAll('.accordion-content').forEach(c => c.classList.remove('open'));
-            document.querySelectorAll('.accordion-header').forEach(h => {
-                h.classList.remove('active');
-                h.querySelector('.accordion-icon').textContent = '▼';
-            });
-
-            if (!isOpen) {
-                content.classList.add('open');
-                button.classList.add('active');
-                button.querySelector('.accordion-icon').textContent = '▲';
-            }
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
         }
 
         const canvas = document.getElementById('pygameCanvas');
@@ -1215,6 +1189,14 @@
         let caveiras = [
             { x: 520, y: 0, w: 26, h: 26, vy: 2.5, color: '#ef4444', dano: 25, perdaPontos: 15 }
         ];
+
+        function ajustarChaoInfinito() {
+            let chao = plataformas.find(p => p.isMainFloor);
+            if (chao) {
+                chao.x = camera.x - 2000;
+                chao.w = canvas.width + 4000;
+            }
+        }
 
         function atualizarConfigCorda() {
             cordaConfig.enabled = document.getElementById('ropeEnabledToggle').checked;
@@ -2227,11 +2209,7 @@
                 document.getElementById('cameraScrollInput').value = camera.x;
             }
 
-            let chao = plataformas.find(p => p.isMainFloor);
-            if (chao) {
-                chao.x = camera.x - 2000;
-                chao.w = canvas.width + 4000;
-            }
+            ajustarChaoInfinito();
 
             document.getElementById('coordBadge').textContent = `Player X: ${Math.round(player.x)} | Y: ${Math.round(player.y)}`;
         }
