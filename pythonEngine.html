@@ -2012,56 +2012,12 @@
                 }
             }
 
-            // DESENHO PIXEL ART DETALHADO DO JOGADOR
-            if (!frameRenderizado) {
-                ctx.save();
-                
-                // Espelhamento na direção do olhar
-                if (!player.facingRight) {
-                    ctx.translate(player.x + player.w, player.y);
-                    ctx.scale(-1, 1);
-                } else {
-                    ctx.translate(player.x, player.y);
-                }
-
-                const pw = player.w;
-                const ph = player.h;
-
-                // Sombra suave no chão
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
-                ctx.beginPath();
-                ctx.ellipse(pw / 2, ph, pw * 0.45, 3, 0, 0, Math.PI * 2);
-                ctx.fill();
-
-                // 1. Pernas / Pés
-                ctx.fillStyle = '#1e293b';
-                ctx.fillRect(pw * 0.15, ph * 0.72, pw * 0.3, ph * 0.28);
-                ctx.fillRect(pw * 0.55, ph * 0.72, pw * 0.3, ph * 0.28);
-
-                // 2. Corpo Principal (Usando a cor base do player selecionada)
+            if (!frameRenderizado && Object.keys(animacoes).length === 0) {
                 ctx.fillStyle = player.color;
-                ctx.fillRect(pw * 0.1, ph * 0.35, pw * 0.8, ph * 0.42);
-
-                // 3. Cinto / Detalhe
-                ctx.fillStyle = '#0284c7';
-                ctx.fillRect(pw * 0.1, ph * 0.62, pw * 0.8, ph * 0.12);
-
-                // 4. Cabeça / Rosto
-                ctx.fillStyle = '#ffedd5';
-                ctx.fillRect(pw * 0.15, ph * 0.1, pw * 0.7, ph * 0.32);
-
-                // 5. Cabelo / Capuz Superior
-                ctx.fillStyle = '#0284c7';
-                ctx.fillRect(pw * 0.1, ph * 0.02, pw * 0.8, ph * 0.12);
-                ctx.fillRect(pw * 0.1, ph * 0.08, pw * 0.2, ph * 0.15);
-
-                // 6. Olhos (Visor / Olhos Pixel)
-                ctx.fillStyle = '#0f172a';
-                ctx.fillRect(pw * 0.58, ph * 0.18, pw * 0.2, ph * 0.12);
-                ctx.fillStyle = '#38bdf8';
-                ctx.fillRect(pw * 0.68, ph * 0.2, pw * 0.08, ph * 0.08);
-
-                ctx.restore();
+                ctx.fillRect(player.x, player.y, player.w, player.h);
+                ctx.fillStyle = '#000000';
+                const eyeX = player.facingRight ? player.x + player.w - 6 : player.x + 2;
+                ctx.fillRect(eyeX, player.y + 6, 4, 4);
             }
 
             // Popups de texto (+10 / -25)
