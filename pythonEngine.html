@@ -558,9 +558,10 @@
             </div>
         </div>
 
-        <div class="controls-card">
+        <div class="controls-card" id="cardControlsDesc">
             🎮 <kbd>A</kbd><kbd>D</kbd> / <kbd>←</kbd><kbd>→</kbd> Mover |
             <kbd>Espaço</kbd>/<kbd>W</kbd> Pular |
+            <kbd>E</kbd> Corda |
             <kbd>Botão Dir.</kbd> Remover
         </div>
     </header>
@@ -645,10 +646,56 @@
                     </div>
                 </div>
 
+                <!-- CONFIGURAÇÃO DA HABILIDADE DA CORDA VERTICAL -->
+                <div class="section-title">Habilidade: Corda Vertical</div>
+                <div class="config-group">
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="ropeEnabledToggle" checked onchange="atualizarConfigCorda()">
+                        Habilitar Corda Vertical
+                    </label>
+
+                    <div class="config-row" style="margin-top: 4px;">
+                        <label>Tecla de Ativação:</label>
+                        <select id="ropeKeyInput" onchange="atualizarConfigCorda()">
+                            <option value="KeyE" selected>Tecla E</option>
+                            <option value="KeyQ">Tecla Q</option>
+                            <option value="KeyF">Tecla F</option>
+                            <option value="ShiftLeft">Shift Esquerdo</option>
+                            <option value="Space">Barra de Espaço</option>
+                        </select>
+                    </div>
+
+                    <div class="config-row" style="margin-top: 4px;">
+                        <label>Cor da Corda:</label>
+                        <input type="color" id="ropeColorInput" value="#38bdf8" oninput="atualizarConfigCorda()">
+                    </div>
+
+                    <div class="config-row" style="margin-top: 4px;">
+                        <label>Velocidade de Puxar:</label>
+                        <select id="ropeSpeedSelect" onchange="atualizarConfigCorda()">
+                            <option value="slow">Devagar</option>
+                            <option value="normal" selected>Normal</option>
+                            <option value="fast">Rápido</option>
+                        </select>
+                    </div>
+
+                    <div class="config-row" style="margin-top: 4px;">
+                        <label>Animação da Corda:</label>
+                        <select id="ropeAnimSelect" onchange="atualizarConfigCorda()">
+                            <option value="">Nenhuma (Usar Padrão)</option>
+                        </select>
+                    </div>
+
+                    <div class="config-row" style="margin-top: 4px;">
+                        <label>Espessura da Corda:</label>
+                        <input type="number" id="ropeThicknessInput" value="3" min="1" max="20" step="1" onchange="atualizarConfigCorda()">
+                    </div>
+                </div>
+
                 <div class="section-title">Animações do Sprite</div>
                 <div class="config-group">
                     <label>Nome da Animação:</label>
-                    <input type="text" id="animNameInput" placeholder="Ex: andar, pular, agachar...">
+                    <input type="text" id="animNameInput" placeholder="Ex: andar, pular, agachar, corda...">
                     
                     <div class="config-row" style="margin-top: 4px;">
                         <label style="font-size: 0.7rem;">Gatilho / Tecla:</label>
@@ -660,6 +707,7 @@
                             <option value="KeyD">Tecla D / Direita</option>
                             <option value="KeyW">Tecla W / Espaço / Pulo</option>
                             <option value="KeyS">Tecla S / Baixo</option>
+                            <option value="KeyE">Tecla E (Ação)</option>
                         </select>
                     </div>
 
@@ -773,7 +821,7 @@
             <div class="bottom-panels">
                 <div class="panel">
                     <div class="panel-header">Console de Eventos</div>
-                    <div class="console-output" id="consoleOutput">Clique e arraste em uma plataforma para redimensioná-la ou movê-la! Use a aba Construir para redefinir o Chão Principal.</div>
+                    <div class="console-output" id="consoleOutput">Pressione a tecla configurada (padrão 'E') para lançar a corda para cima quando houver uma plataforma sólida acima do personagem.</div>
                 </div>
 
                 <div class="panel">
@@ -827,6 +875,13 @@
             tileWidth: 800
         };
 
+        // Mapeamento de velocidades predefinidas para puxar a corda
+        const ropeSpeeds = {
+            slow: 5,
+            normal: 12,
+            fast: 22
+        };
+
         // Sistema de Animação
         const animacoes = {}; 
         let animacaoInicial = "";
@@ -834,6 +889,25 @@
         let frameIndex = 0;
         let frameTimer = 0;
         const FRAME_SPEED = 8;
+
+        // Configuração & Estado da Corda
+        const cordaConfig = {
+            enabled: true,
+            key: 'KeyE',
+            anim: '',
+            speedPreset: 'normal',
+            speed: 12,
+            color: '#38bdf8',
+            thickness: 3
+        };
+
+        const cordaState = {
+            active: false,
+            targetY: 0,
+            anchorX: 0,
+            anchorY: 0,
+            targetPlatform: null
+        };
 
         canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
@@ -871,6 +945,67 @@
         let caveiras = [
             { x: 520, y: 0, w: 26, h: 26, vy: 2.5, color: '#ef4444', dano: 25, perdaPontos: 15 }
         ];
+
+        // --- SISTEMA DE CORDA VERTICAL ---
+        function atualizarConfigCorda() {
+            cordaConfig.enabled = document.getElementById('ropeEnabledToggle').checked;
+            cordaConfig.key = document.getElementById('ropeKeyInput').value;
+            cordaConfig.anim = document.getElementById('ropeAnimSelect').value;
+            cordaConfig.color = document.getElementById('ropeColorInput').value || '#38bdf8';
+            cordaConfig.speedPreset = document.getElementById('ropeSpeedSelect').value;
+            cordaConfig.speed = ropeSpeeds[cordaConfig.speedPreset] || 12;
+            cordaConfig.thickness = parseInt(document.getElementById('ropeThicknessInput').value) || 3;
+
+            // Atualiza texto explicativo do controle no header
+            const keyLabel = cordaConfig.key.replace('Key', '').replace('ShiftLeft', 'Shift');
+            document.getElementById('cardControlsDesc').innerHTML = `🎮 <kbd>A</kbd><kbd>D</kbd> / <kbd>←</kbd><kbd>→</kbd> Mover | <kbd>Espaço</kbd>/<kbd>W</kbd> Pular | <kbd>${keyLabel}</kbd> Corda | <kbd>Botão Dir.</kbd> Remover`;
+
+            atualizarCodigoPython();
+        }
+
+        function tentarLancarCorda() {
+            if (!cordaConfig.enabled) return;
+
+            if (cordaState.active) {
+                cancelarCorda();
+                return;
+            }
+
+            const playerCenterX = player.x + player.w / 2;
+            let plataformaAtingida = null;
+            let menorDistanciaY = Infinity;
+
+            // Procura a plataforma sólida mais próxima diretamente acima do jogador
+            plataformas.forEach(p => {
+                if (p.solid) {
+                    if (playerCenterX >= p.x && playerCenterX <= p.x + p.w) {
+                        const distancia = player.y - (p.y + p.h);
+                        if (distancia > 0 && distancia < menorDistanciaY) {
+                            menorDistanciaY = distancia;
+                            plataformaAtingida = p;
+                        }
+                    }
+                }
+            });
+
+            if (plataformaAtingida) {
+                cordaState.active = true;
+                cordaState.targetPlatform = plataformaAtingida;
+                cordaState.anchorX = playerCenterX;
+                cordaState.anchorY = plataformaAtingida.y + plataformaAtingida.h; // ponto inferior da plataforma
+                // Posição Y final para o jogador ficar em pé SOBRE a plataforma
+                cordaState.targetY = plataformaAtingida.y - player.h;
+
+                logConsole(`🪢 Corda enganchada! Puxando jogador para X:${Math.round(playerCenterX)}, Y:${Math.round(cordaState.targetY)}`);
+            } else {
+                logConsole("⚠️ Nenhum objeto sólido encontrado diretamente acima para enganchar a corda!");
+            }
+        }
+
+        function cancelarCorda() {
+            cordaState.active = false;
+            cordaState.targetPlatform = null;
+        }
 
         // --- SISTEMA DE REDIMENSIONAMENTO DO CHÃO PRINCIPAL ---
         function alterarTamanhoChaoPrincipal() {
@@ -918,6 +1053,7 @@
         // --- CONTROLE DE SIMULAÇÃO ---
         function definirEstadoExecucao(estado) {
             estadoExecucao = estado;
+            cancelarCorda();
             
             document.getElementById('btnPlayState').className = 'state-btn';
             document.getElementById('btnPauseState').className = 'state-btn';
@@ -1005,6 +1141,7 @@
             return JSON.stringify({
                 player: { x: player.x, y: player.y, w: player.w, h: player.h, color: player.color, hpMax: hpMaximo },
                 camera: { follow: camera.follow, loopEnabled: camera.loopEnabled, tileWidth: camera.tileWidth, smooth: camera.smooth },
+                cordaConfig: cordaConfig,
                 corCenarioHex: corCenarioHex,
                 bgImgBase64: bgImgBase64,
                 bgImgFileName: bgImgFileName,
@@ -1027,6 +1164,22 @@
                 player.color = data.player.color || '#facc15';
                 hpMaximo = data.player.hpMax || 100;
                 player.hp = hpMaximo;
+
+                if (data.cordaConfig) {
+                    cordaConfig.enabled = data.cordaConfig.enabled ?? true;
+                    cordaConfig.key = data.cordaConfig.key || 'KeyE';
+                    cordaConfig.anim = data.cordaConfig.anim || '';
+                    cordaConfig.speedPreset = data.cordaConfig.speedPreset || 'normal';
+                    cordaConfig.speed = data.cordaConfig.speed || ropeSpeeds[cordaConfig.speedPreset] || 12;
+                    cordaConfig.color = data.cordaConfig.color || '#38bdf8';
+                    cordaConfig.thickness = data.cordaConfig.thickness || 3;
+
+                    document.getElementById('ropeEnabledToggle').checked = cordaConfig.enabled;
+                    document.getElementById('ropeKeyInput').value = cordaConfig.key;
+                    document.getElementById('ropeColorInput').value = cordaConfig.color;
+                    document.getElementById('ropeSpeedSelect').value = cordaConfig.speedPreset;
+                    document.getElementById('ropeThicknessInput').value = cordaConfig.thickness;
+                }
 
                 if (data.camera) {
                     camera.follow = data.camera.follow ?? true;
@@ -1094,6 +1247,7 @@
                 animacaoAtual = animacaoInicial;
 
                 renderizarListaAnimacoes();
+                atualizarConfigCorda();
                 atualizarCodigoPython();
                 logConsole("Projeto carregado com sucesso!");
             } catch (err) {
@@ -1265,19 +1419,31 @@
         function renderizarListaAnimacoes() {
             const listContainer = document.getElementById('animList');
             const selectInit = document.getElementById('initialAnimSelect');
+            const selectRope = document.getElementById('ropeAnimSelect');
+
             listContainer.innerHTML = '';
             selectInit.innerHTML = '<option value="">Nenhuma (Cor Sólida)</option>';
+            selectRope.innerHTML = '<option value="">Nenhuma (Usar Padrão)</option>';
 
             const nomes = Object.keys(animacoes);
             document.getElementById('btnRemoverAnims').style.display = nomes.length ? 'block' : 'none';
 
             nomes.forEach((nome) => {
                 const item = animacoes[nome];
+                
+                // Select Animação Inicial
                 const opt = document.createElement('option');
                 opt.value = nome;
                 opt.textContent = `${nome} (${item.frames.length} frames)`;
                 if (nome === animacaoInicial) opt.selected = true;
                 selectInit.appendChild(opt);
+
+                // Select Animação Corda
+                const optRope = document.createElement('option');
+                optRope.value = nome;
+                optRope.textContent = `${nome} (${item.frames.length} frames)`;
+                if (nome === cordaConfig.anim) optRope.selected = true;
+                selectRope.appendChild(optRope);
 
                 const div = document.createElement('div');
                 div.className = 'anim-item';
@@ -1296,6 +1462,7 @@
                             <option value="KeyD" ${item.keyTrigger==='KeyD'?'selected':''}>Tecla D</option>
                             <option value="KeyW" ${item.keyTrigger==='KeyW'?'selected':''}>Tecla W / Espaço</option>
                             <option value="KeyS" ${item.keyTrigger==='KeyS'?'selected':''}>Tecla S</option>
+                            <option value="KeyE" ${item.keyTrigger==='KeyE'?'selected':''}>Tecla E</option>
                         </select>
                     </div>
                 `;
@@ -1319,6 +1486,7 @@
         function removerAnimacao(nome) {
             delete animacoes[nome];
             if (animacaoInicial === nome) animacaoInicial = Object.keys(animacoes)[0] || "";
+            if (cordaConfig.anim === nome) cordaConfig.anim = "";
             animacaoAtual = animacaoInicial;
             renderizarListaAnimacoes();
             atualizarCodigoPython();
@@ -1328,6 +1496,7 @@
             for (let k in animacoes) delete animacoes[k];
             animacaoInicial = "";
             animacaoAtual = "";
+            cordaConfig.anim = "";
             renderizarListaAnimacoes();
             atualizarCodigoPython();
         }
@@ -1469,6 +1638,12 @@
             if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key) && document.activeElement === canvas) {
                 e.preventDefault();
             }
+            
+            // Dispara a corda vertical na tecla configurada
+            if (e.code === cordaConfig.key && estadoExecucao === 'play') {
+                tentarLancarCorda();
+            }
+
             keys[e.code] = true;
         });
 
@@ -1498,6 +1673,7 @@
             pontuacao = 0;
             camera.x = 0;
             camera.y = 0;
+            cancelarCorda();
             document.getElementById('cameraScrollInput').value = 0;
         }
 
@@ -1505,6 +1681,7 @@
             plataformas = [];
             esferas = [];
             caveiras = [];
+            cancelarCorda();
             atualizarCodigoPython();
             logConsole("Cenário limpo.");
         }
@@ -1512,75 +1689,126 @@
         // --- UPDATE SIMULAÇÃO ---
         function update() {
             if (estadoExecucao === 'play') {
-                // Movimento Horizontal
-                player.vx = 0;
-                if (keys['KeyA'] || keys['ArrowLeft']) {
-                    player.vx = -player.speed;
-                    player.facingRight = false;
-                }
-                if (keys['KeyD'] || keys['ArrowRight']) {
-                    player.vx = player.speed;
-                    player.facingRight = true;
-                }
 
-                // Pulo
-                if ((keys['KeyW'] || keys['ArrowUp'] || keys['Space']) && player.grounded) {
-                    player.vy = player.jumpForce;
-                    player.grounded = false;
-                }
+                // EXECUÇÃO DA CORDA (PUXANDO O PERSONAGEM E PERMITINDO DESLOCAMENTO LATERAL)
+                if (cordaState.active) {
+                    player.vx = 0;
+                    player.vy = 0;
 
-                // Seleção Dinâmica de Animação
-                let novaAnim = animacaoInicial;
-                for (let name in animacoes) {
-                    const trigger = animacoes[name].keyTrigger;
-                    if (trigger === 'LEFT_RIGHT' && Math.abs(player.vx) > 0) novaAnim = name;
-                    else if (trigger === 'UP_DOWN' && !player.grounded) novaAnim = name;
-                    else if (trigger !== 'NONE' && trigger !== 'LEFT_RIGHT' && trigger !== 'UP_DOWN' && keys[trigger]) novaAnim = name;
-                }
-                if (novaAnim && animacoes[novaAnim]) animacaoAtual = novaAnim;
-
-                // Gravidade
-                player.vy += player.gravity;
-
-                // Colisão X
-                player.x += player.vx;
-                
-                // Impede que o personagem passe da posição inicial para a esquerda ao voltar ao ponto de origem
-                if (player.x < playerInicial.x) {
-                    player.x = playerInicial.x;
-                }
-                
-                plataformas.forEach(p => {
-                    if (p.solid && AABB(player, p)) {
-                        if (player.vx > 0) player.x = p.x - player.w;
-                        else if (player.vx < 0) player.x = Math.max(playerInicial.x, p.x + p.w);
+                    // Permite deslocamento horizontal enquanto pendurado
+                    if (keys['KeyA'] || keys['ArrowLeft']) {
+                        player.x -= player.speed;
+                        player.facingRight = false;
                     }
-                });
+                    if (keys['KeyD'] || keys['ArrowRight']) {
+                        player.x += player.speed;
+                        player.facingRight = true;
+                    }
 
-                // Colisão Y
-                player.y += player.vy;
-                player.grounded = false;
+                    // Limita o deslocamento lateral em torno da ancoragem
+                    const ropeRadius = 60;
+                    const minX = cordaState.anchorX - ropeRadius - player.w / 2;
+                    const maxX = cordaState.anchorX + ropeRadius - player.w / 2;
+                    if (player.x < minX) player.x = minX;
+                    if (player.x > maxX) player.x = maxX;
 
-                plataformas.forEach(p => {
-                    if (p.solid) {
-                        if (AABB(player, p)) {
-                            if (player.vy > 0) {
+                    // Mover o jogador para cima até o topo da plataforma
+                    if (player.y > cordaState.targetY) {
+                        player.y -= cordaConfig.speed;
+                        if (player.y <= cordaState.targetY) {
+                            player.y = cordaState.targetY;
+                            player.grounded = true;
+                            cancelarCorda(); // Finaliza a puxada ao chegar em cima
+                            logConsole("✅ Personagem pousou com sucesso em cima da plataforma!");
+                        }
+                    } else {
+                        player.y = cordaState.targetY;
+                        player.grounded = true;
+                        cancelarCorda();
+                    }
+
+                    // Permite saltar para se soltar da corda
+                    if (keys['KeyW'] || keys['ArrowUp'] || keys['Space']) {
+                        cancelarCorda();
+                        player.vy = player.jumpForce;
+                        player.grounded = false;
+                    }
+
+                    // Fixar Animação da Corda se Selecionada
+                    if (cordaConfig.anim && animacoes[cordaConfig.anim]) {
+                        animacaoAtual = cordaConfig.anim;
+                    }
+                } 
+                else {
+                    // CONTROLE PADRÃO DO JOGADOR
+                    player.vx = 0;
+                    if (keys['KeyA'] || keys['ArrowLeft']) {
+                        player.vx = -player.speed;
+                        player.facingRight = false;
+                    }
+                    if (keys['KeyD'] || keys['ArrowRight']) {
+                        player.vx = player.speed;
+                        player.facingRight = true;
+                    }
+
+                    // Pulo
+                    if ((keys['KeyW'] || keys['ArrowUp'] || keys['Space']) && player.grounded) {
+                        player.vy = player.jumpForce;
+                        player.grounded = false;
+                    }
+
+                    // Seleção Dinâmica de Animação
+                    let novaAnim = animacaoInicial;
+                    for (let name in animacoes) {
+                        const trigger = animacoes[name].keyTrigger;
+                        if (trigger === 'LEFT_RIGHT' && Math.abs(player.vx) > 0) novaAnim = name;
+                        else if (trigger === 'UP_DOWN' && !player.grounded) novaAnim = name;
+                        else if (trigger !== 'NONE' && trigger !== 'LEFT_RIGHT' && trigger !== 'UP_DOWN' && keys[trigger]) novaAnim = name;
+                    }
+                    if (novaAnim && animacoes[novaAnim]) animacaoAtual = novaAnim;
+
+                    // Gravidade
+                    player.vy += player.gravity;
+
+                    // Colisão X
+                    player.x += player.vx;
+                    
+                    if (player.x < playerInicial.x) {
+                        player.x = playerInicial.x;
+                    }
+                    
+                    plataformas.forEach(p => {
+                        if (p.solid && AABB(player, p)) {
+                            if (player.vx > 0) player.x = p.x - player.w;
+                            else if (player.vx < 0) player.x = Math.max(playerInicial.x, p.x + p.w);
+                        }
+                    });
+
+                    // Colisão Y
+                    player.y += player.vy;
+                    player.grounded = false;
+
+                    plataformas.forEach(p => {
+                        if (p.solid) {
+                            if (AABB(player, p)) {
+                                if (player.vy > 0) {
+                                    player.y = p.y - player.h;
+                                    player.vy = 0;
+                                    player.grounded = true;
+                                } else if (player.vy < 0) {
+                                    player.y = p.y + p.h;
+                                    player.vy = 0;
+                                }
+                            }
+                        } else {
+                            if (player.vy > 0 && (player.y + player.h - player.vy) <= p.y && AABB(player, p)) {
                                 player.y = p.y - player.h;
                                 player.vy = 0;
                                 player.grounded = true;
-                            } else if (player.vy < 0) {
-                                player.y = p.y + p.h;
-                                player.vy = 0;
                             }
                         }
-                    } else {
-                        if (player.vy > 0 && (player.y + player.h - player.vy) <= p.y && AABB(player, p)) {
-                            player.y = p.y - player.h;
-                            player.vy = 0;
-                            player.grounded = true;
-                        }
-                    }
-                });
+                    });
+                }
 
                 // Limite inferior do mundo
                 if (player.y + player.h > canvas.height + 200) {
@@ -1614,14 +1842,12 @@
 
             // --- ATUALIZAÇÃO DA CÂMERA & CHÃO PRINCIPAL ---
             if (camera.follow && estadoExecucao === 'play') {
-                // A câmera só se move se o jogador avançar além da posição inicial (considerando a centralização)
                 camera.targetX = Math.max(0, player.x - playerInicial.x);
                 camera.x += (camera.targetX - camera.x) * camera.smooth;
                 if (camera.x < 0) camera.x = 0;
                 document.getElementById('cameraScrollInput').value = camera.x;
             }
 
-            // Garante que o chão acompanha dinamicamente a posição da câmera no mundo estendido
             let chao = plataformas.find(p => p.isMainFloor);
             if (chao) {
                 chao.x = camera.x - 2000;
@@ -1691,7 +1917,7 @@
                     }
                 }
 
-                // Desenhar Alça de Redimensionamento no Modo Edição (Stop/Pause)
+                // Alça de Redimensionamento
                 if (estadoExecucao !== 'play' && !p.isMainFloor) {
                     ctx.fillStyle = '#ffffff';
                     ctx.fillRect(p.x + p.w - 6, p.y + p.h - 6, 6, 6);
@@ -1716,6 +1942,25 @@
                 ctx.fillRect(c.x - 6, c.y - 4, 4, 4);
                 ctx.fillRect(c.x + 2, c.y - 4, 4, 4);
             });
+
+            // DESENHAR A CORDA COM A COR SELECIONADA
+            if (cordaState.active) {
+                const startX = player.x + player.w / 2;
+                const startY = player.y;
+
+                ctx.strokeStyle = cordaConfig.color;
+                ctx.lineWidth = cordaConfig.thickness;
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(cordaState.anchorX, cordaState.anchorY);
+                ctx.stroke();
+
+                // Ponto de Ancoragem
+                ctx.fillStyle = '#f59e0b';
+                ctx.beginPath();
+                ctx.arc(cordaState.anchorX, cordaState.anchorY, 5, 0, Math.PI * 2);
+                ctx.fill();
+            }
 
             // Preview Plataforma ao arrastar
             if (desenhando) {
@@ -1767,12 +2012,56 @@
                 }
             }
 
-            if (!frameRenderizado && Object.keys(animacoes).length === 0) {
+            // DESENHO PIXEL ART DETALHADO DO JOGADOR
+            if (!frameRenderizado) {
+                ctx.save();
+                
+                // Espelhamento na direção do olhar
+                if (!player.facingRight) {
+                    ctx.translate(player.x + player.w, player.y);
+                    ctx.scale(-1, 1);
+                } else {
+                    ctx.translate(player.x, player.y);
+                }
+
+                const pw = player.w;
+                const ph = player.h;
+
+                // Sombra suave no chão
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+                ctx.beginPath();
+                ctx.ellipse(pw / 2, ph, pw * 0.45, 3, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // 1. Pernas / Pés
+                ctx.fillStyle = '#1e293b';
+                ctx.fillRect(pw * 0.15, ph * 0.72, pw * 0.3, ph * 0.28);
+                ctx.fillRect(pw * 0.55, ph * 0.72, pw * 0.3, ph * 0.28);
+
+                // 2. Corpo Principal (Usando a cor base do player selecionada)
                 ctx.fillStyle = player.color;
-                ctx.fillRect(player.x, player.y, player.w, player.h);
-                ctx.fillStyle = '#000000';
-                const eyeX = player.facingRight ? player.x + player.w - 6 : player.x + 2;
-                ctx.fillRect(eyeX, player.y + 6, 4, 4);
+                ctx.fillRect(pw * 0.1, ph * 0.35, pw * 0.8, ph * 0.42);
+
+                // 3. Cinto / Detalhe
+                ctx.fillStyle = '#0284c7';
+                ctx.fillRect(pw * 0.1, ph * 0.62, pw * 0.8, ph * 0.12);
+
+                // 4. Cabeça / Rosto
+                ctx.fillStyle = '#ffedd5';
+                ctx.fillRect(pw * 0.15, ph * 0.1, pw * 0.7, ph * 0.32);
+
+                // 5. Cabelo / Capuz Superior
+                ctx.fillStyle = '#0284c7';
+                ctx.fillRect(pw * 0.1, ph * 0.02, pw * 0.8, ph * 0.12);
+                ctx.fillRect(pw * 0.1, ph * 0.08, pw * 0.2, ph * 0.15);
+
+                // 6. Olhos (Visor / Olhos Pixel)
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(pw * 0.58, ph * 0.18, pw * 0.2, ph * 0.12);
+                ctx.fillStyle = '#38bdf8';
+                ctx.fillRect(pw * 0.68, ph * 0.2, pw * 0.08, ph * 0.08);
+
+                ctx.restore();
             }
 
             // Popups de texto (+10 / -25)
@@ -1788,7 +2077,7 @@
 
             ctx.restore();
 
-            // --- DESENHO DO HUD (PONTUAÇÃO E HP NO CANTO SUPERIOR FIXO DO CANVAS) ---
+            // --- DESENHO DO HUD ---
             ctx.save();
             ctx.font = 'bold 14px "Segoe UI", sans-serif';
 
@@ -1828,25 +2117,23 @@
         function atualizarCodigoPython() {
             const bgRgb = hexToRgb(corCenarioHex);
             const playerRgb = hexToRgb(player.color);
+            const ropeRgb = hexToRgb(cordaConfig.color);
+            const pyRopeKey = cordaConfig.key.replace('Key', 'K_').replace('ShiftLeft', 'K_LSHIFT').replace('Space', 'K_SPACE');
 
-            let pyCode = `import pygame\nimport sys\n\npygame.init()\nWIDTH, HEIGHT = 800, 450\nscreen = pygame.display.set_mode((WIDTH, HEIGHT))\npygame.display.set_caption("Jogo Plataforma 2D - Câmera & Cenário Expandido")\nclock = pygame.time.Clock()\nfont = pygame.font.SysFont("Segoe UI", 18, bold=True)\n\n# Cores\nBG_COLOR = (${bgRgb.r}, ${bgRgb.g}, ${bgRgb.b})\n`;
+            let pyCode = `import pygame\nimport sys\n\npygame.init()\nWIDTH, HEIGHT = 800, 450\nscreen = pygame.display.set_mode((WIDTH, HEIGHT))\npygame.display.set_caption("Jogo Plataforma 2D - Corda Vertical")\nclock = pygame.time.Clock()\nfont = pygame.font.SysFont("Segoe UI", 18, bold=True)\n\n# Cores\nBG_COLOR = (${bgRgb.r}, ${bgRgb.g}, ${bgRgb.b})\nROPE_COLOR = (${ropeRgb.r}, ${ropeRgb.g}, ${ropeRgb.b})\n`;
 
-            pyCode += `\n# Configurações de Câmera e Fundo Cíclico\nLOOP_BG_ENABLED = ${camera.loopEnabled ? 'True' : 'False'}\nTILE_WIDTH = ${camera.tileWidth}\ncamera_x = 0\nPLAYER_START_X = ${playerInicial.x}\n\n`;
+            pyCode += `\n# Configurações do Jogo\nLOOP_BG_ENABLED = ${camera.loopEnabled ? 'True' : 'False'}\nTILE_WIDTH = ${camera.tileWidth}\ncamera_x = 0\nPLAYER_START_X = ${playerInicial.x}\n\n`;
+
+            pyCode += `# Configurações da Corda\nROPE_ENABLED = ${cordaConfig.enabled ? 'True' : 'False'}\nROPE_SPEED = ${cordaConfig.speed}\nROPE_THICKNESS = ${cordaConfig.thickness}\nrope_active = False\nrope_target_y = 0\nrope_anchor_x = 0\nrope_anchor_y = 0\n\n`;
 
             pyCode += `# Plataformas Globais\nplataformas = [\n`;
             plataformas.forEach(p => {
                 const c = hexToRgb(p.color);
                 pyCode += `    {"rect": pygame.Rect(${Math.round(p.x)}, ${Math.round(p.y)}, ${Math.round(p.w)}, ${Math.round(p.h)}), "color": (${c.r}, ${c.g}, ${c.b}), "solid": ${p.solid ? 'True' : 'False'}, "visible": ${p.isInvisibleFloor ? 'False' : 'True'}, "is_main_floor": ${p.isMainFloor ? 'True' : 'False'}},\n`;
             });
-            pyCode += `]\n\nesferas = [\n`;
-            esferas.forEach(s => {
-                pyCode += `    {"x": ${Math.round(s.x)}, "y": ${Math.round(s.y)}, "radius": 12, "vy": 2.5},\n`;
-            });
-            pyCode += `]\n\ncaveiras = [\n`;
-            caveiras.forEach(c => {
-                pyCode += `    {"x": ${Math.round(c.x)}, "y": ${Math.round(c.y)}, "size": 26, "vy": 2.5},\n`;
-            });
-            pyCode += `]\n\n# Configurações do Player\nplayer_rect = pygame.Rect(${Math.round(player.x)}, ${Math.round(player.y)}, ${player.w}, ${player.h})\nplayer_color = (${playerRgb.r}, ${playerRgb.g}, ${playerRgb.b})\nvy = 0\ngravity = 0.5\nis_grounded = False\nhp = ${hpMaximo}\npontos = 0\n\n# Loop Principal\nrunning = True\nwhile running:\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            running = False\n\n    keys = pygame.key.get_pressed()\n    if keys[pygame.K_a] or keys[pygame.K_LEFT]: player_rect.x -= 4\n    if keys[pygame.K_d] or keys[pygame.K_RIGHT]: player_rect.x += 4\n    if (keys[pygame.K_w] or keys[pygame.K_SPACE]) and is_grounded:\n        vy = -10\n        is_grounded = False\n\n    # Limita movimento ao X inicial\n    if player_rect.x < PLAYER_START_X:\n        player_rect.x = PLAYER_START_X\n\n    vy += gravity\n    player_rect.y += vy\n\n    # Atualiza Câmera a partir do ponto inicial\n    target_cam_x = max(0, player_rect.x - PLAYER_START_X)\n    camera_x += (target_cam_x - camera_x) * ${camera.smooth}\n    if camera_x < 0: camera_x = 0\n\n    # Atualiza Chão Principal para seguir a câmera no mundo estendido\n    for p in plataformas:\n        if p.get("is_main_floor"):\n            p["rect"].x = int(camera_x - 2000)\n            p["rect"].width = WIDTH + 4000\n\n    # Colisão com Plataformas\n    is_grounded = False\n    for p in plataformas:\n        if p["solid"] and player_rect.colliderect(p["rect"]):\n            if vy > 0:\n                player_rect.bottom = p["rect"].top\n                vy = 0\n                is_grounded = True\n\n    screen.fill(BG_COLOR)\n\n    # Renderiza Plataformas\n    for p in plataformas:\n        if p["visible"]:\n            screen_rect = p["rect"].move(-camera_x, 0)\n            pygame.draw.rect(screen, p["color"], screen_rect)\n            \n    # Renderiza Player\n    screen_player = player_rect.move(-camera_x, 0)\n    pygame.draw.rect(screen, player_color, screen_player)\n\n    # Renderiza HUD no Canto Superior Fixo\n    hp_text = font.render(f"HP: {hp}", True, (252, 165, 165))\n    score_text = font.render(f"Pontos: {pontos}", True, (244, 114, 182))\n    screen.blit(hp_text, (20, 15))\n    screen.blit(score_text, (120, 15))\n\n    pygame.display.flip()\n    clock.tick(60)\n\npygame.quit()\nsys.exit()\n`;
+            pyCode += `]\n\n# Configurações do Player\nplayer_rect = pygame.Rect(${Math.round(player.x)}, ${Math.round(player.y)}, ${player.w}, ${player.h})\nplayer_color = (${playerRgb.r}, ${playerRgb.g}, ${playerRgb.b})\nvy = 0\ngravity = 0.5\nis_grounded = False\nhp = ${hpMaximo}\npontos = 0\n\n# Loop Principal\nrunning = True\nwhile running:\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            running = False\n        if event.type == pygame.KEYDOWN:\n            if event.key == pygame.${pyRopeKey} and ROPE_ENABLED:\n                if rope_active:\n                    rope_active = False\n                else:\n                    player_center_x = player_rect.centerx\n                    target_plat = None\n                    min_dist = 9999\n                    for p in plataformas:\n                        if p["solid"] and p["rect"].left <= player_center_x <= p["rect"].right:\n                            dist = player_rect.top - p["rect"].bottom\n                            if 0 < dist < min_dist:\n                                min_dist = dist\n                                target_plat = p\n                    if target_plat:\n                        rope_active = True\n                        rope_anchor_x = player_center_x\n                        rope_anchor_y = target_plat["rect"].bottom\n                        rope_target_y = target_plat["rect"].top - player_rect.height\n\n    keys = pygame.key.get_pressed()\n`;
+
+            pyCode += `    if rope_active:\n        if keys[pygame.K_a] or keys[pygame.K_LEFT]: player_rect.x -= 4\n        if keys[pygame.K_d] or keys[pygame.K_RIGHT]: player_rect.x += 4\n        rope_radius = 60\n        if player_rect.centerx < rope_anchor_x - rope_radius: player_rect.centerx = rope_anchor_x - rope_radius\n        if player_rect.centerx > rope_anchor_x + rope_radius: player_rect.centerx = rope_anchor_x + rope_radius\n        if player_rect.y > rope_target_y:\n            player_rect.y -= ROPE_SPEED\n            if player_rect.y <= rope_target_y:\n                player_rect.y = rope_target_y\n                rope_active = False\n                is_grounded = True\n        else:\n            rope_active = False\n        if keys[pygame.K_w] or keys[pygame.K_SPACE]:\n            rope_active = False\n            vy = -10\n            is_grounded = False\n    else:\n        if keys[pygame.K_a] or keys[pygame.K_LEFT]: player_rect.x -= 4\n        if keys[pygame.K_d] or keys[pygame.K_RIGHT]: player_rect.x += 4\n        if (keys[pygame.K_w] or keys[pygame.K_SPACE]) and is_grounded:\n            vy = -10\n            is_grounded = False\n\n        if player_rect.x < PLAYER_START_X: player_rect.x = PLAYER_START_X\n        vy += gravity\n        player_rect.y += vy\n\n        is_grounded = False\n        for p in plataformas:\n            if p["solid"] and player_rect.colliderect(p["rect"]):\n                if vy > 0:\n                    player_rect.bottom = p["rect"].top\n                    vy = 0\n                    is_grounded = True\n\n    # Atualiza Câmera\n    target_cam_x = max(0, player_rect.x - PLAYER_START_X)\n    camera_x += (target_cam_x - camera_x) * ${camera.smooth}\n    if camera_x < 0: camera_x = 0\n\n    screen.fill(BG_COLOR)\n\n    # Desenha Plataformas\n    for p in plataformas:\n        if p["visible"]:\n            screen_rect = p["rect"].move(-camera_x, 0)\n            pygame.draw.rect(screen, p["color"], screen_rect)\n            \n    # Desenha a Corda\n    if rope_active:\n        pygame.draw.line(screen, ROPE_COLOR, (player_rect.centerx - camera_x, player_rect.top), (rope_anchor_x - camera_x, rope_anchor_y), ROPE_THICKNESS)\n\n    # Desenha Player\n    screen_player = player_rect.move(-camera_x, 0)\n    pygame.draw.rect(screen, player_color, screen_player)\n\n    pygame.display.flip()\n    clock.tick(60)\n\npygame.quit()\nsys.exit()\n`;
 
             document.getElementById('codeEditor').textContent = pyCode;
         }
@@ -1859,6 +2146,7 @@
 
         // Inicialização
         renderizarListaAnimacoes();
+        atualizarConfigCorda();
         atualizarInputsChao();
         atualizarCodigoPython();
         gameLoop();
