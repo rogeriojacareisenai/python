@@ -396,7 +396,7 @@
             <div class="flowchart-container">
                 <div class="panel-header">Representação em Fluxograma</div>
                 <div class="flowchart-canvas-wrapper" id="canvasWrapper">
-                    <canvas id="flowchartCanvas" width="340" height="780"></canvas>
+                    <canvas id="flowchartCanvas" width="480" height="780"></canvas>
                 </div>
             </div>
         </div>
@@ -464,22 +464,27 @@
             { id: 21, text: 'fimalgoritmo', node: 'inicio_fim_bottom', expTitle: 'Fim do Algoritmo', expText: 'Encerra o programa.' }
         ];
 
-        // Definição dos blocos no Fluxograma
+        // Definição dos nós no Fluxograma
         const flowchartNodes = {
-            'inicio_fim_top': { type: 'oval', label: 'INÍCIO', y: 25, h: 34 },
-            'var': { type: 'rect', label: 'VAR: n1, n2, n3', y: 80, h: 34 },
-            'escreva1': { type: 'io', label: 'Escreva("Digite 1º nº")', y: 135, h: 34 },
-            'leia1': { type: 'io', label: 'Leia(n1)', y: 190, h: 34 },
-            'escreva2': { type: 'io', label: 'Escreva("Digite 2º nº")', y: 245, h: 34 },
-            'leia2': { type: 'io', label: 'Leia(n2)', y: 300, h: 34 },
-            'escreva3': { type: 'io', label: 'Escreva("Digite 3º nº")', y: 355, h: 34 },
-            'leia3': { type: 'io', label: 'Leia(n3)', y: 410, h: 34 },
-            'cond1': { type: 'diamond', label: 'n1 >= n2 E n1 >= n3?', y: 465, h: 42 },
-            'out1': { type: 'io', label: 'Exibir: n1 é o maior', y: 530, h: 34 },
-            'cond2': { type: 'diamond', label: 'n2 >= n3?', y: 585, h: 42 },
-            'out2': { type: 'io', label: 'Exibir: n2 é o maior', y: 650, h: 34 },
-            'out3': { type: 'io', label: 'Exibir: n3 é o maior', y: 705, h: 34 },
-            'inicio_fim_bottom': { type: 'oval', label: 'FIM', y: 755, h: 34 }
+            'inicio_fim_top': { type: 'oval', label: 'INÍCIO', x: 240, y: 25, w: 180, h: 34 },
+            'var': { type: 'rect', label: 'VAR: n1, n2, n3', x: 240, y: 80, w: 180, h: 34 },
+            'escreva1': { type: 'io', label: 'Escreva("Digite 1º nº")', x: 240, y: 135, w: 180, h: 34 },
+            'leia1': { type: 'io', label: 'Leia(n1)', x: 240, y: 190, w: 180, h: 34 },
+            'escreva2': { type: 'io', label: 'Escreva("Digite 2º nº")', x: 240, y: 245, w: 180, h: 34 },
+            'leia2': { type: 'io', label: 'Leia(n2)', x: 240, y: 300, w: 180, h: 34 },
+            'escreva3': { type: 'io', label: 'Escreva("Digite 3º nº")', x: 240, y: 355, w: 180, h: 34 },
+            'leia3': { type: 'io', label: 'Leia(n3)', x: 240, y: 410, w: 180, h: 34 },
+            
+            // Decisão 1
+            'cond1': { type: 'diamond', label: 'n1 >= n2 E n1 >= n3?', x: 240, y: 465, w: 180, h: 42 },
+            'out1': { type: 'io', label: 'Exibir: n1 é o maior', x: 90, y: 535, w: 140, h: 34 },
+            
+            // Decisão 2 (Ramificação do Falso da Condição 1)
+            'cond2': { type: 'diamond', label: 'n2 >= n3?', x: 350, y: 535, w: 140, h: 42 },
+            'out2': { type: 'io', label: 'Exibir: n2 é o maior', x: 260, y: 615, w: 130, h: 34 },
+            'out3': { type: 'io', label: 'Exibir: n3 é o maior', x: 410, y: 615, w: 130, h: 34 },
+            
+            'inicio_fim_bottom': { type: 'oval', label: 'FIM', x: 240, y: 720, w: 180, h: 34 }
         };
 
         // Estado da RAM
@@ -499,42 +504,117 @@
         let consoleTexto = "";
         let nodeSelecionado = null;
 
+        function desenharSeta(ctx, x1, y1, x2, y2) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            ctx.beginPath();
+            ctx.fillStyle = ctx.strokeStyle;
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - 8 * Math.cos(angle - Math.PI / 6), y2 - 8 * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(x2 - 8 * Math.cos(angle + Math.PI / 6), y2 - 8 * Math.sin(angle + Math.PI / 6));
+            ctx.closePath();
+            ctx.fill();
+        }
+
         function desenharFluxograma() {
             const canvas = document.getElementById('flowchartCanvas');
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            const nodeKeys = Object.keys(flowchartNodes);
+            ctx.strokeStyle = "#666";
+            ctx.lineWidth = 1.5;
+            ctx.fillStyle = "#888";
+            ctx.font = "bold 11px Segoe UI, sans-serif";
 
-            // Desenhar linhas conectoras básicas
-            for (let i = 0; i < nodeKeys.length - 1; i++) {
-                const current = flowchartNodes[nodeKeys[i]];
-                const next = flowchartNodes[nodeKeys[i+1]];
-
-                const startY = current.y + current.h;
-                const endY = next.y;
-                const x = canvas.width / 2;
-
-                ctx.beginPath();
-                ctx.strokeStyle = "#666";
-                ctx.lineWidth = 1.5;
-                ctx.moveTo(x, startY);
-                ctx.lineTo(x, endY);
-                ctx.stroke();
-
-                ctx.beginPath();
-                ctx.fillStyle = "#666";
-                ctx.moveTo(x - 4, endY - 5);
-                ctx.lineTo(x + 4, endY - 5);
-                ctx.lineTo(x, endY);
-                ctx.fill();
+            // Conexões sequenciais diretas antes das condições
+            const linearSeq = ['inicio_fim_top', 'var', 'escreva1', 'leia1', 'escreva2', 'leia2', 'escreva3', 'leia3', 'cond1'];
+            for (let i = 0; i < linearSeq.length - 1; i++) {
+                const n1 = flowchartNodes[linearSeq[i]];
+                const n2 = flowchartNodes[linearSeq[i+1]];
+                desenharSeta(ctx, n1.x, n1.y + n1.h, n2.x, n2.y);
             }
+
+            // === COND1 (n1 >= n2 E n1 >= n3) ===
+            const c1 = flowchartNodes['cond1'];
+            const o1 = flowchartNodes['out1'];
+            const c2 = flowchartNodes['cond2'];
+
+            // Verdadeiro -> out1 (Esquerda)
+            ctx.beginPath();
+            ctx.moveTo(c1.x - c1.w/2, c1.y + c1.h/2);
+            ctx.lineTo(o1.x, c1.y + c1.h/2);
+            ctx.lineTo(o1.x, o1.y);
+            ctx.stroke();
+            desenharSeta(ctx, o1.x, o1.y - 5, o1.x, o1.y);
+            ctx.fillStyle = "#00ff66";
+            ctx.fillText("V", (c1.x - c1.w/2 + o1.x) / 2, c1.y + c1.h/2 - 6);
+
+            // Falso -> cond2 (Direita)
+            ctx.beginPath();
+            ctx.moveTo(c1.x + c1.w/2, c1.y + c1.h/2);
+            ctx.lineTo(c2.x, c1.y + c1.h/2);
+            ctx.lineTo(c2.x, c2.y);
+            ctx.stroke();
+            desenharSeta(ctx, c2.x, c2.y - 5, c2.x, c2.y);
+            ctx.fillStyle = "#ff4d6d";
+            ctx.fillText("F", (c1.x + c1.w/2 + c2.x) / 2, c1.y + c1.h/2 - 6);
+
+            // === COND2 (n2 >= n3) ===
+            const o2 = flowchartNodes['out2'];
+            const o3 = flowchartNodes['out3'];
+
+            // Verdadeiro -> out2 (Esquerda)
+            ctx.beginPath();
+            ctx.moveTo(c2.x - c2.w/2, c2.y + c2.h/2);
+            ctx.lineTo(o2.x, c2.y + c2.h/2);
+            ctx.lineTo(o2.x, o2.y);
+            ctx.stroke();
+            desenharSeta(ctx, o2.x, o2.y - 5, o2.x, o2.y);
+            ctx.fillStyle = "#00ff66";
+            ctx.fillText("V", (c2.x - c2.w/2 + o2.x) / 2, c2.y + c2.h/2 - 6);
+
+            // Falso -> out3 (Direita)
+            ctx.beginPath();
+            ctx.moveTo(c2.x + c2.w/2, c2.y + c2.h/2);
+            ctx.lineTo(o3.x, c2.y + c2.h/2);
+            ctx.lineTo(o3.x, o3.y);
+            ctx.stroke();
+            desenharSeta(ctx, o3.x, o3.y - 5, o3.x, o3.y);
+            ctx.fillStyle = "#ff4d6d";
+            ctx.fillText("F", (c2.x + c2.w/2 + o3.x) / 2, c2.y + c2.h/2 - 6);
+
+            // === UNIFICAÇÃO DAS LINHAS DE SAÍDA INDO PARA O FIM ===
+            const fim = flowchartNodes['inicio_fim_bottom'];
+            const yJuncao = 680; // Ponto Y comum onde todos os caminhos se cruzam
+
+            ctx.beginPath();
+            // out1 -> Linha até Y de junção e dobra até o centro (x: 240)
+            ctx.moveTo(o1.x, o1.y + o1.h);
+            ctx.lineTo(o1.x, yJuncao);
+            ctx.lineTo(fim.x, yJuncao);
+
+            // out2 -> Linha até Y de junção
+            ctx.moveTo(o2.x, o2.y + o2.h);
+            ctx.lineTo(o2.x, yJuncao);
+
+            // out3 -> Linha até Y de junção e dobra até o centro (x: 240)
+            ctx.moveTo(o3.x, o3.y + o3.h);
+            ctx.lineTo(o3.x, yJuncao);
+            ctx.lineTo(fim.x, yJuncao);
+            ctx.stroke();
+
+            // Seta final unificada partindo do ponto de junção até o bloco FIM
+            desenharSeta(ctx, fim.x, yJuncao, fim.x, fim.y);
 
             // Desenhar Nós
             for (let key in flowchartNodes) {
                 const node = flowchartNodes[key];
-                const x = canvas.width / 2;
-                const w = 220;
+                const x = node.x;
+                const w = node.w;
                 const h = node.h;
                 const y = node.y;
 
@@ -550,7 +630,7 @@
                     ctx.fill();
                     ctx.stroke();
                 } else if (node.type === 'io') {
-                    const skew = 15;
+                    const skew = 12;
                     ctx.beginPath();
                     ctx.moveTo(x - w/2 + skew, y);
                     ctx.lineTo(x + w/2, y);
@@ -576,7 +656,7 @@
                 }
 
                 ctx.fillStyle = isSelected ? "#ffffff" : "#d4d4d4";
-                ctx.font = isSelected ? "bold 11px Segoe UI, sans-serif" : "11px Segoe UI, sans-serif";
+                ctx.font = isSelected ? "bold 10px Segoe UI, sans-serif" : "10px Segoe UI, sans-serif";
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
                 ctx.fillText(node.label, x, y + h/2);
@@ -734,11 +814,10 @@
                     solicitarInput('n3', 27);
                     break;
                 case 12:
-                    // Teste se n1 é o maior
                     if (n1 >= n2 && n1 >= n3) {
-                        atualizarExplicacao("Condição Verdadeira", `(${n1} >= ${n2}) e (${n1} >= ${n3}) é VERDADEIRO. Entrando no bloco 'entao'.`);
+                        atualizarExplicacao("Condição Verdadeira", `(${n1} >= ${n2}) e (${n1} >= ${n3}) é VERDADEIRO. Desviando para ESQUERDA (V).`);
                     } else {
-                        atualizarExplicacao("Condição Falsa", `(${n1} >= ${n2}) e (${n1} >= ${n3}) é FALSO. Desviando para o 'senao' (linha 14).`);
+                        atualizarExplicacao("Condição Falsa", `(${n1} >= ${n2}) e (${n1} >= ${n3}) é FALSO. Desviando para DIREITA (F) -> Linha 15.`);
                     }
                     break;
                 case 13:
@@ -746,14 +825,13 @@
                     document.getElementById('consoleOutput').innerText = consoleTexto;
                     break;
                 case 14:
-                    // Se veio parar no senao do primeiro SE, pula direto para a linha 15 (condição 2)
                     avançarParaLinha(15);
                     break;
                 case 15:
                     if (n2 >= n3) {
-                        atualizarExplicacao("Condição 2 Verdadeira", `(${n2} >= ${n3}) é VERDADEIRO. Entrando no bloco 'entao'.`);
+                        atualizarExplicacao("Condição 2 Verdadeira", `(${n2} >= ${n3}) é VERDADEIRO. Desviando para ESQUERDA (V).`);
                     } else {
-                        atualizarExplicacao("Condição 2 Falsa", `(${n2} >= ${n3}) é FALSO. Desviando para o 'senao' (linha 17).`);
+                        atualizarExplicacao("Condição 2 Falsa", `(${n2} >= ${n3}) é FALSO. Desviando para DIREITA (F) -> Linha 18.`);
                     }
                     break;
                 case 16:
@@ -769,7 +847,6 @@
                     break;
                 case 19:
                 case 20:
-                    // Fim de blocos condicionais, salta para o fimalgoritmo
                     avançarParaLinha(21);
                     break;
                 case 21:
@@ -789,29 +866,28 @@
 
             if (passoAtual >= codigoAlgoritmo.length) return;
 
-            // Desvios lógicos baseados nos valores digitados
             const n1 = memoriaRAM.vars.n1.val;
             const n2 = memoriaRAM.vars.n2.val;
             const n3 = memoriaRAM.vars.n3.val;
 
             if (passoAtual === 12) {
                 if (n1 >= n2 && n1 >= n3) {
-                    passoAtual = 13; // Imprime n1
+                    passoAtual = 13;
                 } else {
-                    passoAtual = 14; // Vai para o Senão
+                    passoAtual = 15;
                 }
             } else if (passoAtual === 13) {
-                passoAtual = 21; // Pula direto para o fimalgoritmo
+                passoAtual = 21;
             } else if (passoAtual === 15) {
                 if (n2 >= n3) {
-                    passoAtual = 16; // Imprime n2
+                    passoAtual = 16;
                 } else {
-                    passoAtual = 17; // Vai para o Senão do 2º se
+                    passoAtual = 18;
                 }
             } else if (passoAtual === 16) {
-                passoAtual = 21; // Pula direto para o fimalgoritmo
+                passoAtual = 21;
             } else if (passoAtual === 18) {
-                passoAtual = 21; // Pula direto para o fimalgoritmo
+                passoAtual = 21;
             } else {
                 passoAtual++;
             }
@@ -906,11 +982,13 @@
 
         document.getElementById('flowchartCanvas').addEventListener('click', function(e) {
             const rect = this.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
             const clickY = e.clientY - rect.top;
 
             for (let key in flowchartNodes) {
                 const node = flowchartNodes[key];
-                if (clickY >= node.y && clickY <= node.y + node.h) {
+                if (clickX >= node.x - node.w/2 && clickX <= node.x + node.w/2 &&
+                    clickY >= node.y && clickY <= node.y + node.h) {
                     const idx = codigoAlgoritmo.findIndex(item => item.node === key);
                     if (idx !== -1) {
                         selecionarLinhaManualmente(idx + 1);

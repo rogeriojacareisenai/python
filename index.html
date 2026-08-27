@@ -87,14 +87,16 @@
         /* GRID DE AULAS COMPACTO */
         .grid-aulas {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Reduzido para caber mais cards */
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            grid-auto-rows: 95px; /* Altura exata e uniforme para todas as linhas de cards */
             gap: 8px;
             flex: 1;
             overflow-y: auto;
             padding-right: 4px;
+            align-content: start; /* Impede a esticar a grade quando houver poucos cards filtrados */
         }
 
-        /* CARD SUPER COMPACTO (Sem descrição) */
+        /* CARD COM ALTURA FIXA E PADRONIZADA */
         .card {
             background-color: #ffffff;
             border: 1px solid #e8dadc;
@@ -103,7 +105,8 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            gap: 6px; /* Espaço uniforme entre badge, título e botão */
+            height: 95px; /* Trava a altura do card */
+            box-sizing: border-box;
             transition: transform 0.15s ease, border-color 0.15s ease;
             box-shadow: 0 1px 4px rgba(74, 14, 23, 0.05);
         }
@@ -117,6 +120,7 @@
         .card-header {
             display: flex;
             align-items: center;
+            height: 16px;
         }
 
         .card-badge {
@@ -127,19 +131,21 @@
             font-size: 0.65rem;
             font-weight: bold;
             border: 1px solid #f5c6cb;
+            line-height: 1;
         }
 
         .card h2 {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             color: #3b0b12;
-            line-height: 1.2;
+            line-height: 1.15;
             font-weight: 700;
-            margin: 0;
-            flex: 1; /* Faz o título ocupar o espaço restante, alinhando os botões embaixo */
+            margin: 2px 0;
             display: -webkit-box;
-            -webkit-line-clamp: 2;
+            -webkit-line-clamp: 2; /* Limita estritamente em no máximo 2 linhas */
             -webkit-box-orient: vertical;
             overflow: hidden;
+            text-overflow: ellipsis;
+            height: 2.3em; /* Mantém área fixa de texto para alinhamento uniforme */
         }
 
         .card-btn {
@@ -148,14 +154,15 @@
             background-color: #6b1120;
             color: #ffffff;
             text-decoration: none;
-            padding: 5px 4px;
+            padding: 4px 2px;
             border-radius: 4px;
             font-weight: 600;
             transition: background-color 0.2s ease;
             border: none;
             cursor: pointer;
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             width: 100%;
+            box-sizing: border-box;
         }
 
         .card-btn:hover {
@@ -173,7 +180,7 @@
             flex-shrink: 0;
         }
 
-        /* MODAIS */
+        /* MODAIS ESTILIZADOS E FORMATADOS */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0;
@@ -197,7 +204,7 @@
         .modal-content {
             background-color: #ffffff;
             width: 100%;
-            max-width: 900px;
+            max-width: 800px;
             max-height: 85vh;
             border-radius: 8px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -209,25 +216,73 @@
         .modal-header {
             background: linear-gradient(135deg, #4a0e17, #2b080d);
             color: #ffffff;
-            padding: 12px 18px;
+            padding: 14px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .modal-header h2 { font-size: 1.1rem; color: #f8c0c8; }
+        .modal-header h2 { font-size: 1.15rem; color: #f8c0c8; }
 
         .modal-close {
             background: none; border: none;
-            color: #f8c0c8; font-size: 1.5rem;
+            color: #f8c0c8; font-size: 1.6rem;
             cursor: pointer;
+            line-height: 1;
         }
 
         .modal-body {
-            padding: 15px;
+            padding: 20px;
             overflow-y: auto;
+            font-size: 0.9rem;
+            color: #2b1e20;
+            line-height: 1.5;
+        }
+
+        .modal-body h3 {
+            color: #6b1120;
+            font-size: 1rem;
+            margin-top: 15px;
+            margin-bottom: 6px;
+            border-bottom: 1px solid #f0d0d4;
+            padding-bottom: 4px;
+        }
+
+        .modal-body h3:first-child {
+            margin-top: 0;
+        }
+
+        .modal-body p {
+            margin-bottom: 8px;
+        }
+
+        .modal-body ul {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        .modal-body li {
+            margin-bottom: 4px;
+        }
+
+        .modal-body code {
+            background-color: #f4e8e9;
+            color: #721c24;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', Courier, monospace;
             font-size: 0.85rem;
-            color: #3b0b12;
+        }
+
+        .modal-body pre {
+            background-color: #2b080d;
+            color: #f8c0c8;
+            padding: 10px 14px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            margin: 8px 0 12px 0;
         }
 
         .modal-footer {
@@ -399,9 +454,10 @@
                 <h2>Python: Práticas de Arquivos</h2>
                 <a href="pythonArquivos.html" class="card-btn">Acessar Aula →</a>
             </div>
+
             <div class="card" data-category="python-basico">
-                <div class="card-header"><span class="card-badge">Aula 23</span></div>
-                <h2>Python: Listas e Manipulação em Python</h2>
+                <div class="card-header"><span class="card-badge">Aula 23b</span></div>
+                <h2>Python: Listas e Manipulação</h2>
                 <a href="pythonListas.html" class="card-btn">Acessar Aula →</a>
             </div>
 
@@ -439,19 +495,35 @@
         </div>
     </div>
 
-    <!-- MODAIS -->
+    <!-- MODAIS ATUALIZADOS E EXPANDIDOS -->
+
+    <!-- MODAL AULA 01 -->
     <div class="modal-overlay" id="modalFundamentos">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Fundamentos da Computação</h2>
+                <h2>Aula 01: Fundamentos da Computação</h2>
                 <button class="modal-close" onclick="closeModal('modalFundamentos')">&times;</button>
             </div>
             <div class="modal-body">
-                <p><strong>1.1. Funcionamento do Computador:</strong> Processamento de dados através de Entrada, CPU, RAM e Saída.</p>
-                <br>
-                <p><strong>1.2. Programas e Algoritmos:</strong> Instruções lógicas executadas pelo hardware para resolver problemas.</p>
-                <br>
-                <p><strong>1.3. Linguagens de Programação:</strong> Baixo nível vs. Alto nível; Linguagens compiladas vs. interpretadas.</p>
+                <h3>1.1. Arquitetura Básica do Computador</h3>
+                <p>O funcionamento de um sistema computacional se baseia no fluxo contínuo de dados dividido em etapas centrais:</p>
+                <ul>
+                    <li><strong>Entrada (Input):</strong> Dispositivos que capturam dados do mundo externo (ex: teclado, mouse, função <code>input()</code> do Python).</li>
+                    <li><strong>Processamento (CPU):</strong> A Unidade Central de Processamento busca instruções da memória e realiza operações aritméticas e lógicas.</li>
+                    <li><strong>Memória RAM:</strong> Espaço temporário (volátil) onde os dados do programa em execução e suas variáveis ficam armazenados.</li>
+                    <li><strong>Saída (Output):</strong> Apresentação dos dados processados (ex: tela, função <code>print()</code> do Python).</li>
+                </ul>
+
+                <h3>1.2. Programas e Algoritmos</h3>
+                <p>Um <strong>Algoritmo</strong> é uma sequência finita, ordenada e não ambígua de passos para resolver um problema. Um <strong>Programa de Computador</strong> é a implementação de um algoritmo traduzido para uma sintaxe que o computador consiga processar.</p>
+
+                <h3>1.3. Linguagens de Programação e Execução em Python</h3>
+                <p>As linguagens dividem-se em diferentes níveis de abstração:</p>
+                <ul>
+                    <li><strong>Baixo Nível (Linguagem de Máquina e Assembly):</strong> Diretamente compreendidas pelo hardware (código binário <code>0s e 1s</code>), de alta complexidade humana.</li>
+                    <li><strong>Alto Nível (Python, C, Java):</strong> Próximas da linguagem humana (inglês), proporcionando alta abstração e produtividade.</li>
+                </ul>
+                <p><strong>Compilação vs. Interpretação:</strong> O Python é uma linguagem <strong>interpretada</strong>. O código-fonte em Python é traduzido linha por linha pela <em>Python Virtual Machine (PVM)</em> durante a execução, o que facilita o teste dinâmico e o aprendizado interativo.</p>
             </div>
             <div class="modal-footer">
                 <button class="card-btn" style="width: auto;" onclick="closeModal('modalFundamentos')">Fechar</button>
@@ -459,19 +531,89 @@
         </div>
     </div>
 
+    <!-- MODAL AULA 02 -->
     <div class="modal-overlay" id="modalLogica">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Lógica de Programação</h2>
+                <h2>Aula 02: Lógica de Programação</h2>
                 <button class="modal-close" onclick="closeModal('modalLogica')">&times;</button>
             </div>
             <div class="modal-body">
-                <p><strong>2.1. Abstração Lógica:</strong> Isolamento de elementos essenciais para resolução de problemas.</p>
-                <br>
-                <p><strong>2.2. Álgebra Booleana:</strong> Operações lógicas com valores Verdadeiro/Falso (AND, OR, NOT).</p>
+                <h3>2.1. Abstração Lógica e Resolução de Problemas</h3>
+                <p>A <strong>Abstração</strong> é a capacidade de decompor um problema complexo focando apenas nos detalhes relevantes e ignorando aspectos desnecessários. Em Python, isso se reflete na criação de modelos claros de dados e funções.</p>
+
+                <h3>2.2. Álgebra Booleana e Operadores</h3>
+                <p>A tomada de decisões no computador baseia-se na lógica booleana, que aceita apenas dois valores: <code>True</code> (Verdadeiro) e <code>False</code> (Falso).</p>
+                
+                <p><strong>Operadores Lógicos no Python:</strong></p>
+                <ul>
+                    <li><code>and</code> (E lógico): Retorna <code>True</code> somente se todas as condições forem verdadeiras.</li>
+                    <li><code>or</code> (OU lógico): Retorna <code>True</code> se pelo menos uma condição for verdadeira.</li>
+                    <li><code>not</code> (NÃO/Negação): Inverte o valor lógico da expressão.</li>
+                </ul>
+
+                <p><strong>Operadores Relacionais:</strong> Comparam valores e geram um resultado booleano:</p>
+                <ul>
+                    <li><code>==</code> (Igual a), <code>!=</code> (Diferente de)</li>
+                    <li><code>></code> (Maior que), <code><</code> (Menor que)</li>
+                    <li><code>>=</code> (Maior ou igual), <code><=</code> (Menor ou igual)</li>
+                </ul>
+
+                <p><strong>Exemplo Prático em Python:</strong></p>
+                <pre>idade = 18
+tem_carteira = True
+
+# Estrutura condicional aplicando a Álgebra Booleana
+if idade >= 18 and tem_carteira:
+    print("Pode dirigir")
+else:
+    print("Não pode dirigir")</pre>
             </div>
             <div class="modal-footer">
                 <button class="card-btn" style="width: auto;" onclick="closeModal('modalLogica')">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL AULA 03 -->
+    <div class="modal-overlay" id="modalVisualg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Aula 03: Algoritmo de Soma (VisuAlg)</h2>
+                <button class="modal-close" onclick="closeModal('modalVisualg')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3>3.1. Variáveis e Tipos de Dados</h3>
+                <p>Variáveis são posições reservadas na memória RAM com um identificador (nome). Em pseudocódigo (VisuAlg) declaramos os tipos explicitamente, enquanto no Python os tipos são definidos dinamicamente:</p>
+                <ul>
+                    <li><strong>Inteiro (int):</strong> Números sem casa decimal (ex: <code>10</code>, <code>-5</code>).</li>
+                    <li><strong>Real (float):</strong> Números com ponto flutuante (ex: <code>10.5</code>).</li>
+                </ul>
+
+                <h3>3.2. Comparativo: Pseudocódigo vs. Python</h3>
+                <p><strong>Algoritmo em VisuAlg:</strong></p>
+                <pre>Var
+   n1, n2, soma : inteiro
+Inicio
+   escreva("Digite o primeiro número: ")
+   leia(n1)
+   escreva("Digite o segundo número: ")
+   leia(n2)
+   soma <- n1 + n2
+   escreva("A soma é: ", soma)
+Fimalgoritmo</pre>
+
+                <p><strong>Equivalente Direto em Python:</strong></p>
+                <pre># Leitura e conversão explícita de tipo (casting)
+n1 = int(input("Digite o primeiro número: "))
+n2 = int(input("Digite o segundo número: "))
+
+soma = n1 + n2  # Processamento
+
+print(f"A soma é: {soma}")  # Saída formatada</pre>
+            </div>
+            <div class="modal-footer">
+                <button class="card-btn" style="width: auto;" onclick="closeModal('modalVisualg')">Fechar</button>
             </div>
         </div>
     </div>

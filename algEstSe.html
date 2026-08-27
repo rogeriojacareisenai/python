@@ -307,6 +307,84 @@
             gap: 10px;
         }
 
+        /* ESTILOS DA TABELA DA VERDADE */
+        .tv-tabs {
+            display: flex;
+            gap: 8px;
+            margin: 12px 0;
+            flex-wrap: wrap;
+        }
+
+        .tv-tab-btn {
+            background-color: #e8dadc;
+            color: #4a0e17;
+            border: 1px solid #cbb3b6;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .tv-tab-btn.active {
+            background-color: #6b1120;
+            color: #ffffff;
+            border-color: #4a0e17;
+        }
+
+        .tv-table-container {
+            overflow-x: auto;
+            margin-top: 10px;
+            border: 1px solid #e8dadc;
+            border-radius: 8px;
+        }
+
+        .truth-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.88rem;
+            text-align: center;
+        }
+
+        .truth-table th {
+            background-color: #4a0e17;
+            color: #f8c0c8;
+            padding: 8px 10px;
+            border: 1px solid #721c24;
+        }
+
+        .truth-table td {
+            padding: 6px 10px;
+            border: 1px solid #e8dadc;
+        }
+
+        .truth-table tr:nth-child(even) {
+            background-color: #fcf8f8;
+        }
+
+        .val-1 {
+            color: #008000;
+            font-weight: bold;
+            background-color: #e6ffe6;
+        }
+
+        .val-0 {
+            color: #cc0000;
+            font-weight: bold;
+            background-color: #ffe6e6;
+        }
+
+        .formula-card {
+            background-color: #f8f1f2;
+            border-left: 4px solid #6b1120;
+            padding: 12px;
+            border-radius: 4px;
+            margin: 10px 0 15px 0;
+            font-size: 0.88rem;
+        }
+
         /* PAINEL DE SIMULAÇÃO VISUALG */
         .visualg-controls {
             display: flex;
@@ -579,6 +657,16 @@
                 <button class="card-btn" onclick="openModalSimulador('cascata')">Simular Passo a Passo →</button>
             </div>
 
+            <!-- Card 5 (NOVO) -->
+            <div class="card">
+                <div>
+                    <span class="card-badge">Módulo 05</span>
+                    <h2> Tabela da Verdade</h2>
+                    <p>Aprenda como calcular linhas, alternar 0 e 1 e avaliar AND, OR e NOT para A, B, C e D.</p>
+                </div>
+                <button class="card-btn" onclick="openModal('modalTabelaVerdade')">Explicar Tabela da Verdade →</button>
+            </div>
+
         </div>
     </div>
 
@@ -641,6 +729,75 @@ fimse</div>
         </div>
     </div>
 
+    <!-- MODAL TABELA DA VERDADE (NOVA) -->
+    <div class="modal-overlay" id="modalTabelaVerdade">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Guia Completo: Tabela da Verdade</h2>
+                <button class="modal-close" onclick="closeModal('modalTabelaVerdade')">&times;</button>
+            </div>
+            <div class="modal-body">
+                
+                <div class="topic-group">
+                    <div class="topic-title">1. Como definir o Número de Linhas da Tabela?</div>
+                    <div class="topic-desc">
+                        O número total de combinações possíveis (linhas) é dado pela fórmula matemática:
+                        <div class="formula-card">
+                            <strong>Número de Linhas = 2<sup>n</sup></strong><br>
+                            Onde <strong>n</strong> é a quantidade de variáveis proposicionais (perguntas/entradas).
+                            <ul>
+                                <li><strong>2 variáveis (A, B):</strong> 2<sup>2</sup> = <strong>4 linhas</strong></li>
+                                <li><strong>3 variáveis (A, B, C):</strong> 2<sup>3</sup> = <strong>8 linhas</strong></li>
+                                <li><strong>4 variáveis (A, B, C, D):</strong> 2<sup>4</sup> = <strong>16 linhas</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="topic-group">
+                    <div class="topic-title">2. Regra para Variar os valores de 0 (Falso) e 1 (Verdadeiro)</div>
+                    <div class="topic-desc">
+                        Para preencher a tabela cobrindo todas as possibilidades sem repetir nenhuma linha, aplicamos a regra de divisão sucessiva por 2 para a alternância de blocos:
+                        <ul>
+                            <li><strong>1ª Variável (Esquerda):</strong> Alterna blocos de <strong>2<sup>n-1</sup></strong> zeros e uns. Exemplo para 8 linhas: 4 Zeros e 4 Uns.</li>
+                            <li><strong>2ª Variável:</strong> Alterna a metade do bloco anterior. Exemplo para 8 linhas: 2 Zeros, 2 Uns, 2 Zeros, 2 Uns.</li>
+                            <li><strong>3ª Variável:</strong> Alterna a metade da anterior. Exemplo: 1 Zero, 1 Um, 1 Zero, 1 Um.</li>
+                            <li><strong>Última Variável (Direita):</strong> Sempre alterna de 1 em 1 (0, 1, 0, 1...).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="topic-group">
+                    <div class="topic-title">3. Resumo dos Operadores Lógicos</div>
+                    <div class="topic-desc">
+                        <ul>
+                            <li><strong>AND (E / e):</strong> Retorna <strong>1</strong> somente se <strong>TODAS</strong> as entradas forem 1.</li>
+                            <li><strong>OR (OU / ou):</strong> Retorna <strong>1</strong> se <strong>PELO MENOS UMA</strong> entrada for 1.</li>
+                            <li><strong>NOT (NÃO / nao):</strong> Inverte o valor (se for 0 vira 1, se for 1 vira 0). Ex: NOT(A).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="topic-group">
+                    <div class="topic-title">4. Visualizador Interativo de Tabelas</div>
+                    <div class="tv-tabs">
+                        <button class="tv-tab-btn active" onclick="carregarTabela(2)">2 Variáveis (A, B) - 4 Linhas</button>
+                        <button class="tv-tab-btn" onclick="carregarTabela(3)">3 Variáveis (A, B, C) - 8 Linhas</button>
+                        <button class="tv-tab-btn" onclick="carregarTabela(4)">4 Variáveis (A, B, C, D) - 16 Linhas</button>
+                    </div>
+
+                    <div class="tv-table-container" id="tabelaContainer">
+                        <!-- Tabela gerada via JS -->
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="card-btn btn-secundario" style="width: auto;" onclick="closeModal('modalTabelaVerdade')">&#8592; Voltar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL DO SIMULADOR (COMPARTILHADO) -->
     <div class="modal-overlay" id="modalSimulador">
         <div class="modal-content">
@@ -699,10 +856,70 @@ fimse</div>
 
         function openModal(id) {
             document.getElementById(id).classList.add('active');
+            if(id === 'modalTabelaVerdade') {
+                carregarTabela(2);
+            }
         }
 
         function closeModal(id) {
             document.getElementById(id).classList.remove('active');
+        }
+
+        // --- FUNÇÕES DA TABELA DA VERDADE ---
+        function carregarTabela(numVars) {
+            const btns = document.querySelectorAll('.tv-tab-btn');
+            btns.forEach((btn, idx) => {
+                if((numVars === 2 && idx === 0) || (numVars === 3 && idx === 1) || (numVars === 4 && idx === 2)) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            const container = document.getElementById('tabelaContainer');
+            const totalLinhas = Math.pow(2, numVars);
+            let vars = ['A', 'B', 'C', 'D'].slice(0, numVars);
+
+            let html = `<table class="truth-table"><thead><tr>`;
+            
+            // Colunas das variáveis
+            vars.forEach(v => html += `<th>${v}</th>`);
+            
+            // Colunas dos operadores
+            html += `<th>NOT(A)</th>`;
+            html += `<th>${vars.join(' AND ')}</th>`;
+            html += `<th>${vars.join(' OR ')}</th>`;
+            html += `</tr></thead><tbody>`;
+
+            // Gerando as combinações de 0 e 1
+            for (let i = 0; i < totalLinhas; i++) {
+                html += `<tr>`;
+                let valores = [];
+
+                for (let j = 0; j < numVars; j++) {
+                    // Cálculo da alternância binária por bitwise
+                    let bit = (i >> (numVars - 1 - j)) & 1;
+                    valores.push(bit);
+                    html += `<td class="val-${bit}">${bit}</td>`;
+                }
+
+                // NOT A (inverso da 1ª variável)
+                let notA = valores[0] === 1 ? 0 : 1;
+                html += `<td class="val-${notA}">${notA}</td>`;
+
+                // AND (todos precisam ser 1)
+                let resAnd = valores.every(v => v === 1) ? 1 : 0;
+                html += `<td class="val-${resAnd}">${resAnd}</td>`;
+
+                // OR (pelo menos um precisa ser 1)
+                let resOr = valores.some(v => v === 1) ? 1 : 0;
+                html += `<td class="val-${resOr}">${resOr}</td>`;
+
+                html += `</tr>`;
+            }
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
         }
 
         // DADOS DOS TRÊS ALGORITMOS DE CONDIÇÃO
