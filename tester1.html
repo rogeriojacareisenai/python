@@ -3,37 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor Dinâmico VisuAlg - Sequencial</title>
+    <title>Editor de Aplicação Auxiliar de Edição de Algoritmos Básicos</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1e2227; color: #abb2bf; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
-        /* 1. CUSTOMIZAÇÃO DA BARRA DE ROLAGEM (SCROLLBAR) */
+        /* CUSTOMIZAÇÃO DA BARRA DE ROLAGEM */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #181a1f; }
         ::-webkit-scrollbar-thumb { background: #3e4451; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #4b5263; }
 
         /* HEADER */
-        header { background-color: #181a1f; padding: 14px 24px; border-bottom: 1px solid #111317; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-        header h1 { font-size: 1.3rem; color: #61afef; font-weight: 700; }
+        header { background-color: #ffffff; padding: 14px 24px; border-bottom: 1px solid #dcdfe6; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        header h1 { font-size: 1.15rem; color: #2b5c8f; font-weight: 700; }
         .header-actions { display: flex; gap: 10px; }
         .btn-top { background-color: #3e4451; color: #fff; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: background 0.2s; }
         .btn-top:hover { background-color: #4b5263; }
-        .btn-primary { background-color: #98c379; color: #1e2227; }
-        .btn-primary:hover { background-color: #7fea65; }
-        .btn-copy { background-color: #61afef; color: #1e2227; }
-        .btn-copy:hover { background-color: #529fd8; }
+        .btn-primary { background-color: #2b5c8f; color: #ffffff; }
+        .btn-primary:hover { background-color: #1d4066; }
+        .btn-copy { background-color: #48bb78; color: #ffffff; }
+        .btn-copy:hover { background-color: #38a169; }
+        .btn-explain { background-color: #d69e2e; color: #ffffff; }
+        .btn-explain:hover { background-color: #b7791f; }
         .btn-danger { background-color: #e06c75; color: #fff; }
         .btn-danger:hover { background-color: #d15663; }
 
         /* LAYOUT PRINCIPAL */
-        .main-wrapper { flex: 1; display: flex; overflow: hidden; }
+        .main-wrapper { flex: 1; display: flex; overflow: hidden; position: relative; }
 
-        /* 2. COLUNA ESQUERDA: MENU COM FUNDO CLARO */
-        .sidebar-left { width: 350px; background-color: #f4f5f7; padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; flex-shrink: 0; border-right: 1px solid #dcdfe6; color: #2c3e50; }
+        /* PAINEL DE OPÇÕES E VARIÁVEIS (ESQUERDA) */
+        .sidebar-left { order: 1; width: 350px; background-color: #f4f5f7; padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; flex-shrink: 0; border-right: 1px solid #dcdfe6; color: #2c3e50; }
         .sidebar-section { background-color: #ffffff; border: 1px solid #e1e4e8; border-radius: 6px; padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .sidebar-section h3 { font-size: 1.05rem; color: #2b5c8f; border-bottom: 1px solid #e1e4e8; padding-bottom: 8px; }
+        .sidebar-section h3 { font-size: 1.05rem; color: #2b5c8f; border-bottom: 1px solid #e1e4e8; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         .sidebar-section label { font-size: 0.9rem; color: #4a5568; font-weight: 600; }
         .sidebar-section input, .sidebar-section select { background-color: #f8f9fa; border: 1px solid #cbd5e0; color: #2d3748; padding: 10px 12px; border-radius: 4px; font-family: inherit; width: 100%; font-size: 0.95rem; }
         .sidebar-section input:focus, .sidebar-section select:focus { border-color: #3182ce; background-color: #fff; outline: none; }
@@ -42,23 +44,110 @@
         .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
         .btn-group .btn-top { flex: 1 1 calc(50% - 4px); text-align: center; }
 
-        /* COLUNA DIREITA: EDITOR DE CÓDIGO */
-        .editor-container { flex: 1; display: flex; flex-direction: column; padding: 20px; overflow-y: auto; font-family: 'Consolas', 'Fira Code', 'Courier New', monospace; font-size: 1.15rem; line-height: 1.8; background-color: #21252b; }
+        /* COMPONENTE RETRÁTIL (COLLAPSIBLE) */
+        .collapsible-header { cursor: pointer; user-select: none; }
+        .toggle-icon { font-size: 0.85rem; transition: transform 0.2s ease; display: inline-block; }
+        .collapsible-content { display: none; margin-top: 5px; }
+        .collapsible-content.open { display: flex; flex-direction: column; gap: 8px; }
+
+        /* EDITOR DE CÓDIGO (DIREITA) */
+        .editor-container { order: 2; flex: 1; display: flex; flex-direction: column; padding: 20px; overflow-y: auto; font-family: 'Consolas', 'Fira Code', 'Courier New', monospace; font-size: 1.15rem; line-height: 1.8; background-color: #21252b; position: relative; }
         
         /* LINHAS DO CÓDIGO */
-        .code-line { display: flex; align-items: center; min-height: 32px; padding: 2px 10px; border-radius: 4px; border-left: 4px solid transparent; user-select: none; position: relative; }
+        .code-line { display: flex; align-items: center; min-height: 32px; padding: 2px 10px; border-radius: 4px; border-left: 4px solid transparent; user-select: none; position: relative; transition: background-color 0.3s, border-color 0.3s; }
         .code-line.editable { cursor: pointer; }
         .code-line.editable:hover { background-color: #2c313a; border-left-color: #61afef; }
         .line-number { width: 45px; color: #5c6370; text-align: right; padding-right: 15px; font-size: 0.95rem; font-weight: bold; flex-shrink: 0; }
         .line-content { flex: 1; color: #abb2bf; white-space: pre; }
 
-        /* ALÇA DE ARRASTE (DRAG HANDLE) */
+        /* HIGHLIGHT DA EXPLICAÇÃO PASSO A PASSO */
+        .code-line.explaining-active {
+            background-color: rgba(229, 192, 123, 0.25) !important;
+            border-left: 4px solid #e5c07b !important;
+            box-shadow: inset 0 0 8px rgba(229, 192, 123, 0.3);
+        }
+
+        /* BALÃO POPUP DE EXPLICAÇÃO FLUTUANTE */
+        .explanation-popover {
+            position: absolute;
+            z-index: 999;
+            background: #282c34;
+            border: 2px solid #e5c07b;
+            border-radius: 8px;
+            padding: 12px 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+            color: #dcdfe6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 0.92rem;
+            max-width: 380px;
+            display: none;
+            animation: fadeInPopover 0.25s ease-out;
+        }
+
+        .explanation-popover::before {
+            content: '';
+            position: absolute;
+            left: -10px;
+            top: 14px;
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-right: 10px solid #e5c07b;
+        }
+
+        .explanation-popover h4 {
+            color: #e5c07b;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .explanation-popover p {
+            line-height: 1.45;
+            color: #abb2bf;
+        }
+
+        .explanation-controls {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #3e4451;
+            padding-top: 8px;
+        }
+
+        .explanation-progress {
+            font-size: 0.8rem;
+            color: #5c6370;
+            font-weight: bold;
+        }
+
+        .btn-stop-explain {
+            background: #e06c75;
+            color: #fff;
+            border: none;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        @keyframes fadeInPopover {
+            from { opacity: 0; transform: translateX(-8px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* ALÇA DE ARRASTE */
         .drag-handle { cursor: grab; color: #5c6370; margin-right: 10px; font-weight: bold; display: none; font-size: 1rem; }
         .code-line.editable:hover .drag-handle { display: inline-block; }
         .code-line.dragging { opacity: 0.4; background-color: #3e4451; }
         .code-line.drag-over { border-top: 2px dashed #61afef; }
 
-        /* BOTÃO DE DELETAR LINHA RÁPIDO */
+        /* BOTÃO DE DELETAR LINHA */
         .btn-delete-line { display: none; background: transparent; border: none; color: #e06c75; font-size: 0.9rem; cursor: pointer; padding: 2px 8px; border-radius: 3px; font-weight: bold; }
         .code-line.editable:hover .btn-delete-line { display: inline-block; }
         .btn-delete-line:hover { background-color: rgba(224, 108, 117, 0.2); }
@@ -73,13 +162,13 @@
         .hl-comment   { color: #5c6370; font-style: italic; }
         .hl-funcao    { color: #e06c75; font-weight: bold; }
 
-        /* LISTA DE VARIÁVEIS CADASTRADAS (AJUSTADA PARA O MENU CLARO) */
-        .var-list { display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; margin-top: 5px; }
-        .var-item { background-color: #f8f9fa; padding: 8px 12px; border-radius: 4px; border: 1px solid #cbd5e0; display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; font-family: monospace; }
-        .var-info { display: flex; gap: 8px; align-items: center; }
-        .var-item .var-name { color: #d69e2e; font-weight: bold; }
-        .var-item .var-type { color: #dd6b20; }
-        .btn-del-var { background: none; border: none; color: #e53e3e; cursor: pointer; font-size: 0.85rem; padding: 2px 6px; border-radius: 3px; transition: background 0.2s; }
+        /* LISTA DE VARIÁVEIS CADASTRADAS */
+        .var-list { display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto; }
+        .var-item { background-color: #f8f9fa; padding: 6px 10px; border-radius: 4px; border: 1px solid #cbd5e0; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; font-family: monospace; }
+        .var-info { display: flex; gap: 8px; align-items: center; flex: 1; }
+        .var-item .var-name { color: #d69e2e; font-weight: bold; min-width: 80px; }
+        .var-type-select { background-color: #fff; border: 1px solid #cbd5e0; color: #dd6b20; font-weight: bold; font-size: 0.85rem; padding: 2px 4px; border-radius: 3px; cursor: pointer; }
+        .btn-del-var { background: none; border: none; color: #e53e3e; cursor: pointer; font-size: 0.85rem; padding: 2px 6px; border-radius: 3px; transition: background 0.2s; margin-left: 5px; }
         .btn-del-var:hover { background-color: rgba(229, 62, 62, 0.15); }
 
         /* MODAIS */
@@ -113,18 +202,17 @@
 <body>
 
     <header>
-        <h1>Editor de Algoritmos (VisuAlg)</h1>
+        <h1>Editor de Aplicação Auxiliar de Edição de Algoritmos Básicos — desenvolvido por Rogério B. de Andrade</h1>
         <div class="header-actions">
+            <button class="btn-top btn-explain" id="btnExplainCode" onclick="toggleExplainCode()">▶ Explicar Código</button>
             <button class="btn-top btn-copy" id="btnCopyCode" onclick="copyCodeToClipboard()">📋 Copiar Código</button>
             <button class="btn-top btn-primary" onclick="resetEditor(true)">+ Novo Projeto</button>
         </div>
     </header>
 
     <div class="main-wrapper">
-        <!-- ÁREA ESQUERDA: MENU LATERAL (AGORA COM FUNDO CLARO) -->
         <div class="sidebar-left">
             
-            <!-- SEÇÃO DE PERSISTÊNCIA LOCAL -->
             <div class="sidebar-section">
                 <h3>Gerenciador Local</h3>
                 <div>
@@ -149,7 +237,7 @@
                 </div>
                 <div>
                     <label>Programador(a):</label>
-                    <input type="text" id="authorInput" value="Desenvolvedor" onchange="updateAuthorName(this.value)">
+                    <input type="text" id="authorInput" value="Rogério B. de Andrade" onchange="updateAuthorName(this.value)">
                 </div>
             </div>
 
@@ -172,18 +260,29 @@
             </div>
 
             <div class="sidebar-section">
-                <h3>Variáveis Declaradas</h3>
-                <div class="var-list" id="sidebarVarList"></div>
+                <h3 class="collapsible-header" onclick="toggleVarListSection()">
+                    <span>Alterar Variáveis (<span id="varCountLabel">0</span>)</span>
+                    <span class="toggle-icon" id="varToggleIcon">▶</span>
+                </h3>
+                <div class="collapsible-content" id="varCollapsibleContainer">
+                    <div class="var-list" id="sidebarVarList"></div>
+                </div>
             </div>
         </div>
 
-        <!-- ÁREA DIREITA: EDITOR DE CÓDIGO -->
         <div class="editor-container" id="editor">
-            <!-- Estrutura gerada via JS -->
+            </div>
+
+        <div class="explanation-popover" id="explanationPopover">
+            <h4>💡 Explicando o Código</h4>
+            <p id="popoverText">Carregando explicação...</p>
+            <div class="explanation-controls">
+                <span class="explanation-progress" id="popoverProgress">Linha 1 de X</span>
+                <button class="btn-stop-explain" onclick="stopExplanation()">Parar Explicação</button>
+            </div>
         </div>
     </div>
 
-    <!-- MODAIS E JAVASCRIPT INTACTOS CONFORME O ORIGINAL -->
     <div class="modal-overlay" id="modalInstructions">
         <div class="modal-card">
             <div class="modal-header">
@@ -241,9 +340,9 @@
     </div>
 
     <script>
-        const STORAGE_KEY = "visualg_saved_projects";
+        const STORAGE_KEY = "app_saved_projects";
         let algorithmName = "sem_titulo";
-        let authorName = "Desenvolvedor";
+        let authorName = "Rogério B. de Andrade";
         let createdAt = new Date().toLocaleString('pt-BR');
         let variables = []; 
         let codeLines = [""]; 
@@ -251,14 +350,174 @@
         let currentInstructionType = "";
         let draggedIndex = null;
 
+        /* VARIÁVEIS DE CONTROLE DA EXPLICAÇÃO */
+        let isExplaining = false;
+        let explanationTimer = null;
+        let currentExplainStep = 0;
+
         window.addEventListener('DOMContentLoaded', () => {
-            const savedAuthor = localStorage.getItem('visualg_last_author');
+            const savedAuthor = localStorage.getItem('app_last_author');
             if (savedAuthor) authorName = savedAuthor;
             document.getElementById('authorInput').value = authorName;
 
             resetEditor(false);
             updateSavedProjectsDropdown();
         });
+
+        function toggleVarListSection() {
+            const container = document.getElementById('varCollapsibleContainer');
+            const icon = document.getElementById('varToggleIcon');
+            const isOpen = container.classList.contains('open');
+
+            if (isOpen) {
+                container.classList.remove('open');
+                icon.innerText = "▶";
+            } else {
+                container.classList.add('open');
+                icon.innerText = "▼";
+            }
+        }
+
+        /* MOTOR DE EXPLICAÇÃO DO CÓDIGO PASSO A PASSO */
+        function toggleExplainCode() {
+            if (isExplaining) {
+                stopExplanation();
+            } else {
+                startExplanation();
+            }
+        }
+
+        function startExplanation() {
+            const allLines = document.querySelectorAll('.code-line');
+            if (allLines.length === 0) return;
+
+            isExplaining = true;
+            currentExplainStep = 0;
+
+            const btn = document.getElementById('btnExplainCode');
+            btn.innerText = "⏹ Parar Explicação";
+            btn.style.backgroundColor = "#e06c75";
+
+            runNextExplanationStep();
+        }
+
+        function stopExplanation() {
+            isExplaining = false;
+            if (explanationTimer) clearTimeout(explanationTimer);
+
+            document.querySelectorAll('.code-line').forEach(line => {
+                line.classList.remove('explaining-active');
+            });
+
+            const popover = document.getElementById('explanationPopover');
+            popover.style.display = 'none';
+
+            const btn = document.getElementById('btnExplainCode');
+            btn.innerText = "▶ Explicar Código";
+            btn.style.backgroundColor = "";
+        }
+
+        function generateDetailedExplanation(lineText, isCodeSection) {
+            const trimmed = lineText.trim();
+
+            if (!trimmed) {
+                return "Linha em branco pronta para receber novas instruções do programa.";
+            }
+
+            if (trimmed.startsWith('algoritmo')) {
+                return "Declaração inicial do algoritmo. Define o nome do programa para identificação no sistema.";
+            }
+            if (trimmed.startsWith('//')) {
+                return "Comentário no código. É uma nota explicativa para o programador que é ignorada durante a execução.";
+            }
+            if (trimmed === 'var') {
+                return "Início do bloco de declaração de variáveis. Aqui informamos quais memórias o algoritmo usará.";
+            }
+            if (trimmed.includes(' : inteiro') || trimmed.includes(' : real') || trimmed.includes(' : caractere') || trimmed.includes(' : logico')) {
+                const parts = trimmed.split(':');
+                const vars = parts[0].trim();
+                const type = parts[1].trim();
+                return `Criação da(s) variável(is) <strong style="color:#e5c07b">${vars}</strong> reservando memória do tipo <strong style="color:#d19a66">${type}</strong>.`;
+            }
+            if (trimmed === 'inicio') {
+                return "Marca o fim da declaração de variáveis e o início do fluxo de comandos que serão executados sequencialmente.";
+            }
+            if (trimmed === 'fimalgoritmo') {
+                return "Encerra a execução do algoritmo. Todas as instruções da parte principal foram finalizadas.";
+            }
+
+            // INSTRUÇÕES DA SEÇÃO DE CÓDIGO
+            if (trimmed.startsWith('leia')) {
+                const varName = trimmed.replace('leia(', '').replace(')', '').trim();
+                return `Comando de Entrada: O sistema pausa e aguarda que o usuário digite um valor no teclado. O valor será gravado na variável <strong style="color:#e5c07b">${varName}</strong>.`;
+            }
+
+            if (trimmed.startsWith('escreva') || trimmed.startsWith('escreval')) {
+                const isPulaLinha = trimmed.startsWith('escreval');
+                const tipoPulo = isPulaLinha ? " e depois pula para a linha de baixo." : " mantendo o cursor na mesma linha.";
+                return `Comando de Saída: Imprime uma mensagem ou o conteúdo de uma variável na tela do usuário${tipoPulo}`;
+            }
+
+            if (trimmed.includes('<-')) {
+                const parts = trimmed.split('<-');
+                const target = parts[0].trim();
+                const expr = parts[1].trim();
+
+                if (expr.includes('raizq')) {
+                    return `Atribuição com Função: Calcula a raiz quadrada da expressão <code style="color:#61afef">${expr}</code> e armazena o resultado na variável <strong style="color:#e5c07b">${target}</strong>.`;
+                }
+                if (expr.includes('^')) {
+                    return `Atribuição com Potência: Eleva a base ao expoente (<code style="color:#61afef">${expr}</code>) e salva o valor calculado dentro da variável <strong style="color:#e5c07b">${target}</strong>.`;
+                }
+                return `Atribuição (Processamento): Avalia e calcula o resultado de <code style="color:#61afef">${expr}</code> e o armazena dentro da variável <strong style="color:#e5c07b">${target}</strong>.`;
+            }
+
+            return "Instrução sequencial do algoritmo.";
+        }
+
+        function runNextExplanationStep() {
+            if (!isExplaining) return;
+
+            const allLines = Array.from(document.querySelectorAll('.code-line'));
+            if (currentExplainStep >= allLines.length) {
+                stopExplanation();
+                return;
+            }
+
+            // Remove highlight anterior
+            allLines.forEach(l => l.classList.remove('explaining-active'));
+
+            const activeLineEl = allLines[currentExplainStep];
+            activeLineEl.classList.add('explaining-active');
+
+            // Scroll automático para a linha
+            activeLineEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            const lineContentText = activeLineEl.querySelector('.line-content').innerText;
+            const popover = document.getElementById('explanationPopover');
+            const popoverText = document.getElementById('popoverText');
+            const popoverProgress = document.getElementById('popoverProgress');
+
+            const isCodeSection = activeLineEl.classList.contains('editable');
+            const explanationMsg = generateDetailedExplanation(lineContentText, isCodeSection);
+
+            popoverText.innerHTML = explanationMsg;
+            popoverProgress.innerText = `Linha ${currentExplainStep + 1} de ${allLines.length}`;
+
+            // Posiciona o popover ao lado da linha
+            const lineRect = activeLineEl.getBoundingClientRect();
+            const wrapperRect = document.querySelector('.main-wrapper').getBoundingClientRect();
+
+            const topPos = lineRect.top - wrapperRect.top + (lineRect.height / 2) - 20;
+            const leftPos = (lineRect.left - wrapperRect.left) + 220; 
+
+            popover.style.top = `${Math.max(10, topPos)}px`;
+            popover.style.left = `${leftPos}px`;
+            popover.style.display = 'block';
+
+            currentExplainStep++;
+            explanationTimer = setTimeout(runNextExplanationStep, 3500); 
+        }
 
         function generateFullCodeText() {
             let fullText = [];
@@ -294,7 +553,7 @@
                 const btn = document.getElementById('btnCopyCode');
                 const originalText = btn.innerText;
                 btn.innerText = "✓ Copiado!";
-                btn.style.backgroundColor = "#98c379";
+                btn.style.backgroundColor = "#38a169";
                 
                 setTimeout(() => {
                     btn.innerText = originalText;
@@ -311,6 +570,8 @@
                 if (!confirmReset) return;
             }
 
+            stopExplanation();
+
             algorithmName = "sem_titulo";
             createdAt = new Date().toLocaleString('pt-BR');
             variables = [];
@@ -324,8 +585,8 @@
         }
 
         function updateAuthorName(newName) {
-            authorName = newName.trim() || "Desenvolvedor";
-            localStorage.setItem('visualg_last_author', authorName);
+            authorName = newName.trim() || "Rogério B. de Andrade";
+            localStorage.setItem('app_last_author', authorName);
             renderEditor();
         }
 
@@ -348,6 +609,14 @@
             if (activeLineIndex !== null) {
                 deleteLine(activeLineIndex);
                 closeModal('modalConfig');
+            }
+        }
+
+        function updateVariableType(varName, newType) {
+            const targetVar = variables.find(v => v.name === varName);
+            if (targetVar) {
+                targetVar.type = newType;
+                renderEditor();
             }
         }
 
@@ -427,8 +696,9 @@
             const project = projects[selectedName];
 
             if (project) {
+                stopExplanation();
                 algorithmName = project.name;
-                authorName = project.author || "Desenvolvedor";
+                authorName = project.author || "Rogério B. de Andrade";
                 createdAt = project.createdAt || new Date().toLocaleString('pt-BR');
                 variables = project.variables || [];
                 codeLines = project.codeLines || [""];
@@ -621,15 +891,31 @@
 
         function renderSidebarVarList() {
             const listContainer = document.getElementById('sidebarVarList');
+            const countLabel = document.getElementById('varCountLabel');
             listContainer.innerHTML = "";
+            countLabel.innerText = variables.length;
+
+            const availableTypes = ['inteiro', 'real', 'caractere', 'logico'];
+
+            if (variables.length === 0) {
+                listContainer.innerHTML = '<span style="font-size:0.85rem; color:#718096;">Nenhuma variável cadastrada.</span>';
+                return;
+            }
 
             variables.forEach(v => {
                 const item = document.createElement('div');
                 item.className = 'var-item';
+
+                const typeOptionsHtml = availableTypes.map(t => 
+                    `<option value="${t}" ${t === v.type ? 'selected' : ''}>:${t}</option>`
+                ).join('');
+
                 item.innerHTML = `
                     <div class="var-info">
                         <span class="var-name">${v.name}</span>
-                        <span class="var-type">:${v.type}</span>
+                        <select class="var-type-select" onchange="updateVariableType('${v.name}', this.value)">
+                            ${typeOptionsHtml}
+                        </select>
                     </div>
                     <button class="btn-del-var" title="Excluir Variável" onclick="deleteVariable('${v.name}')">🗑</button>
                 `;
