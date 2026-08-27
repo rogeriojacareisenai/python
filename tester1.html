@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor Dinâmico VisuAlg - Sequencial</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1e2227; color: #abb2bf; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        /* HEADER */
+        header { background-color: #181a1f; padding: 14px 24px; border-bottom: 1px solid #111317; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        header h1 { font-size: 1.3rem; color: #61afef; font-weight: 700; }
+        .header-actions { display: flex; gap: 10px; }
+        .btn-top { background-color: #3e4451; color: #fff; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: background 0.2s; }
+        .btn-top:hover { background-color: #4b5263; }
+        .btn-primary { background-color: #98c379; color: #1e2227; }
+        .btn-primary:hover { background-color: #7fea65; }
+        .btn-copy { background-color: #61afef; color: #1e2227; }
+        .btn-copy:hover { background-color: #529fd8; }
+        .btn-danger { background-color: #e06c75; color: #fff; }
+        .btn-danger:hover { background-color: #d15663; }
+
+        /* LAYOUT PRINCIPAL */
+        .main-wrapper { flex: 1; display: flex; overflow: hidden; }
+
+        /* COLUNA ESQUERDA: PAINEL DE OPÇÕES */
+        .sidebar-left { width: 350px; background-color: #181a1f; padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; flex-shrink: 0; border-right: 1px solid #111317; }
+        .sidebar-section { background-color: #21252b; border: 1px solid #31353f; border-radius: 6px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+        .sidebar-section h3 { font-size: 1.05rem; color: #61afef; border-bottom: 1px solid #31353f; padding-bottom: 8px; }
+        .sidebar-section label { font-size: 0.9rem; color: #abb2bf; font-weight: 500; }
+        .sidebar-section input, .sidebar-section select { background-color: #181a1f; border: 1px solid #3e4451; color: #abb2bf; padding: 10px 12px; border-radius: 4px; font-family: inherit; width: 100%; font-size: 0.95rem; }
+        .sidebar-section input:focus, .sidebar-section select:focus { border-color: #61afef; outline: none; }
+
+        /* BUTTON GROUP */
+        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn-group .btn-top { flex: 1 1 calc(50% - 4px); text-align: center; }
+
+        /* COLUNA DIREITA: EDITOR DE CÓDIGO */
+        .editor-container { flex: 1; display: flex; flex-direction: column; padding: 20px; overflow-y: auto; font-family: 'Consolas', 'Fira Code', 'Courier New', monospace; font-size: 1.15rem; line-height: 1.8; background-color: #21252b; }
+        
+        /* LINHAS DO CÓDIGO */
+        .code-line { display: flex; align-items: center; min-height: 32px; padding: 2px 10px; border-radius: 4px; border-left: 4px solid transparent; user-select: none; position: relative; }
+        .code-line.editable { cursor: pointer; }
+        .code-line.editable:hover { background-color: #2c313a; border-left-color: #61afef; }
+        .line-number { width: 45px; color: #5c6370; text-align: right; padding-right: 15px; font-size: 0.95rem; font-weight: bold; flex-shrink: 0; }
+        .line-content { flex: 1; color: #abb2bf; white-space: pre; }
+
+        /* ALÇA DE ARRASTE (DRAG HANDLE) */
+        .drag-handle { cursor: grab; color: #5c6370; margin-right: 10px; font-weight: bold; display: none; font-size: 1rem; }
+        .code-line.editable:hover .drag-handle { display: inline-block; }
+        .code-line.dragging { opacity: 0.4; background-color: #3e4451; }
+        .code-line.drag-over { border-top: 2px dashed #61afef; }
+
+        /* BOTÃO DE DELETAR LINHA RÁPIDO */
+        .btn-delete-line { display: none; background: transparent; border: none; color: #e06c75; font-size: 0.9rem; cursor: pointer; padding: 2px 8px; border-radius: 3px; font-weight: bold; }
+        .code-line.editable:hover .btn-delete-line { display: inline-block; }
+        .btn-delete-line:hover { background-color: rgba(224, 108, 117, 0.2); }
+
+        /* HIGHLIGHT / COLORIZAÇÃO DE SINTAXE */
+        .hl-instrucao { color: #c678dd; font-weight: bold; }
+        .hl-escreva   { color: #56b6c2; font-weight: bold; }
+        .hl-variavel  { color: #e5c07b; font-weight: 600; }
+        .hl-tipo      { color: #d19a66; font-weight: bold; }
+        .hl-literal   { color: #98c379; }
+        .hl-numero    { color: #61afef; }
+        .hl-comment   { color: #5c6370; font-style: italic; }
+        .hl-funcao    { color: #e06c75; font-weight: bold; }
+
+        /* LISTA DE VARIÁVEIS CADASTRADAS */
+        .var-list { display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; margin-top: 5px; }
+        .var-item { background-color: #181a1f; padding: 8px 12px; border-radius: 4px; border: 1px solid #3e4451; display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; font-family: monospace; }
+        .var-info { display: flex; gap: 8px; align-items: center; }
+        .var-item .var-name { color: #e5c07b; font-weight: bold; }
+        .var-item .var-type { color: #d19a66; }
+        .btn-del-var { background: none; border: none; color: #e06c75; cursor: pointer; font-size: 0.85rem; padding: 2px 6px; border-radius: 3px; transition: background 0.2s; }
+        .btn-del-var:hover { background-color: rgba(224, 108, 117, 0.2); }
+
+        /* MODAIS */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 1000; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-card { background-color: #21252b; border: 1px solid #3e4451; width: 90%; max-width: 560px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); overflow: hidden; display: flex; flex-direction: column; }
+        .modal-header { background-color: #181a1f; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; color: #61afef; font-weight: bold; font-size: 1.1rem; }
+        .modal-close { background: none; border: none; color: #e06c75; font-size: 1.4rem; cursor: pointer; }
+        .modal-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; max-height: 75vh; overflow-y: auto; }
+        .modal-body label { font-size: 0.95rem; color: #abb2bf; font-weight: 500; }
+        .modal-body input, .modal-body select { background-color: #181a1f; border: 1px solid #3e4451; color: #abb2bf; padding: 10px 12px; border-radius: 4px; font-family: inherit; width: 100%; font-size: 1rem; }
+        .modal-body input:focus, .modal-body select:focus { border-color: #61afef; outline: none; }
+        .modal-footer { padding: 14px 20px; background-color: #181a1f; display: flex; justify-content: space-between; align-items: center; }
+        .modal-footer .right-btns { display: flex; gap: 10px; }
+
+        .instruction-opt { background: #181a1f; border: 1px solid #3e4451; padding: 12px 14px; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+        .instruction-opt:hover { border-color: #61afef; background: #2c313a; }
+        .instruction-opt strong { color: #61afef; display: block; margin-bottom: 4px; font-size: 1.05rem; }
+        .instruction-opt span { font-size: 0.85rem; color: #abb2bf; }
+
+        /* EDITOR BÁSICO DE EXPRESSÕES MATEMÁTICAS */
+        .expr-builder { display: flex; flex-direction: column; gap: 10px; background-color: #181a1f; padding: 12px; border-radius: 6px; border: 1px solid #3e4451; }
+        .expr-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+        .btn-calc { background-color: #282c34; color: #61afef; border: 1px solid #3e4451; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: monospace; font-size: 1rem; }
+        .btn-calc:hover { background-color: #3e4451; color: #fff; }
+        .btn-calc.var-btn { color: #e5c07b; }
+        .btn-calc.func-btn { color: #e06c75; }
+        .btn-calc.danger-btn { color: #e06c75; border-color: #e06c75; margin-left: auto; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Editor de Algoritmos (VisuAlg)</h1>
+        <div class="header-actions">
+            <button class="btn-top btn-copy" id="btnCopyCode" onclick="copyCodeToClipboard()">📋 Copiar Código</button>
+            <button class="btn-top btn-primary" onclick="resetEditor(true)">+ Novo Projeto</button>
+        </div>
+    </header>
+
+    <div class="main-wrapper">
+        <!-- ÁREA ESQUERDA: OPÇÕES E CONFIGURAÇÕES -->
+        <div class="sidebar-left">
+            
+            <!-- SEÇÃO DE PERSISTÊNCIA LOCAL -->
+            <div class="sidebar-section">
+                <h3>Gerenciador Local</h3>
+                <div>
+                    <label>Projetos Salvos:</label>
+                    <select id="savedProjectsSelect">
+                        <option value="">-- Selecione um Projeto --</option>
+                    </select>
+                </div>
+                <div class="btn-group">
+                    <button class="btn-top btn-primary" onclick="resetEditor(true)">Novo</button>
+                    <button class="btn-top btn-primary" onclick="saveAlgorithmToStorage()">Salvar</button>
+                    <button class="btn-top" onclick="loadAlgorithmFromStorage()">Carregar</button>
+                    <button class="btn-top btn-danger" onclick="deleteAlgorithmFromStorage()">Excluir</button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>Dados do Projeto</h3>
+                <div>
+                    <label>Nome do Algoritmo:</label>
+                    <input type="text" id="algNameInput" value="sem_titulo" onchange="updateAlgorithmName(this.value)">
+                </div>
+                <div>
+                    <label>Programador(a):</label>
+                    <input type="text" id="authorInput" value="Desenvolvedor" onchange="updateAuthorName(this.value)">
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>Adicionar Variável</h3>
+                <div>
+                    <label>Nome:</label>
+                    <input type="text" id="newVarName" placeholder="Ex: resultado">
+                </div>
+                <div>
+                    <label>Tipo de Dado:</label>
+                    <select id="newVarType">
+                        <option value="inteiro">inteiro</option>
+                        <option value="real">real</option>
+                        <option value="caractere">caractere</option>
+                        <option value="logico">logico</option>
+                    </select>
+                </div>
+                <button class="btn-top btn-primary" style="margin-top: 5px;" onclick="saveNewVariable()">+ Salvar Variável</button>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>Variáveis Declaradas</h3>
+                <div class="var-list" id="sidebarVarList"></div>
+            </div>
+        </div>
+
+        <!-- ÁREA DIREITA: EDITOR DE CÓDIGO -->
+        <div class="editor-container" id="editor">
+            <!-- Estrutura gerada via JS -->
+        </div>
+    </div>
+
+    <!-- MODAL 1: SELETOR DE INSTRUÇÃO -->
+    <div class="modal-overlay" id="modalInstructions">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span>Escolha uma Instrução</span>
+                <button class="modal-close" onclick="closeModal('modalInstructions')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="instruction-opt" onclick="selectInstructionType('escreva')">
+                    <strong>escreva</strong>
+                    <span>Exibe uma mensagem/variável na tela na MESMA LINHA (sem pulo).</span>
+                </div>
+                <div class="instruction-opt" onclick="selectInstructionType('escreval')">
+                    <strong>escreval</strong>
+                    <span>Exibe mensagem/variável na tela e PULA PARA A PRÓXIMA LINHA.</span>
+                </div>
+                <div class="instruction-opt" onclick="selectInstructionType('leia')">
+                    <strong>leia</strong>
+                    <span>Captura um valor digitado pelo usuário e salva na variável (Entrada).</span>
+                </div>
+                <div class="instruction-opt" onclick="selectInstructionType('atribuicao')">
+                    <strong>Atribuição ( &lt;- )</strong>
+                    <span>Calcula uma expressão/valor e atribui a uma variável (Processamento).</span>
+                </div>
+                <div class="instruction-opt" onclick="selectInstructionType('raizq')">
+                    <strong>Raiz Quadrada ( raizq )</strong>
+                    <span>Calcula a raiz quadrada de um número ou variável e guarda o resultado.</span>
+                </div>
+                <div class="instruction-opt" onclick="selectInstructionType('potencia')">
+                    <strong>Potenciação ( exp ou ^ )</strong>
+                    <span>Eleva uma base a um expoente e atribui o valor a uma variável.</span>
+                </div>
+                <div class="instruction-opt" onclick="selectInstructionType('comentario')">
+                    <strong>Comentário ( // )</strong>
+                    <span>Insere uma linha explicativa que é ignorada na execução.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: CONFIGURAÇÃO DE COMANDO (DINÂMICO) -->
+    <div class="modal-overlay" id="modalConfig">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span id="configTitle">Configurar Comando</span>
+                <button class="modal-close" onclick="closeModal('modalConfig')">&times;</button>
+            </div>
+            <div class="modal-body" id="configBody">
+                <!-- Conteúdo montado dinamicamente -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-top btn-danger" onclick="deleteActiveLine()">Excluir Linha</button>
+                <div class="right-btns">
+                    <button class="btn-top" onclick="closeModal('modalConfig')">Cancelar</button>
+                    <button class="btn-top btn-primary" onclick="confirmInstruction()">Salvar Alteração</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = "visualg_saved_projects";
+        let algorithmName = "sem_titulo";
+        let authorName = "Desenvolvedor";
+        let createdAt = new Date().toLocaleString('pt-BR');
+        let variables = []; 
+        let codeLines = [""]; 
+        let activeLineIndex = null;
+        let currentInstructionType = "";
+        let draggedIndex = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedAuthor = localStorage.getItem('visualg_last_author');
+            if (savedAuthor) authorName = savedAuthor;
+            document.getElementById('authorInput').value = authorName;
+
+            resetEditor(false);
+            updateSavedProjectsDropdown();
+        });
+
+        /* --- GERADOR E COPIADOR DE CÓDIGO PURO --- */
+
+        function generateFullCodeText() {
+            let fullText = [];
+            fullText.push(`algoritmo "${algorithmName}"`);
+            fullText.push(`// Função: Algoritmo Sequencial`);
+            fullText.push(`// Autor: ${authorName}`);
+            fullText.push(`// Data de Criação: ${createdAt}`);
+            fullText.push(`var`);
+
+            if (variables.length > 0) {
+                const groupedVars = {};
+                variables.forEach(v => {
+                    if (!groupedVars[v.type]) groupedVars[v.type] = [];
+                    groupedVars[v.type].push(v.name);
+                });
+
+                for (const type in groupedVars) {
+                    const varListStr = groupedVars[type].join(", ");
+                    fullText.push(`   ${varListStr} : ${type}`);
+                }
+            }
+
+            fullText.push(`inicio`);
+
+            codeLines.forEach(line => {
+                fullText.push(line);
+            });
+
+            fullText.push(`fimalgoritmo`);
+
+            return fullText.join('\n');
+        }
+
+        function copyCodeToClipboard() {
+            const fullCode = generateFullCodeText();
+            navigator.clipboard.writeText(fullCode).then(() => {
+                const btn = document.getElementById('btnCopyCode');
+                const originalText = btn.innerText;
+                btn.innerText = "✓ Copiado!";
+                btn.style.backgroundColor = "#98c379";
+                
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.backgroundColor = "";
+                }, 2000);
+            }).catch(err => {
+                alert("Erro ao copiar código: " + err);
+            });
+        }
+
+        /* --- TEMPLATE BÁSICO E REINICIALIZAÇÃO --- */
+
+        function resetEditor(askConfirmation = true) {
+            if (askConfirmation) {
+                const confirmReset = confirm("Deseja criar um novo projeto? Todas as alterações não salvas serão perdidas.");
+                if (!confirmReset) return;
+            }
+
+            algorithmName = "sem_titulo";
+            createdAt = new Date().toLocaleString('pt-BR');
+            variables = [];
+            codeLines = [""]; 
+
+            document.getElementById('algNameInput').value = algorithmName;
+            document.getElementById('savedProjectsSelect').value = "";
+            
+            renderEditor();
+            renderSidebarVarList();
+        }
+
+        function updateAuthorName(newName) {
+            authorName = newName.trim() || "Desenvolvedor";
+            localStorage.setItem('visualg_last_author', authorName);
+            renderEditor();
+        }
+
+        function updateAlgorithmName(newName) {
+            const val = newName.trim();
+            algorithmName = val ? val.replace(/\s+/g, '_') : "sem_titulo";
+            renderEditor();
+        }
+
+        /* --- REMOÇÃO DE LINHAS --- */
+
+        function deleteLine(index) {
+            if (codeLines.length <= 1) {
+                codeLines[0] = "";
+            } else {
+                codeLines.splice(index, 1);
+            }
+            renderEditor();
+        }
+
+        function deleteActiveLine() {
+            if (activeLineIndex !== null) {
+                deleteLine(activeLineIndex);
+                closeModal('modalConfig');
+            }
+        }
+
+        /* --- GESTÃO E EXCLUSÃO DE VARIÁVEIS --- */
+
+        function deleteVariable(varName) {
+            const regexVar = new RegExp(`\\b${varName}\\b`);
+            const isReferenced = codeLines.some(line => {
+                if (line.trim().startsWith("//")) return false;
+                return regexVar.test(line);
+            });
+
+            if (isReferenced) {
+                alert(`Não é possível excluir a variável "${varName}". Ela está sendo referenciada nas instruções do código!`);
+                return;
+            }
+
+            variables = variables.filter(v => v.name !== varName);
+            renderEditor();
+            renderSidebarVarList();
+        }
+
+        /* --- PERSISTÊNCIA DE DADOS --- */
+
+        function getSavedProjects() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            return data ? JSON.parse(data) : {};
+        }
+
+        function updateSavedProjectsDropdown() {
+            const projects = getSavedProjects();
+            const select = document.getElementById('savedProjectsSelect');
+            select.innerHTML = '<option value="">-- Selecione um Projeto --</option>';
+
+            Object.keys(projects).forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.innerText = name;
+                select.appendChild(option);
+            });
+        }
+
+        function saveAlgorithmToStorage() {
+            if (!algorithmName || algorithmName.trim() === "") {
+                alert("Dê um nome válido para o seu algoritmo antes de salvar.");
+                return;
+            }
+
+            const projects = getSavedProjects();
+
+            if (projects[algorithmName]) {
+                const confirmOverwrite = confirm(`Já existe um projeto salvo com o nome "${algorithmName}". Deseja sobrescrevê-lo?`);
+                if (!confirmOverwrite) return;
+            }
+
+            projects[algorithmName] = {
+                name: algorithmName,
+                author: authorName,
+                createdAt: createdAt,
+                variables: variables,
+                codeLines: codeLines,
+                updatedAt: new Date().toISOString()
+            };
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+            updateSavedProjectsDropdown();
+            document.getElementById('savedProjectsSelect').value = algorithmName;
+            alert(`Algoritmo "${algorithmName}" salvo com sucesso!`);
+        }
+
+        function loadAlgorithmFromStorage() {
+            const select = document.getElementById('savedProjectsSelect');
+            const selectedName = select.value;
+
+            if (!selectedName) {
+                alert("Selecione um projeto na lista para carregar.");
+                return;
+            }
+
+            const projects = getSavedProjects();
+            const project = projects[selectedName];
+
+            if (project) {
+                algorithmName = project.name;
+                authorName = project.author || "Desenvolvedor";
+                createdAt = project.createdAt || new Date().toLocaleString('pt-BR');
+                variables = project.variables || [];
+                codeLines = project.codeLines || [""];
+                
+                document.getElementById('algNameInput').value = algorithmName;
+                document.getElementById('authorInput').value = authorName;
+                renderEditor();
+                renderSidebarVarList();
+                alert(`Algoritmo "${selectedName}" carregado!`);
+            }
+        }
+
+        function deleteAlgorithmFromStorage() {
+            const select = document.getElementById('savedProjectsSelect');
+            const selectedName = select.value;
+
+            if (!selectedName) {
+                alert("Selecione um projeto na lista para excluir.");
+                return;
+            }
+
+            if (confirm(`Tem certeza que deseja apagar o projeto "${selectedName}"?`)) {
+                const projects = getSavedProjects();
+                delete projects[selectedName];
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+                updateSavedProjectsDropdown();
+                alert(`Algoritmo "${selectedName}" excluído com sucesso.`);
+            }
+        }
+
+        function escapeHtml(str) {
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+        }
+
+        function colorirSintaxe(linhaTexto) {
+            if (!linhaTexto) return "";
+
+            if (linhaTexto.trim().startsWith("//")) {
+                return `<span class="hl-comment">${escapeHtml(linhaTexto)}</span>`;
+            }
+
+            const tokens = [];
+            const salvarToken = (texto, classe) => {
+                const id = `___TOKEN_${tokens.length}___`;
+                tokens.push(`<span class="${classe}">${escapeHtml(texto)}</span>`);
+                return id;
+            };
+
+            let p = linhaTexto;
+
+            p = p.replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, match => salvarToken(match, 'hl-literal'));
+            p = p.replace(/\b(raizq|exp)\b/g, match => salvarToken(match, 'hl-funcao'));
+            p = p.replace(/\b\d+(\.\d+)?\b/g, match => salvarToken(match, 'hl-numero'));
+            p = p.replace(/\b(algoritmo|var|inicio|fimalgoritmo|leia)\b/g, match => salvarToken(match, 'hl-instrucao'));
+            p = p.replace(/\b(escreval|escreva)\b/g, match => salvarToken(match, 'hl-escreva'));
+            p = p.replace(/\b(inteiro|real|caractere|logico)\b/g, match => salvarToken(match, 'hl-tipo'));
+
+            const nomesVar = variables.map(v => v.name);
+            if (nomesVar.length > 0) {
+                const regexVars = new RegExp(`\\b(${nomesVar.join('|')})\\b`, 'g');
+                p = p.replace(regexVars, match => salvarToken(match, 'hl-variavel'));
+            }
+
+            p = escapeHtml(p);
+
+            tokens.forEach((tokenHtml, index) => {
+                p = p.replace(`___TOKEN_${index}___`, tokenHtml);
+            });
+
+            return p;
+        }
+
+        /* --- RENDERIZAÇÃO DO CÓDIGO --- */
+
+        function renderEditor() {
+            const editor = document.getElementById('editor');
+            editor.innerHTML = "";
+
+            let lineNumber = 1;
+
+            appendLine(editor, lineNumber++, `algoritmo "${algorithmName}"`, false);
+            appendLine(editor, lineNumber++, `// Função: Algoritmo Sequencial`, false);
+            appendLine(editor, lineNumber++, `// Autor: ${authorName}`, false);
+            appendLine(editor, lineNumber++, `// Data de Criação: ${createdAt}`, false);
+            appendLine(editor, lineNumber++, `var`, false);
+            
+            if (variables.length > 0) {
+                const groupedVars = {};
+                variables.forEach(v => {
+                    if (!groupedVars[v.type]) groupedVars[v.type] = [];
+                    groupedVars[v.type].push(v.name);
+                });
+
+                for (const type in groupedVars) {
+                    const varListStr = groupedVars[type].join(", ");
+                    appendLine(editor, lineNumber++, `   ${varListStr} : ${type}`, false);
+                }
+            }
+
+            appendLine(editor, lineNumber++, `inicio`, false);
+
+            codeLines.forEach((lineText, index) => {
+                const lineDiv = document.createElement('div');
+                lineDiv.className = 'code-line editable';
+                lineDiv.setAttribute('draggable', 'true');
+                lineDiv.dataset.index = index;
+
+                // Drag & Drop
+                lineDiv.ondragstart = (e) => {
+                    draggedIndex = index;
+                    lineDiv.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                };
+
+                lineDiv.ondragend = () => {
+                    lineDiv.classList.remove('dragging');
+                    document.querySelectorAll('.code-line').forEach(el => el.classList.remove('drag-over'));
+                };
+
+                lineDiv.ondragover = (e) => {
+                    e.preventDefault();
+                    if (draggedIndex !== null && draggedIndex !== index) {
+                        lineDiv.classList.add('drag-over');
+                    }
+                };
+
+                lineDiv.ondragleave = () => {
+                    lineDiv.classList.remove('drag-over');
+                };
+
+                lineDiv.ondrop = (e) => {
+                    e.preventDefault();
+                    lineDiv.classList.remove('drag-over');
+                    if (draggedIndex !== null && draggedIndex !== index) {
+                        const movedItem = codeLines.splice(draggedIndex, 1)[0];
+                        codeLines.splice(index, 0, movedItem);
+                        draggedIndex = null;
+                        renderEditor();
+                    }
+                };
+
+                lineDiv.ondblclick = () => openInstructionModal(index);
+
+                const dragHandle = document.createElement('span');
+                dragHandle.className = 'drag-handle';
+                dragHandle.innerText = '⠿';
+                dragHandle.title = 'Arrastar para reordenar';
+
+                const numSpan = document.createElement('span');
+                numSpan.className = 'line-number';
+                numSpan.innerText = lineNumber++;
+
+                const contentSpan = document.createElement('span');
+                contentSpan.className = 'line-content';
+                contentSpan.innerHTML = colorirSintaxe(lineText);
+
+                const delBtn = document.createElement('button');
+                delBtn.className = 'btn-delete-line';
+                delBtn.innerText = '✕';
+                delBtn.title = 'Excluir linha';
+                delBtn.onclick = (e) => {
+                    e.stopPropagation(); 
+                    deleteLine(index);
+                };
+
+                lineDiv.appendChild(dragHandle);
+                lineDiv.appendChild(numSpan);
+                lineDiv.appendChild(contentSpan);
+                lineDiv.appendChild(delBtn);
+                editor.appendChild(lineDiv);
+            });
+
+            appendLine(editor, lineNumber++, `fimalgoritmo`, false);
+        }
+
+        function appendLine(container, num, textContent, isEditable) {
+            const lineDiv = document.createElement('div');
+            lineDiv.className = 'code-line' + (isEditable ? ' editable' : '');
+            if (!isEditable) lineDiv.style.cursor = 'default';
+
+            const numSpan = document.createElement('span');
+            numSpan.className = 'line-number';
+            numSpan.innerText = num;
+
+            const contentSpan = document.createElement('span');
+            contentSpan.className = 'line-content';
+            contentSpan.innerHTML = colorirSintaxe(textContent);
+
+            lineDiv.appendChild(numSpan);
+            lineDiv.appendChild(contentSpan);
+            container.appendChild(lineDiv);
+        }
+
+        function renderSidebarVarList() {
+            const listContainer = document.getElementById('sidebarVarList');
+            listContainer.innerHTML = "";
+
+            variables.forEach(v => {
+                const item = document.createElement('div');
+                item.className = 'var-item';
+                item.innerHTML = `
+                    <div class="var-info">
+                        <span class="var-name">${v.name}</span>
+                        <span class="var-type">:${v.type}</span>
+                    </div>
+                    <button class="btn-del-var" title="Excluir Variável" onclick="deleteVariable('${v.name}')">🗑</button>
+                `;
+                listContainer.appendChild(item);
+            });
+        }
+
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        function openInstructionModal(lineIndex) {
+            activeLineIndex = lineIndex;
+            openModal('modalInstructions');
+        }
+
+        function selectInstructionType(type) {
+            currentInstructionType = type;
+            closeModal('modalInstructions');
+            
+            const configBody = document.getElementById('configBody');
+            const configTitle = document.getElementById('configTitle');
+            configBody.innerHTML = "";
+
+            const requiresVar = ['leia', 'atribuicao', 'raizq', 'potencia'];
+            if (variables.length === 0 && requiresVar.includes(type)) {
+                alert("Crie pelo menos uma variável no painel à esquerda antes de utilizar esta instrução.");
+                return;
+            }
+
+            const existingLine = codeLines[activeLineIndex] || "";
+
+            if (type === 'comentario') {
+                configTitle.innerText = "Inserir Comentário";
+                let currentComment = "";
+                if (existingLine.trim().startsWith("//")) {
+                    currentComment = existingLine.replace(/^\s*\/\/\s*/, "");
+                }
+                configBody.innerHTML = `
+                    <label>Texto do Comentário:</label>
+                    <input type="text" id="commentText" value="${currentComment}" placeholder="Ex: Esta seção calcula a área">
+                `;
+            } else if (type === 'leia') {
+                configTitle.innerText = "Instrução de Entrada (leia)";
+                let selectedVar = variables[0] ? variables[0].name : "";
+                const match = existingLine.match(/leia\(([^)]+)\)/);
+                if (match && match[1]) selectedVar = match[1].trim();
+
+                configBody.innerHTML = `
+                    <label>Escolha a Variável para armazenar a leitura:</label>
+                    <select id="inputVarSelect">
+                        ${variables.map(v => `<option value="${v.name}" ${v.name === selectedVar ? 'selected' : ''}>${v.name} (${v.type})</option>`).join('')}
+                    </select>
+                `;
+            } else if (type === 'escreva' || type === 'escreval') {
+                configTitle.innerText = `Instrução de Saída (${type})`;
+                let currentText = "";
+                let currentVar = "";
+
+                const matchTextAndVar = existingLine.match(/escreva[l]?\("([^"]*)",\s*([^)]+)\)/);
+                const matchTextOnly = existingLine.match(/escreva[l]?\("([^"]*)"\)/);
+                const matchVarOnly = existingLine.match(/escreva[l]?\(([^"\\)]+)\)/);
+
+                if (matchTextAndVar) {
+                    currentText = matchTextAndVar[1];
+                    currentVar = matchTextAndVar[2].trim();
+                } else if (matchTextOnly) {
+                    currentText = matchTextOnly[1];
+                } else if (matchVarOnly) {
+                    currentVar = matchVarOnly[1].trim();
+                }
+
+                configBody.innerHTML = `
+                    <label>Texto/Mensagem a ser exibida:</label>
+                    <input type="text" id="outputText" value="${currentText}" placeholder="Ex: O resultado é: ">
+                    <label>Exibir também uma variável? (Opcional):</label>
+                    <select id="outputVarSelect">
+                        <option value="">-- Nenhuma --</option>
+                        ${variables.map(v => `<option value="${v.name}" ${v.name === currentVar ? 'selected' : ''}>${v.name}</option>`).join('')}
+                    </select>
+                `;
+            } else if (type === 'raizq') {
+                configTitle.innerText = "Cálculo de Raiz Quadrada (raizq)";
+                configBody.innerHTML = `
+                    <label>Variável que RECEBERÁ o resultado:</label>
+                    <select id="targetVarSelect">
+                        ${variables.map(v => `<option value="${v.name}">${v.name} (${v.type})</option>`).join('')}
+                    </select>
+                    <label>Selecione a Variável de ONDE extrair a raiz:</label>
+                    <select id="sourceVarSelect">
+                        ${variables.map(v => `<option value="${v.name}">${v.name} (${v.type})</option>`).join('')}
+                    </select>
+                `;
+            } else if (type === 'potencia') {
+                configTitle.innerText = "Cálculo de Potenciação";
+                configBody.innerHTML = `
+                    <label>Variável que RECEBERÁ o resultado:</label>
+                    <select id="targetVarSelect">
+                        ${variables.map(v => `<option value="${v.name}">${v.name} (${v.type})</option>`).join('')}
+                    </select>
+                    <label>Selecione a Variável BASE:</label>
+                    <select id="baseVarSelect">
+                        ${variables.map(v => `<option value="${v.name}">${v.name} (${v.type})</option>`).join('')}
+                    </select>
+                    <label>Selecione a Variável EXPOENTE (ou digite um valor fixo):</label>
+                    <select id="expVarSelect" onchange="toggleExpCustom(this.value)">
+                        ${variables.map(v => `<option value="${v.name}">${v.name} (${v.type})</option>`).join('')}
+                        <option value="__custom__">-- Digitar Número Fixo --</option>
+                    </select>
+                    <div id="customExpContainer" style="display:none; margin-top:8px;">
+                        <input type="number" id="customExpInput" placeholder="Ex: 2 para elevado ao quadrado">
+                    </div>
+                `;
+            } else if (type === 'atribuicao') {
+                configTitle.innerText = "Processamento (Atribuição)";
+                let targetVar = variables[0] ? variables[0].name : "";
+                let exprValue = "";
+
+                const matchAttr = existingLine.match(/^\s*([^\s]+)\s*<-\s*(.+)$/);
+                if (matchAttr) {
+                    targetVar = matchAttr[1].trim();
+                    exprValue = matchAttr[2].trim();
+                }
+
+                configBody.innerHTML = `
+                    <label>Variável que receberá o valor:</label>
+                    <select id="targetVarSelect">
+                        ${variables.map(v => `<option value="${v.name}" ${v.name === targetVar ? 'selected' : ''}>${v.name}</option>`).join('')}
+                    </select>
+                    
+                    <label>Expressão / Valor:</label>
+                    <input type="text" id="mathExpression" value="${exprValue}" placeholder="Ex: a + b ou raizq(x) ou x ^ 2">
+                    
+                    <label>Editor de Expressões / Funções:</label>
+                    <div class="expr-builder">
+                        <div class="expr-buttons">
+                            ${variables.map(v => `<button type="button" class="btn-calc var-btn" onclick="appendToExpr('${v.name}')">${v.name}</button>`).join('')}
+                        </div>
+                        <div class="expr-buttons">
+                            <button type="button" class="btn-calc func-btn" onclick="appendToExpr('raizq()', -1)">raizq()</button>
+                            <button type="button" class="btn-calc func-btn" onclick="appendToExpr('exp(,)', -2)">exp(b, e)</button>
+                            <button type="button" class="btn-calc" onclick="appendToExpr('^')">^</button>
+                            <button type="button" class="btn-calc" onclick="appendToExpr('+')">+</button>
+                            <button type="button" class="btn-calc" onclick="appendToExpr('-')">-</button>
+                            <button type="button" class="btn-calc" onclick="appendToExpr('*')">*</button>
+                            <button type="button" class="btn-calc" onclick="appendToExpr('/')">/</button>
+                            <button type="button" class="btn-calc" onclick="appendToExpr('(')">(</button>
+                            <button type="button" class="btn-calc" onclick="appendToExpr(')')">)</button>
+                            <button type="button" class="btn-calc danger-btn" onclick="clearExpr()">Limpar</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            openModal('modalConfig');
+        }
+
+        function toggleExpCustom(val) {
+            const container = document.getElementById('customExpContainer');
+            if (container) {
+                container.style.display = (val === '__custom__') ? 'block' : 'none';
+            }
+        }
+
+        function appendToExpr(value, cursorOffset = 0) {
+            const exprInput = document.getElementById('mathExpression');
+            if (!exprInput) return;
+            const startPos = exprInput.selectionStart;
+            const endPos = exprInput.selectionEnd;
+            const current = exprInput.value;
+            
+            exprInput.value = current.substring(0, startPos) + value + current.substring(endPos);
+            exprInput.focus();
+            
+            const newPos = startPos + value.length + cursorOffset;
+            exprInput.setSelectionRange(newPos, newPos);
+        }
+
+        function clearExpr() {
+            const exprInput = document.getElementById('mathExpression');
+            if (exprInput) exprInput.value = "";
+        }
+
+        function validateVariablesInExpr(expression) {
+            if (!expression || expression.trim() === "") return true;
+
+            const tokens = expression.match(/[a-zA-Z_][a-zA-Z0-9_]*/g);
+            if (!tokens) return true;
+
+            const knownVarNames = variables.map(v => v.name);
+            const nativeFunctions = ['raizq', 'exp', 'abs', 'int', 'carac', 'rand'];
+            
+            const invalidTokens = tokens.filter(token => !knownVarNames.includes(token) && !nativeFunctions.includes(token));
+
+            if (invalidTokens.length > 0) {
+                const uniqueInvalid = [...new Set(invalidTokens)];
+                alert(`Erro na expressão!\nAs seguintes variáveis/termos não foram declarados: ${uniqueInvalid.join(', ')}.`);
+                return false;
+            }
+
+            return true;
+        }
+
+        function confirmInstruction() {
+            let generatedCode = "";
+
+            if (currentInstructionType === 'comentario') {
+                const commentText = document.getElementById('commentText').value.trim();
+                generatedCode = `   // ${commentText}`;
+            } else if (currentInstructionType === 'leia') {
+                const varSelected = document.getElementById('inputVarSelect').value;
+                generatedCode = `   leia(${varSelected})`;
+            } else if (currentInstructionType === 'escreva' || currentInstructionType === 'escreval') {
+                const text = document.getElementById('outputText').value;
+                const varSelected = document.getElementById('outputVarSelect').value;
+                const comando = currentInstructionType;
+
+                if (text && varSelected) {
+                    generatedCode = `   ${comando}("${text}", ${varSelected})`;
+                } else if (text) {
+                    generatedCode = `   ${comando}("${text}")`;
+                } else if (varSelected) {
+                    generatedCode = `   ${comando}(${varSelected})`;
+                } else {
+                    generatedCode = `   ${comando}("")`;
+                }
+            } else if (currentInstructionType === 'raizq') {
+                const targetVar = document.getElementById('targetVarSelect').value;
+                const sourceVar = document.getElementById('sourceVarSelect').value;
+                generatedCode = `   ${targetVar} <- raizq(${sourceVar})`;
+            } else if (currentInstructionType === 'potencia') {
+                const targetVar = document.getElementById('targetVarSelect').value;
+                const baseVar = document.getElementById('baseVarSelect').value;
+                const expSelect = document.getElementById('expVarSelect').value;
+                let expoente = expSelect;
+
+                if (expSelect === '__custom__') {
+                    expoente = document.getElementById('customExpInput').value.trim();
+                    if (!expoente) {
+                        alert("Por favor, informe o número do expoente.");
+                        return;
+                    }
+                }
+                generatedCode = `   ${targetVar} <- ${baseVar} ^ ${expoente}`;
+            } else if (currentInstructionType === 'atribuicao') {
+                const targetVar = document.getElementById('targetVarSelect').value;
+                const expr = document.getElementById('mathExpression').value.trim();
+
+                if (!validateVariablesInExpr(expr)) {
+                    return; 
+                }
+
+                generatedCode = `   ${targetVar} <- ${expr}`;
+            }
+
+            codeLines[activeLineIndex] = generatedCode;
+
+            if (activeLineIndex === codeLines.length - 1) {
+                codeLines.push("");
+            }
+
+            closeModal('modalConfig');
+            renderEditor();
+        }
+
+        function saveNewVariable() {
+            const nameInput = document.getElementById('newVarName');
+            const name = nameInput.value.trim().replace(/\s+/g, '_');
+            const type = document.getElementById('newVarType').value;
+
+            if (name) {
+                if (variables.some(v => v.name === name)) {
+                    alert("Já existe uma variável com esse nome!");
+                    return;
+                }
+                variables.push({ name, type });
+                nameInput.value = "";
+                renderEditor();
+                renderSidebarVarList();
+            } else {
+                alert("Por favor, digite um nome válido para a variável.");
+            }
+        }
+    </script>
+</body>
+</html>
