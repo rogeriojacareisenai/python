@@ -8,6 +8,12 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1e2227; color: #abb2bf; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
+        /* 1. CUSTOMIZAÇÃO DA BARRA DE ROLAGEM (SCROLLBAR) */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #181a1f; }
+        ::-webkit-scrollbar-thumb { background: #3e4451; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4b5263; }
+
         /* HEADER */
         header { background-color: #181a1f; padding: 14px 24px; border-bottom: 1px solid #111317; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
         header h1 { font-size: 1.3rem; color: #61afef; font-weight: 700; }
@@ -24,13 +30,13 @@
         /* LAYOUT PRINCIPAL */
         .main-wrapper { flex: 1; display: flex; overflow: hidden; }
 
-        /* COLUNA ESQUERDA: PAINEL DE OPÇÕES */
-        .sidebar-left { width: 350px; background-color: #181a1f; padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; flex-shrink: 0; border-right: 1px solid #111317; }
-        .sidebar-section { background-color: #21252b; border: 1px solid #31353f; border-radius: 6px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-        .sidebar-section h3 { font-size: 1.05rem; color: #61afef; border-bottom: 1px solid #31353f; padding-bottom: 8px; }
-        .sidebar-section label { font-size: 0.9rem; color: #abb2bf; font-weight: 500; }
-        .sidebar-section input, .sidebar-section select { background-color: #181a1f; border: 1px solid #3e4451; color: #abb2bf; padding: 10px 12px; border-radius: 4px; font-family: inherit; width: 100%; font-size: 0.95rem; }
-        .sidebar-section input:focus, .sidebar-section select:focus { border-color: #61afef; outline: none; }
+        /* 2. COLUNA ESQUERDA: MENU COM FUNDO CLARO */
+        .sidebar-left { width: 350px; background-color: #f4f5f7; padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; flex-shrink: 0; border-right: 1px solid #dcdfe6; color: #2c3e50; }
+        .sidebar-section { background-color: #ffffff; border: 1px solid #e1e4e8; border-radius: 6px; padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .sidebar-section h3 { font-size: 1.05rem; color: #2b5c8f; border-bottom: 1px solid #e1e4e8; padding-bottom: 8px; }
+        .sidebar-section label { font-size: 0.9rem; color: #4a5568; font-weight: 600; }
+        .sidebar-section input, .sidebar-section select { background-color: #f8f9fa; border: 1px solid #cbd5e0; color: #2d3748; padding: 10px 12px; border-radius: 4px; font-family: inherit; width: 100%; font-size: 0.95rem; }
+        .sidebar-section input:focus, .sidebar-section select:focus { border-color: #3182ce; background-color: #fff; outline: none; }
 
         /* BUTTON GROUP */
         .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -67,14 +73,14 @@
         .hl-comment   { color: #5c6370; font-style: italic; }
         .hl-funcao    { color: #e06c75; font-weight: bold; }
 
-        /* LISTA DE VARIÁVEIS CADASTRADAS */
+        /* LISTA DE VARIÁVEIS CADASTRADAS (AJUSTADA PARA O MENU CLARO) */
         .var-list { display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; margin-top: 5px; }
-        .var-item { background-color: #181a1f; padding: 8px 12px; border-radius: 4px; border: 1px solid #3e4451; display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; font-family: monospace; }
+        .var-item { background-color: #f8f9fa; padding: 8px 12px; border-radius: 4px; border: 1px solid #cbd5e0; display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; font-family: monospace; }
         .var-info { display: flex; gap: 8px; align-items: center; }
-        .var-item .var-name { color: #e5c07b; font-weight: bold; }
-        .var-item .var-type { color: #d19a66; }
-        .btn-del-var { background: none; border: none; color: #e06c75; cursor: pointer; font-size: 0.85rem; padding: 2px 6px; border-radius: 3px; transition: background 0.2s; }
-        .btn-del-var:hover { background-color: rgba(224, 108, 117, 0.2); }
+        .var-item .var-name { color: #d69e2e; font-weight: bold; }
+        .var-item .var-type { color: #dd6b20; }
+        .btn-del-var { background: none; border: none; color: #e53e3e; cursor: pointer; font-size: 0.85rem; padding: 2px 6px; border-radius: 3px; transition: background 0.2s; }
+        .btn-del-var:hover { background-color: rgba(229, 62, 62, 0.15); }
 
         /* MODAIS */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 1000; }
@@ -115,7 +121,7 @@
     </header>
 
     <div class="main-wrapper">
-        <!-- ÁREA ESQUERDA: OPÇÕES E CONFIGURAÇÕES -->
+        <!-- ÁREA ESQUERDA: MENU LATERAL (AGORA COM FUNDO CLARO) -->
         <div class="sidebar-left">
             
             <!-- SEÇÃO DE PERSISTÊNCIA LOCAL -->
@@ -177,7 +183,7 @@
         </div>
     </div>
 
-    <!-- MODAL 1: SELETOR DE INSTRUÇÃO -->
+    <!-- MODAIS E JAVASCRIPT INTACTOS CONFORME O ORIGINAL -->
     <div class="modal-overlay" id="modalInstructions">
         <div class="modal-card">
             <div class="modal-header">
@@ -217,16 +223,13 @@
         </div>
     </div>
 
-    <!-- MODAL 2: CONFIGURAÇÃO DE COMANDO (DINÂMICO) -->
     <div class="modal-overlay" id="modalConfig">
         <div class="modal-card">
             <div class="modal-header">
                 <span id="configTitle">Configurar Comando</span>
                 <button class="modal-close" onclick="closeModal('modalConfig')">&times;</button>
             </div>
-            <div class="modal-body" id="configBody">
-                <!-- Conteúdo montado dinamicamente -->
-            </div>
+            <div class="modal-body" id="configBody"></div>
             <div class="modal-footer">
                 <button class="btn-top btn-danger" onclick="deleteActiveLine()">Excluir Linha</button>
                 <div class="right-btns">
@@ -257,8 +260,6 @@
             updateSavedProjectsDropdown();
         });
 
-        /* --- GERADOR E COPIADOR DE CÓDIGO PURO --- */
-
         function generateFullCodeText() {
             let fullText = [];
             fullText.push(`algoritmo "${algorithmName}"`);
@@ -281,11 +282,7 @@
             }
 
             fullText.push(`inicio`);
-
-            codeLines.forEach(line => {
-                fullText.push(line);
-            });
-
+            codeLines.forEach(line => { fullText.push(line); });
             fullText.push(`fimalgoritmo`);
 
             return fullText.join('\n');
@@ -307,8 +304,6 @@
                 alert("Erro ao copiar código: " + err);
             });
         }
-
-        /* --- TEMPLATE BÁSICO E REINICIALIZAÇÃO --- */
 
         function resetEditor(askConfirmation = true) {
             if (askConfirmation) {
@@ -340,8 +335,6 @@
             renderEditor();
         }
 
-        /* --- REMOÇÃO DE LINHAS --- */
-
         function deleteLine(index) {
             if (codeLines.length <= 1) {
                 codeLines[0] = "";
@@ -357,8 +350,6 @@
                 closeModal('modalConfig');
             }
         }
-
-        /* --- GESTÃO E EXCLUSÃO DE VARIÁVEIS --- */
 
         function deleteVariable(varName) {
             const regexVar = new RegExp(`\\b${varName}\\b`);
@@ -376,8 +367,6 @@
             renderEditor();
             renderSidebarVarList();
         }
-
-        /* --- PERSISTÊNCIA DE DADOS --- */
 
         function getSavedProjects() {
             const data = localStorage.getItem(STORAGE_KEY);
@@ -471,10 +460,7 @@
         }
 
         function escapeHtml(str) {
-            return str
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;");
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
 
         function colorirSintaxe(linhaTexto) {
@@ -515,8 +501,6 @@
             return p;
         }
 
-        /* --- RENDERIZAÇÃO DO CÓDIGO --- */
-
         function renderEditor() {
             const editor = document.getElementById('editor');
             editor.innerHTML = "";
@@ -550,7 +534,6 @@
                 lineDiv.setAttribute('draggable', 'true');
                 lineDiv.dataset.index = index;
 
-                // Drag & Drop
                 lineDiv.ondragstart = (e) => {
                     draggedIndex = index;
                     lineDiv.classList.add('dragging');
