@@ -32,8 +32,15 @@
         /* LAYOUT PRINCIPAL */
         .main-wrapper { flex: 1; display: flex; overflow: hidden; position: relative; }
 
-        /* PAINEL DE OPÇÕES E VARIÁVEIS (ESQUERDA) */
-        .sidebar-left { order: 1; width: 350px; background-color: #f4f5f7; padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; flex-shrink: 0; border-right: 1px solid #dcdfe6; color: #2c3e50; }
+        /* PAINEL DE OPÇÕES/MENU (ESQUERDA) */
+        .sidebar-left { order: 1; width: 320px; background-color: #f4f5f7; padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; flex-shrink: 0; border-right: 1px solid #dcdfe6; color: #2c3e50; }
+
+        /* EDITOR DE CÓDIGO (CENTRO) */
+        .editor-container { order: 2; flex: 1; display: flex; flex-direction: column; padding: 20px; overflow-y: auto; font-family: 'Consolas', 'Fira Code', 'Courier New', monospace; font-size: 1.15rem; line-height: 1.8; background-color: #21252b; position: relative; }
+
+        /* PAINEL DE VARIÁVEIS E DADOS (DIREITA) */
+        .sidebar-right { order: 3; width: 320px; background-color: #f4f5f7; padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; flex-shrink: 0; border-left: 1px solid #dcdfe6; color: #2c3e50; }
+
         .sidebar-section { background-color: #ffffff; border: 1px solid #e1e4e8; border-radius: 6px; padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         .sidebar-section h3 { font-size: 1.05rem; color: #2b5c8f; border-bottom: 1px solid #e1e4e8; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         .sidebar-section label { font-size: 0.9rem; color: #4a5568; font-weight: 600; }
@@ -48,11 +55,8 @@
         .collapsible-header { cursor: pointer; user-select: none; }
         .toggle-icon { font-size: 0.85rem; transition: transform 0.2s ease; display: inline-block; }
         .collapsible-content { display: none; margin-top: 5px; }
-        .collapsible-content.open { display: flex; flex-direction: column; gap: 8px; }
+        .collapsible-content.open { display: flex; flex-direction: column; gap: 12px; }
 
-        /* EDITOR DE CÓDIGO (DIREITA) */
-        .editor-container { order: 2; flex: 1; display: flex; flex-direction: column; padding: 20px; overflow-y: auto; font-family: 'Consolas', 'Fira Code', 'Courier New', monospace; font-size: 1.15rem; line-height: 1.8; background-color: #21252b; position: relative; }
-        
         /* LINHAS DO CÓDIGO */
         .code-line { display: flex; align-items: center; min-height: 32px; padding: 2px 10px; border-radius: 4px; border-left: 4px solid transparent; user-select: none; position: relative; transition: background-color 0.3s, border-color 0.3s; }
         .code-line.editable { cursor: pointer; }
@@ -163,7 +167,7 @@
         .hl-funcao    { color: #e06c75; font-weight: bold; }
 
         /* LISTA DE VARIÁVEIS CADASTRADAS */
-        .var-list { display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto; }
+        .var-list { display: flex; flex-direction: column; gap: 8px; max-height: 400px; overflow-y: auto; }
         .var-item { background-color: #f8f9fa; padding: 6px 10px; border-radius: 4px; border: 1px solid #cbd5e0; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; font-family: monospace; }
         .var-info { display: flex; gap: 8px; align-items: center; flex: 1; }
         .var-item .var-name { color: #d69e2e; font-weight: bold; min-width: 80px; }
@@ -211,8 +215,8 @@
     </header>
 
     <div class="main-wrapper">
+        <!-- MENU LATERAL (ESQUERDA) -->
         <div class="sidebar-left">
-            
             <div class="sidebar-section">
                 <h3>Gerenciador Local</h3>
                 <div>
@@ -228,39 +232,59 @@
                     <button class="btn-top btn-danger" onclick="deleteAlgorithmFromStorage()">Excluir</button>
                 </div>
             </div>
+        </div>
 
+        <!-- EDITOR DE CÓDIGO (CENTRO) -->
+        <div class="editor-container" id="editor">
+        </div>
+
+        <!-- PAINEL DE EXPANSÃO DE VARIÁVEIS E DADOS (DIREITA) -->
+        <div class="sidebar-right">
+            <!-- DADOS DO PROJETO (EXPANSÍVEL) -->
             <div class="sidebar-section">
-                <h3>Dados do Projeto</h3>
-                <div>
-                    <label>Nome do Algoritmo:</label>
-                    <input type="text" id="algNameInput" value="sem_titulo" onchange="updateAlgorithmName(this.value)">
-                </div>
-                <div>
-                    <label>Programador(a):</label>
-                    <input type="text" id="authorInput" value="Rogério B. de Andrade" onchange="updateAuthorName(this.value)">
+                <h3 class="collapsible-header" onclick="toggleSection('projectDataContainer', 'projectToggleIcon')">
+                    <span>Dados do Projeto</span>
+                    <span class="toggle-icon" id="projectToggleIcon">▶</span>
+                </h3>
+                <div class="collapsible-content" id="projectDataContainer">
+                    <div>
+                        <label>Nome do Algoritmo:</label>
+                        <input type="text" id="algNameInput" value="sem_titulo" onchange="updateAlgorithmName(this.value)">
+                    </div>
+                    <div>
+                        <label>Programador(a):</label>
+                        <input type="text" id="authorInput" value="Rogério B. de Andrade" onchange="updateAuthorName(this.value)">
+                    </div>
                 </div>
             </div>
 
+            <!-- ADICIONAR VARIÁVEL (EXPANSÍVEL) -->
             <div class="sidebar-section">
-                <h3>Adicionar Variável</h3>
-                <div>
-                    <label>Nome:</label>
-                    <input type="text" id="newVarName" placeholder="Ex: resultado">
+                <h3 class="collapsible-header" onclick="toggleSection('addVarContainer', 'addVarToggleIcon')">
+                    <span>Adicionar Variável</span>
+                    <span class="toggle-icon" id="addVarToggleIcon">▶</span>
+                </h3>
+                <div class="collapsible-content" id="addVarContainer">
+                    <div>
+                        <label>Nome:</label>
+                        <input type="text" id="newVarName" placeholder="Ex: resultado">
+                    </div>
+                    <div>
+                        <label>Tipo de Dado:</label>
+                        <select id="newVarType">
+                            <option value="inteiro">inteiro</option>
+                            <option value="real">real</option>
+                            <option value="caractere">caractere</option>
+                            <option value="logico">logico</option>
+                        </select>
+                    </div>
+                    <button class="btn-top btn-primary" style="margin-top: 5px;" onclick="saveNewVariable()">+ Salvar Variável</button>
                 </div>
-                <div>
-                    <label>Tipo de Dado:</label>
-                    <select id="newVarType">
-                        <option value="inteiro">inteiro</option>
-                        <option value="real">real</option>
-                        <option value="caractere">caractere</option>
-                        <option value="logico">logico</option>
-                    </select>
-                </div>
-                <button class="btn-top btn-primary" style="margin-top: 5px;" onclick="saveNewVariable()">+ Salvar Variável</button>
             </div>
 
+            <!-- ALTERAR VARIÁVEIS (EXPANSÍVEL) -->
             <div class="sidebar-section">
-                <h3 class="collapsible-header" onclick="toggleVarListSection()">
+                <h3 class="collapsible-header" onclick="toggleSection('varCollapsibleContainer', 'varToggleIcon')">
                     <span>Alterar Variáveis (<span id="varCountLabel">0</span>)</span>
                     <span class="toggle-icon" id="varToggleIcon">▶</span>
                 </h3>
@@ -269,9 +293,6 @@
                 </div>
             </div>
         </div>
-
-        <div class="editor-container" id="editor">
-            </div>
 
         <div class="explanation-popover" id="explanationPopover">
             <h4>💡 Explicando o Código</h4>
@@ -364,9 +385,10 @@
             updateSavedProjectsDropdown();
         });
 
-        function toggleVarListSection() {
-            const container = document.getElementById('varCollapsibleContainer');
-            const icon = document.getElementById('varToggleIcon');
+        /* FUNÇÃO GENÉRICA DE COLLAPSIBLE PARA PAINÉIS EXPAN SÍVEIS */
+        function toggleSection(containerId, iconId) {
+            const container = document.getElementById(containerId);
+            const icon = document.getElementById(iconId);
             const isOpen = container.classList.contains('open');
 
             if (isOpen) {
@@ -417,7 +439,7 @@
             btn.style.backgroundColor = "";
         }
 
-        function generateDetailedExplanation(lineText, isCodeSection) {
+        function generateDetailedExplanation(lineText) {
             const trimmed = lineText.trim();
 
             if (!trimmed) {
@@ -426,9 +448,6 @@
 
             if (trimmed.startsWith('algoritmo')) {
                 return "Declaração inicial do algoritmo. Define o nome do programa para identificação no sistema.";
-            }
-            if (trimmed.startsWith('//')) {
-                return "Comentário no código. É uma nota explicativa para o programador que é ignorada durante a execução.";
             }
             if (trimmed === 'var') {
                 return "Início do bloco de declaração de variáveis. Aqui informamos quais memórias o algoritmo usará.";
@@ -479,6 +498,16 @@
             if (!isExplaining) return;
 
             const allLines = Array.from(document.querySelectorAll('.code-line'));
+            
+            // Avança até encontrar uma linha que NÃO seja um comentário (//)
+            while (currentExplainStep < allLines.length) {
+                const activeLineText = allLines[currentExplainStep].querySelector('.line-content').innerText.trim();
+                if (!activeLineText.startsWith('//')) {
+                    break;
+                }
+                currentExplainStep++;
+            }
+
             if (currentExplainStep >= allLines.length) {
                 stopExplanation();
                 return;
@@ -498,8 +527,7 @@
             const popoverText = document.getElementById('popoverText');
             const popoverProgress = document.getElementById('popoverProgress');
 
-            const isCodeSection = activeLineEl.classList.contains('editable');
-            const explanationMsg = generateDetailedExplanation(lineContentText, isCodeSection);
+            const explanationMsg = generateDetailedExplanation(lineContentText);
 
             popoverText.innerHTML = explanationMsg;
             popoverProgress.innerText = `Linha ${currentExplainStep + 1} de ${allLines.length}`;
@@ -941,7 +969,7 @@
 
             const requiresVar = ['leia', 'atribuicao', 'raizq', 'potencia'];
             if (variables.length === 0 && requiresVar.includes(type)) {
-                alert("Crie pelo menos uma variável no painel à esquerda antes de utilizar esta instrução.");
+                alert("Crie pelo menos uma variável no painel de opções antes de utilizar esta instrução.");
                 return;
             }
 
