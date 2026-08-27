@@ -157,7 +157,7 @@
             padding: 4px 2px;
             border-radius: 4px;
             font-weight: 600;
-            transition: background-color 0.2s ease;
+            transition: all 0.2s ease;
             border: none;
             cursor: pointer;
             font-size: 0.7rem;
@@ -167,6 +167,25 @@
 
         .card-btn:hover {
             background-color: #85182a;
+        }
+
+        /* ESTILO PARA BOTÕES JÁ VISITADOS */
+        .card-btn.visited {
+            background-color: #64748b !important; /* Cinza indicando aula já vista */
+            color: #ffffff !important;
+            border: 1px solid #475569 !important;
+        }
+
+        /* ESTILO DE DESTAQUE AZUL BÁSICO COM TEXTO BRANCO PARA O ÚLTIMO BOTÃO ACESSADO */
+        .card-btn.last-accessed {
+            background-color: #0056b3 !important; /* Azul Básico */
+            color: #ffffff !important;
+            border: 1px solid #004085 !important;
+            box-shadow: 0 0 6px rgba(0, 86, 179, 0.5) !important;
+        }
+
+        .card-btn.last-accessed:hover {
+            background-color: #004085 !important;
         }
 
         /* FOOTER */
@@ -317,179 +336,179 @@
             <div class="card" data-category="fundamentos">
                 <div class="card-header"><span class="card-badge">Aula 01</span></div>
                 <h2>Fundamentos da Computação</h2>
-                <button class="card-btn" onclick="openModal('modalFundamentos')">Acessar Aula →</button>
+                <button class="card-btn" data-id="aula-01" onclick="openModal('modalFundamentos')">Acessar Aula →</button>
             </div>
 
             <div class="card" data-category="fundamentos">
                 <div class="card-header"><span class="card-badge">Aula 02</span></div>
                 <h2>Lógica de Programação</h2>
-                <button class="card-btn" onclick="openModal('modalLogica')">Acessar Aula →</button>
+                <button class="card-btn" data-id="aula-02" onclick="openModal('modalLogica')">Acessar Aula →</button>
             </div>
 
             <div class="card" data-category="fundamentos">
                 <div class="card-header"><span class="card-badge">Aula 03</span></div>
                 <h2>Algoritmo de Soma (VisuAlg)</h2>
-                <button class="card-btn" onclick="openModal('modalVisualg')">Acessar Aula →</button>
+                <button class="card-btn" data-id="aula-03" onclick="openModal('modalVisualg')">Acessar Aula →</button>
             </div>
 
             <!-- Categoria: algoritmos -->
             <div class="card" data-category="algoritmos">
                 <div class="card-header"><span class="card-badge">Aula 04</span></div>
                 <h2>Média de Aluno</h2>
-                <a href="algmedia.html" class="card-btn">Acessar Aula →</a>
+                <a href="algmedia.html" data-id="aula-04" class="card-btn">Acessar Aula →</a>
             </div>
 
             <div class="card" data-category="algoritmos">
                 <div class="card-header"><span class="card-badge">Aula 05</span></div>
                 <h2>Cálculo de Salário</h2>
-                <a href="algcalsal.html" class="card-btn">Acessar Aula →</a>
+                <a href="algcalsal.html" data-id="aula-05" class="card-btn">Acessar Aula →</a>
             </div>
 
             <div class="card" data-category="algoritmos">
                 <div class="card-header"><span class="card-badge">Aula 06</span></div>
                 <h2>Cálculo de Frequência</h2>
-                <a href="algfreq.html" class="card-btn">Acessar Aula →</a>
+                <a href="algfreq.html" data-id="aula-06" class="card-btn">Acessar Aula →</a>
             </div>
 
             <div class="card" data-category="algoritmos">
                 <div class="card-header"><span class="card-badge">Aula 07</span></div>
                 <h2>Área e Perímetro</h2>
-                <a href="algfreq.html" class="card-btn">Acessar Aula →</a>
+                <a href="algfreq.html" data-id="aula-07" class="card-btn">Acessar Aula →</a>
             </div>
 
             <div class="card" data-category="algoritmos">
                 <div class="card-header"><span class="card-badge">Aula 08</span></div>
                 <h2>Estrutura Condicional Se</h2>
-                <a href="algEstSe.html" class="card-btn">Acessar Aula →</a>
+                <a href="algEstSe.html" data-id="aula-08" class="card-btn">Acessar Aula →</a>
             </div>
 
             <div class="card" data-category="algoritmos">
                 <div class="card-header"><span class="card-badge">Aula 09</span></div>
                 <h2>Laço de Repetição Para</h2>
-                <a href="algEstPara.html" class="card-btn">Acessar Aula →</a>
+                <a href="algEstPara.html" data-id="aula-09" class="card-btn">Acessar Aula →</a>
             </div>
 
             <!-- Categoria: fluxograma -->
             <div class="card" data-category="fluxograma">
                 <div class="card-header"><span class="card-badge">Aula 10</span></div>
                 <h2>Símbolos do Fluxograma</h2>
-                <a href="fluxogramaSimbolos.html" class="card-btn">Acessar Aula →</a>
+                <a href="fluxogramaSimbolos.html" data-id="aula-10" class="card-btn">Acessar Aula →</a>
             </div>
 
             <div class="card" data-category="fluxograma">
                 <div class="card-header"><span class="card-badge">Aula 11</span></div>
                 <h2>Fluxograma: Soma</h2>
-                <a href="fluxograma.html" class="card-btn">Acessar Aula →</a>
+                <a href="fluxograma.html" data-id="aula-11" class="card-btn">Acessar Aula →</a>
             </div>
 
             <div class="card" data-category="fluxograma">
                 <div class="card-header"><span class="card-badge">Aula 12</span></div>
                 <h2>Fluxograma: Maior Número</h2>
-                <a href="fluxoEnadeada.html" class="card-btn">Acessar Aula →</a>
+                <a href="fluxoEnadeada.html" data-id="aula-12" class="card-btn">Acessar Aula →</a>
             </div>
 
             <div class="card" data-category="fluxograma">
                 <div class="card-header"><span class="card-badge">Aula 13</span></div>
                 <h2>Fluxograma: Tabuada</h2>
-                <a href="fluxoTabuada.html" class="card-btn">Acessar Aula →</a>
+                <a href="fluxoTabuada.html" data-id="aula-13" class="card-btn">Acessar Aula →</a>
             </div>
 
             <!-- Categoria: python-basico -->
             <div class="card" data-category="python-basico">
                 <div class="card-header"><span class="card-badge">Aula 14</span></div>
                 <h2>Python: Histórico</h2>
-                <a href="pythonHistorico.html" class="card-btn">Acessar Aula →</a>
+                <a href="pythonHistorico.html" data-id="aula-14" class="card-btn">Acessar Aula →</a>
             </div>
 
             <div class="card" data-category="python-basico">
                 <div class="card-header"><span class="card-badge">Aula 15</span></div>
                 <h2>Python: Entrada e Saída</h2>
-                <a href="pythonVareoutros.html" class="card-btn">Acessar Aula →</a>
+                <a href="pythonVareoutros.html" data-id="aula-15" class="card-btn">Acessar Aula →</a>
             </div>
 
             <div class="card" data-category="python-basico">
                 <div class="card-header"><span class="card-badge">Aula 16</span></div>
                 <h2>Python: Escopo de Variáveis</h2>
-                <a href="pythonVarEsc.html" class="card-btn">Acessar Aula →</a>
+                <a href="pythonVarEsc.html" data-id="aula-16" class="card-btn">Acessar Aula →</a>
             </div>
 
             <div class="card" data-category="python-basico">
                 <div class="card-header"><span class="card-badge">Aula 17</span></div>
                 <h2>Python: Soma de Números</h2>
-                <a href="pythonSoma2n.html" class="card-btn">Acessar Aula →</a>
+                <a href="pythonSoma2n.html" data-id="aula-17" class="card-btn">Acessar Aula →</a>
             </div>
 
             <div class="card" data-category="python-basico">
                 <div class="card-header"><span class="card-badge">Aula 18</span></div>
                 <h2>Python: Cálculo de Salário</h2>
-                <a href="pythonCalcSal.html" class="card-btn">Acessar Aula →</a>
+                <a href="pythonCalcSal.html" data-id="aula-18" class="card-btn">Acessar Aula →</a>
             </div>
 
             <div class="card" data-category="python-basico">
                 <div class="card-header"><span class="card-badge">Aula 19</span></div>
                 <h2>Python: Condicionais</h2>
-                <a href="pythonCond.html" class="card-btn">Acessar Aula →</a>
+                <a href="pythonCond.html" data-id="aula-19" class="card-btn">Acessar Aula →</a>
             </div>
 
             <div class="card" data-category="python-basico">
                 <div class="card-header"><span class="card-badge">Aula 20</span></div>
                 <h2>Python: Funções</h2>
-                <a href="pythonfuncoes.html" class="card-btn">Acessar Aula →</a>
+                <a href="pythonfuncoes.html" data-id="aula-20" class="card-btn">Acessar Aula →</a>
             </div>
 
             <div class="card" data-category="python-basico">
                 <div class="card-header"><span class="card-badge">Aula 21</span></div>
                 <h2>Python: Try / Except</h2>
-                <a href="pythonTryExc.html" class="card-btn">Acessar Aula →</a>
+                <a href="pythonTryExc.html" data-id="aula-21" class="card-btn">Acessar Aula →</a>
             </div>
 
             <div class="card" data-category="python-basico">
                 <div class="card-header"><span class="card-badge">Aula 22</span></div>
                 <h2>Python: Manipulação de Arquivos</h2>
-                <a href="pythonArquivos.html" class="card-btn">Acessar Aula →</a>
+                <a href="pythonArquivos.html" data-id="aula-22" class="card-btn">Acessar Aula →</a>
             </div>
 
             <div class="card" data-category="python-basico">
                 <div class="card-header"><span class="card-badge">Aula 23</span></div>
                 <h2>Python: Práticas de Arquivos</h2>
-                <a href="pythonArquivos.html" class="card-btn">Acessar Aula →</a>
+                <a href="pythonArquivos.html" data-id="aula-23" class="card-btn">Acessar Aula →</a>
             </div>
 
             <div class="card" data-category="python-basico">
                 <div class="card-header"><span class="card-badge">Aula 23b</span></div>
                 <h2>Python: Listas e Manipulação</h2>
-                <a href="pythonListas.html" class="card-btn">Acessar Aula →</a>
+                <a href="pythonListas.html" data-id="aula-23b" class="card-btn">Acessar Aula →</a>
             </div>
 
             <!-- Categoria: pygame -->
             <div class="card" data-category="pygame">
                 <div class="card-header"><span class="card-badge">Aula 24</span></div>
                 <h2>PyGame: Introdução</h2>
-                <a href="pythonPygame.html" class="card-btn">Acessar Aula →</a>
+                <a href="pythonPygame.html" data-id="aula-24" class="card-btn">Acessar Aula →</a>
             </div>
 
             <div class="card" data-category="pygame">
                 <div class="card-header"><span class="card-badge">Aula 25</span></div>
                 <h2>PyGame: Plataformas</h2>
-                <a href="pythonPlano.html" class="card-btn">Acessar Aula →</a>
+                <a href="pythonPlano.html" data-id="aula-25" class="card-btn">Acessar Aula →</a>
             </div>
 
             <div class="card" data-category="pygame">
                 <div class="card-header"><span class="card-badge">Aula 26</span></div>
                 <h2>PyGame: Colisão</h2>
-                <a href="pythonPlatCol.html" class="card-btn">Acessar Aula →</a>
+                <a href="pythonPlatCol.html" data-id="aula-26" class="card-btn">Acessar Aula →</a>
             </div>
 
             <div class="card" data-category="pygame">
                 <div class="card-header"><span class="card-badge">Aula 27</span></div>
                 <h2>PyGame: Objetos em Queda</h2>
-                <a href="pythonObjCol.html" class="card-btn">Acessar Aula →</a>
+                <a href="pythonObjCol.html" data-id="aula-27" class="card-btn">Acessar Aula →</a>
             </div>
 
             <div class="card" data-category="pygame">
                 <div class="card-header"><span class="card-badge">Aula 28</span></div>
                 <h2>PyGame: Pontuação</h2>
-                <a href="pythonColEsfPontos.html" class="card-btn">Acessar Aula →</a>
+                <a href="pythonColEsfPontos.html" data-id="aula-28" class="card-btn">Acessar Aula →</a>
             </div>
 
         </div>
@@ -648,6 +667,77 @@ print(f"A soma é: {soma}")  # Saída formatada</pre>
             const modal = document.getElementById(modalId);
             if (modal) modal.classList.remove('active');
         }
+
+        /* GERENCIAMENTO DE VISITADOS E ÚLTIMO ACESSADO */
+        function markAsAccessed(button) {
+            const btnId = button.getAttribute('data-id');
+            if (!btnId) return;
+
+            // Remove a indicação de último acessado de todos os botões
+            document.querySelectorAll('.grid-aulas .card-btn').forEach(btn => {
+                btn.classList.remove('last-accessed');
+            });
+
+            // Aplica marcações de visitado e último acessado ao botão clicado
+            button.classList.add('visited', 'last-accessed');
+
+            // Salva no histórico do localStorage
+            let visitedList = JSON.parse(localStorage.getItem('visitedAulas')) || [];
+            if (!visitedList.includes(btnId)) {
+                visitedList.push(btnId);
+                localStorage.setItem('visitedAulas', JSON.stringify(visitedList));
+            }
+
+            localStorage.setItem('lastAccessedAula', btnId);
+        }
+
+        /* RESETA O ESTADO DO BOTÃO (BOTÃO DIREITO) */
+        function resetAccessed(button, event) {
+            event.preventDefault(); // Impede a abertura do menu de contexto padrão do navegador
+            const btnId = button.getAttribute('data-id');
+            if (!btnId) return;
+
+            // Remove as classes de estilização
+            button.classList.remove('visited', 'last-accessed');
+
+            // Atualiza a lista de visitados no localStorage
+            let visitedList = JSON.parse(localStorage.getItem('visitedAulas')) || [];
+            visitedList = visitedList.filter(id => id !== btnId);
+            localStorage.setItem('visitedAulas', JSON.stringify(visitedList));
+
+            // Se este botão era o último acessado, remove o registro
+            if (localStorage.getItem('lastAccessedAula') === btnId) {
+                localStorage.removeItem('lastAccessedAula');
+            }
+        }
+
+        document.querySelectorAll('.grid-aulas .card-btn').forEach(btn => {
+            // Clique com o botão esquerdo (abre a aula / registra visita)
+            btn.addEventListener('click', function() {
+                markAsAccessed(this);
+            });
+
+            // Clique com o botão direito (reseta estado de visitado)
+            btn.addEventListener('contextmenu', function(e) {
+                resetAccessed(this, e);
+            });
+        });
+
+        // Restaura estados salvos ao carregar a página
+        window.addEventListener('DOMContentLoaded', () => {
+            const visitedList = JSON.parse(localStorage.getItem('visitedAulas')) || [];
+            const lastId = localStorage.getItem('lastAccessedAula');
+
+            visitedList.forEach(id => {
+                const btn = document.querySelector(`.grid-aulas .card-btn[data-id="${id}"]`);
+                if (btn) btn.classList.add('visited');
+            });
+
+            if (lastId) {
+                const lastBtn = document.querySelector(`.grid-aulas .card-btn[data-id="${lastId}"]`);
+                if (lastBtn) lastBtn.classList.add('last-accessed');
+            }
+        });
 
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
