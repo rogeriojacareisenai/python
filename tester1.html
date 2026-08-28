@@ -26,6 +26,8 @@
         .btn-copy:hover { background-color: #38a169; }
         .btn-format { background-color: #9b59b6; color: #ffffff; }
         .btn-format:hover { background-color: #8e44ad; }
+        .btn-format.active { background-color: #27ae60; }
+        .btn-format.active:hover { background-color: #219150; }
         .btn-explain { background-color: #d69e2e; color: #ffffff; }
         .btn-explain:hover { background-color: #b7791f; }
         .btn-danger { background-color: #e06c75; color: #fff; }
@@ -147,7 +149,7 @@
         /* MODAIS */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 1000; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-card { background-color: #21252b; border: 1px solid #3e4451; width: 90%; max-width: 620px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); overflow: hidden; display: flex; flex-direction: column; }
+        .modal-card { background-color: #21252b; border: 1px solid #3e4451; width: 90%; max-width: 720px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); overflow: hidden; display: flex; flex-direction: column; }
         .modal-header { background-color: #181a1f; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; color: #61afef; font-weight: bold; font-size: 1.1rem; }
         .modal-close { background: none; border: none; color: #e06c75; font-size: 1.4rem; cursor: pointer; }
         .modal-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; max-height: 75vh; overflow-y: auto; }
@@ -157,10 +159,14 @@
         .modal-footer { padding: 14px 20px; background-color: #181a1f; display: flex; justify-content: space-between; align-items: center; }
         .modal-footer .right-btns { display: flex; gap: 10px; }
 
-        .instruction-opt { background: #181a1f; border: 1px solid #3e4451; padding: 12px 14px; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
-        .instruction-opt:hover { border-color: #61afef; background: #2c313a; }
-        .instruction-opt strong { color: #61afef; display: block; margin-bottom: 4px; font-size: 1.05rem; }
-        .instruction-opt span { font-size: 0.85rem; color: #abb2bf; }
+        /* GRID DE CARDS DE INSTRUÇÃO (MODAL) */
+        .instructions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+        .instruction-card { background: #181a1f; border: 1px solid #3e4451; border-radius: 8px; padding: 16px; cursor: pointer; transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+        .instruction-card:hover { transform: translateY(-3px); border-color: #61afef; box-shadow: 0 6px 16px rgba(97, 175, 239, 0.15); background: #282c34; }
+        .instruction-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .instruction-card-icon { font-size: 1.3rem; background: rgba(97, 175, 239, 0.1); width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 6px; color: #61afef; }
+        .instruction-card-title { color: #61afef; font-weight: bold; font-size: 1.05rem; }
+        .instruction-card-desc { font-size: 0.85rem; color: #abb2bf; line-height: 1.4; }
 
         .expr-builder { display: flex; flex-direction: column; gap: 10px; background-color: #181a1f; padding: 12px; border-radius: 6px; border: 1px solid #3e4451; margin-top: 4px; }
         .expr-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -179,7 +185,7 @@
     <header>
         <h1>Editor de Aplicação Auxiliar de Edição de Algoritmos Básicos — desenvolvido por Rogério B. de Andrade</h1>
         <div class="header-actions">
-            <button class="btn-top btn-format" id="btnFormatCode" onclick="autoIndentCode()">⚡ Identar Código</button>
+            <button class="btn-top btn-format active" id="btnFormatCode" onclick="toggleAutoIndentBtn()">⚡ Identação Auto: LIGADA</button>
             <button class="btn-top btn-explain" id="btnExplainCode" onclick="toggleExplainCode()">▶ Explicar Código</button>
             <button class="btn-top btn-copy" id="btnCopyCode" onclick="copyCodeToClipboard()">📋 Copiar Código</button>
             <button class="btn-top btn-primary" onclick="resetEditor(true)">+ Novo Projeto</button>
@@ -292,37 +298,86 @@
                 <button class="modal-close" onclick="closeModal('modalInstructions')">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="instruction-opt" onclick="selectInstructionType('escreva')">
-                    <strong>escreva</strong>
-                    <span>Exibe uma mensagem/variável na tela na MESMA LINHA (sem pulo).</span>
-                </div>
-                <div class="instruction-opt" onclick="selectInstructionType('escreval')">
-                    <strong>escreval</strong>
-                    <span>Exibe mensagem/variável na tela e PULA PARA A PRÓXIMA LINHA.</span>
-                </div>
-                <div class="instruction-opt" onclick="selectInstructionType('leia')">
-                    <strong>leia</strong>
-                    <span>Captura um valor digitado pelo usuário e salva na variável (Entrada).</span>
-                </div>
-                <div class="instruction-opt" onclick="selectInstructionType('atribuicao')">
-                    <strong>Atribuição ( &lt;- )</strong>
-                    <span>Calcula uma expressão/valor e atribui a uma variável (Processamento).</span>
-                </div>
-                <div class="instruction-opt" onclick="selectInstructionType('decisao')">
-                    <strong>Estrutura de Decisão (se ... entao)</strong>
-                    <span>Cria estruturas condicionais simples, compostas ou encadeadas.</span>
-                </div>
-                <div class="instruction-opt" onclick="selectInstructionType('raizq')">
-                    <strong>Raiz Quadrada ( raizq )</strong>
-                    <span>Calcula a raiz quadrada de um número ou variável e guarda o resultado.</span>
-                </div>
-                <div class="instruction-opt" onclick="selectInstructionType('potencia')">
-                    <strong>Potenciação ( exp ou ^ )</strong>
-                    <span>Eleva uma base a um expoente e atribui o valor a uma variável.</span>
-                </div>
-                <div class="instruction-opt" onclick="selectInstructionType('comentario')">
-                    <strong>Comentário ( // )</strong>
-                    <span>Insere uma linha explicativa que é ignorada na execução.</span>
+                <div class="instructions-grid">
+                    <div class="instruction-card" onclick="selectInstructionType('escreva')">
+                        <div>
+                            <div class="instruction-card-header">
+                                <span class="instruction-card-icon">💬</span>
+                                <span class="instruction-card-title">escreva</span>
+                            </div>
+                            <div class="instruction-card-desc">Exibe texto ou variáveis na tela sem pular para a próxima linha.</div>
+                        </div>
+                    </div>
+
+                    <div class="instruction-card" onclick="selectInstructionType('escreval')">
+                        <div>
+                            <div class="instruction-card-header">
+                                <span class="instruction-card-icon">↵</span>
+                                <span class="instruction-card-title">escreval</span>
+                            </div>
+                            <div class="instruction-card-desc">Exibe dados na tela e pula automaticamente para a linha seguinte.</div>
+                        </div>
+                    </div>
+
+                    <div class="instruction-card" onclick="selectInstructionType('leia')">
+                        <div>
+                            <div class="instruction-card-header">
+                                <span class="instruction-card-icon">⌨️</span>
+                                <span class="instruction-card-title">leia</span>
+                            </div>
+                            <div class="instruction-card-desc">Captura entrada do usuário via teclado e armazena em uma variável.</div>
+                        </div>
+                    </div>
+
+                    <div class="instruction-card" onclick="selectInstructionType('atribuicao')">
+                        <div>
+                            <div class="instruction-card-header">
+                                <span class="instruction-card-icon">&lt;-</span>
+                                <span class="instruction-card-title">Atribuição</span>
+                            </div>
+                            <div class="instruction-card-desc">Calcula uma expressão ou valor e armazena dentro de uma variável.</div>
+                        </div>
+                    </div>
+
+                    <div class="instruction-card" onclick="selectInstructionType('decisao')">
+                        <div>
+                            <div class="instruction-card-header">
+                                <span class="instruction-card-icon">🔀</span>
+                                <span class="instruction-card-title">Decisão</span>
+                            </div>
+                            <div class="instruction-card-desc">Cria estruturas condicionais (se ... entao, senao) simples ou encadeadas.</div>
+                        </div>
+                    </div>
+
+                    <div class="instruction-card" onclick="selectInstructionType('raizq')">
+                        <div>
+                            <div class="instruction-card-header">
+                                <span class="instruction-card-icon">√</span>
+                                <span class="instruction-card-title">Raiz Quadrada</span>
+                            </div>
+                            <div class="instruction-card-desc">Calcula a raiz quadrada de uma variável ou número e grava o resultado.</div>
+                        </div>
+                    </div>
+
+                    <div class="instruction-card" onclick="selectInstructionType('potencia')">
+                        <div>
+                            <div class="instruction-card-header">
+                                <span class="instruction-card-icon">x²</span>
+                                <span class="instruction-card-title">Potenciação</span>
+                            </div>
+                            <div class="instruction-card-desc">Eleva um valor de base a um expoente específico.</div>
+                        </div>
+                    </div>
+
+                    <div class="instruction-card" onclick="selectInstructionType('comentario')">
+                        <div>
+                            <div class="instruction-card-header">
+                                <span class="instruction-card-icon">//</span>
+                                <span class="instruction-card-title">Comentário</span>
+                            </div>
+                            <div class="instruction-card-desc">Insere notas explicativas no código ignoradas durante a execução.</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -361,6 +416,9 @@
         let explanationTimer = null;
         let currentExplainStep = 0;
         let stepDelaySeconds = 3.0;
+        let autoIndentEnabled = true;
+
+        const OPERATORS_REGEX = /(\+|\-|\*|\/|\^|==|<>|>=|<=|>|<)$/;
 
         window.addEventListener('DOMContentLoaded', () => {
             const savedAuthor = localStorage.getItem('app_last_author');
@@ -374,6 +432,20 @@
         function updateExecutionSpeed(value) {
             stepDelaySeconds = parseFloat(value);
             document.getElementById('stepDelayValue').innerText = `${stepDelaySeconds.toFixed(1)}s`;
+        }
+
+        function toggleAutoIndentBtn() {
+            autoIndentEnabled = !autoIndentEnabled;
+            const btn = document.getElementById('btnFormatCode');
+            
+            if (autoIndentEnabled) {
+                btn.classList.add('active');
+                btn.innerText = "⚡ Identação Auto: LIGADA";
+                autoIndentCode();
+            } else {
+                btn.classList.remove('active');
+                btn.innerText = "⚡ Identação Auto: DESLIGADA";
+            }
         }
 
         function toggleSection(containerId, iconId) {
@@ -392,14 +464,13 @@
 
         /* FUNÇÃO DE AUTO-IDENTAÇÃO AUTOMÁTICA DO CÓDIGO */
         function autoIndentCode() {
-            let indentLevel = 1; // Nível base de recuo no bloco inicio
+            let indentLevel = 1; 
             const tab = "   ";
 
             codeLines = codeLines.map(line => {
                 const trimmed = line.trim();
                 if (!trimmed) return "";
 
-                // Trata fechamento de blocos ou senao antes de recalcular recuo da linha
                 if (trimmed === "fimse" || trimmed === "senao" || trimmed.startsWith("senao se ")) {
                     if (trimmed === "fimse") {
                         indentLevel = Math.max(1, indentLevel - 1);
@@ -409,7 +480,6 @@
                 const indentSpaces = tab.repeat(indentLevel);
                 const indentedLine = `${indentSpaces}${trimmed}`;
 
-                // Trata abertura de novos blocos para as próximas linhas
                 if (trimmed.startsWith("se ") && trimmed.includes("entao")) {
                     indentLevel++;
                 } else if (trimmed === "senao" || trimmed.startsWith("senao se ")) {
@@ -422,13 +492,6 @@
             });
 
             renderEditor();
-
-            const btn = document.getElementById('btnFormatCode');
-            const originalText = btn.innerText;
-            btn.innerText = "✓ Identado!";
-            setTimeout(() => {
-                btn.innerText = originalText;
-            }, 1500);
         }
 
         function toggleExplainCode() {
@@ -681,7 +744,7 @@
                 if (confirmDelete) {
                     codeLines.splice(decisionRange.start, totalLines);
                     if (codeLines.length === 0) codeLines.push("");
-                    renderEditor();
+                    if (autoIndentEnabled) autoIndentCode(); else renderEditor();
                 }
                 return;
             }
@@ -691,7 +754,7 @@
             } else {
                 codeLines.splice(index, 1);
             }
-            renderEditor();
+            if (autoIndentEnabled) autoIndentCode(); else renderEditor();
         }
 
         function deleteActiveLine() {
@@ -780,7 +843,8 @@
                 
                 document.getElementById('algNameInput').value = algorithmName;
                 document.getElementById('authorInput').value = authorName;
-                renderEditor();
+
+                if (autoIndentEnabled) autoIndentCode(); else renderEditor();
                 renderSidebarVarList();
                 alert(`Algoritmo "${selectedName}" carregado!`);
             }
@@ -897,7 +961,7 @@
                         const movedItem = codeLines.splice(draggedIndex, 1)[0];
                         codeLines.splice(index, 0, movedItem);
                         draggedIndex = null;
-                        renderEditor();
+                        if (autoIndentEnabled) autoIndentCode(); else renderEditor();
                     }
                 };
 
@@ -1209,12 +1273,32 @@
             if (container) container.style.display = (val === '__custom__') ? 'block' : 'none';
         }
 
+        /* FUNÇÕES DE VALIDAÇÃO E ADIÇÃO SEM OPERADORES DUPLICADOS */
+
+        function isOperator(val) {
+            const trimmed = val.trim();
+            return ['+', '-', '*', '/', '^', '==', '<>', '>', '<', '>=', '<='].includes(trimmed);
+        }
+
         function appendToExpr(value, cursorOffset = 0) {
             const exprInput = document.getElementById('mathExpression');
             if (!exprInput) return;
             const startPos = exprInput.selectionStart;
             const endPos = exprInput.selectionEnd;
-            const current = exprInput.value;
+            let current = exprInput.value;
+
+            if (isOperator(value)) {
+                const textBeforeCursor = current.substring(0, startPos).trimEnd();
+                
+                if (OPERATORS_REGEX.test(textBeforeCursor)) {
+                    const newTextBefore = textBeforeCursor.replace(OPERATORS_REGEX, value);
+                    exprInput.value = newTextBefore + current.substring(endPos);
+                    exprInput.focus();
+                    const newPos = newTextBefore.length;
+                    exprInput.setSelectionRange(newPos, newPos);
+                    return;
+                }
+            }
             
             exprInput.value = current.substring(0, startPos) + value + current.substring(endPos);
             exprInput.focus();
@@ -1234,7 +1318,20 @@
 
             const startPos = condInput.selectionStart || condInput.value.length;
             const endPos = condInput.selectionEnd || condInput.value.length;
-            const current = condInput.value;
+            let current = condInput.value;
+
+            if (isOperator(value)) {
+                const textBeforeCursor = current.substring(0, startPos).trimEnd();
+
+                if (OPERATORS_REGEX.test(textBeforeCursor)) {
+                    const newTextBefore = textBeforeCursor.replace(OPERATORS_REGEX, value);
+                    condInput.value = newTextBefore + current.substring(endPos);
+                    condInput.focus();
+                    const newPos = newTextBefore.length;
+                    condInput.setSelectionRange(newPos, newPos);
+                    return;
+                }
+            }
 
             condInput.value = current.substring(0, startPos) + value + current.substring(endPos);
             condInput.focus();
@@ -1250,6 +1347,15 @@
 
         function validateVariablesInExpr(expression) {
             if (!expression || expression.trim() === "") return true;
+            
+            const padraoCompostosValidos = /(?:<>|<=|>=|==|!=|<-|->|:=|\+=|-=|\*=|\/=)/g;
+            const expressaoLimpa = expression.replace(padraoCompostosValidos, 'X');
+
+            if (/[\+\-\*/%&=|<>]{2,}/.test(expressaoLimpa)) {
+                alert("Erro na expressão! Existem operadores seguidos um do outro.");
+                return false;
+            }
+
             const tokens = expression.match(/[a-zA-Z_][a-zA-Z0-9_]*/g);
             if (!tokens) return true;
 
@@ -1315,7 +1421,7 @@
 
                 codeLines.splice(activeLineIndex, 1, ...generatedLines);
                 closeModal('modalConfig');
-                renderEditor();
+                if (autoIndentEnabled) autoIndentCode(); else renderEditor();
                 return;
             } else if (currentInstructionType === 'comentario') {
                 const commentText = document.getElementById('commentText').value.trim();
@@ -1366,7 +1472,7 @@
             if (activeLineIndex === codeLines.length - 1) codeLines.push("");
 
             closeModal('modalConfig');
-            renderEditor();
+            if (autoIndentEnabled) autoIndentCode(); else renderEditor();
         }
 
         function saveNewVariable() {
