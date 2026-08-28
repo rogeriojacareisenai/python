@@ -44,8 +44,16 @@
         .sidebar-section { background-color: #ffffff; border: 1px solid #e1e4e8; border-radius: 6px; padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         .sidebar-section h3 { font-size: 1.05rem; color: #2b5c8f; border-bottom: 1px solid #e1e4e8; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         .sidebar-section label { font-size: 0.9rem; color: #4a5568; font-weight: 600; }
-        .sidebar-section input, .sidebar-section select { background-color: #f8f9fa; border: 1px solid #cbd5e0; color: #2d3748; padding: 10px 12px; border-radius: 4px; font-family: inherit; width: 100%; font-size: 0.95rem; }
-        .sidebar-section input:focus, .sidebar-section select:focus { border-color: #3182ce; background-color: #fff; outline: none; }
+        .sidebar-section input[type="text"], .sidebar-section select { background-color: #f8f9fa; border: 1px solid #cbd5e0; color: #2d3748; padding: 10px 12px; border-radius: 4px; font-family: inherit; width: 100%; font-size: 0.95rem; }
+        .sidebar-section input[type="text"]:focus, .sidebar-section select:focus { border-color: #3182ce; background-color: #fff; outline: none; }
+
+        /* ESTILO DO SLIDER DE VELOCIDADE */
+        .speed-slider-container { display: flex; flex-direction: column; gap: 6px; }
+        .slider-header { display: flex; justify-content: space-between; align-items: center; }
+        .slider-header span { font-weight: bold; color: #2b5c8f; font-size: 0.95rem; }
+        .speed-slider { -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px; background: #cbd5e0; outline: none; margin: 6px 0; }
+        .speed-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #2b5c8f; cursor: pointer; transition: transform 0.1s; }
+        .speed-slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
 
         /* BUTTON GROUP */
         .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -258,6 +266,23 @@
                 </div>
             </div>
 
+            <!-- CONFIGURAÇÃO DA EXECUÇÃO (EXPANSÍVEL) -->
+            <div class="sidebar-section">
+                <h3 class="collapsible-header" onclick="toggleSection('executionConfigContainer', 'execToggleIcon')">
+                    <span>Configuração da Execução</span>
+                    <span class="toggle-icon" id="execToggleIcon">▶</span>
+                </h3>
+                <div class="collapsible-content" id="executionConfigContainer">
+                    <div class="speed-slider-container">
+                        <div class="slider-header">
+                            <label for="stepDelayRange">Tempo por Passo:</label>
+                            <span id="stepDelayValue">3.0s</span>
+                        </div>
+                        <input type="range" id="stepDelayRange" class="speed-slider" min="1" max="10" step="0.5" value="3" oninput="updateExecutionSpeed(this.value)">
+                    </div>
+                </div>
+            </div>
+
             <!-- ADICIONAR VARIÁVEL (EXPANSÍVEL) -->
             <div class="sidebar-section">
                 <h3 class="collapsible-header" onclick="toggleSection('addVarContainer', 'addVarToggleIcon')">
@@ -371,10 +396,11 @@
         let currentInstructionType = "";
         let draggedIndex = null;
 
-        /* VARIÁVEIS DE CONTROLE DA EXPLICAÇÃO */
+        /* VARIÁVEIS DE CONTROLE DA EXPLICAÇÃO E TEMPO */
         let isExplaining = false;
         let explanationTimer = null;
         let currentExplainStep = 0;
+        let stepDelaySeconds = 3.0; // Padrão: 3 segundos
 
         window.addEventListener('DOMContentLoaded', () => {
             const savedAuthor = localStorage.getItem('app_last_author');
@@ -385,7 +411,13 @@
             updateSavedProjectsDropdown();
         });
 
-        /* FUNÇÃO GENÉRICA DE COLLAPSIBLE PARA PAINÉIS EXPAN SÍVEIS */
+        /* FUNÇÃO PARA ATUALIZAR VELOCIDADE DE EXECUÇÃO VIA SLIDER */
+        function updateExecutionSpeed(value) {
+            stepDelaySeconds = parseFloat(value);
+            document.getElementById('stepDelayValue').innerText = `${stepDelaySeconds.toFixed(1)}s`;
+        }
+
+        /* FUNÇÃO GENÉRICA DE COLLAPSIBLE PARA PAINÉIS EXPANSÍVEIS */
         function toggleSection(containerId, iconId) {
             const container = document.getElementById(containerId);
             const icon = document.getElementById(iconId);
@@ -544,7 +576,9 @@
             popover.style.display = 'block';
 
             currentExplainStep++;
-            explanationTimer = setTimeout(runNextExplanationStep, 3500); 
+            
+            // Transição baseada no slider configurado pelo usuário
+            explanationTimer = setTimeout(runNextExplanationStep, stepDelaySeconds * 1000); 
         }
 
         function generateFullCodeText() {
