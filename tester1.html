@@ -8,7 +8,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1e2227; color: #abb2bf; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
-        /* CUSTOMIZAÇÃO DA BARRA DE ROLAGEM */
+        /* BARRA DE ROLAGEM */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #181a1f; }
         ::-webkit-scrollbar-thumb { background: #3e4451; border-radius: 4px; }
@@ -24,6 +24,8 @@
         .btn-primary:hover { background-color: #1d4066; }
         .btn-copy { background-color: #48bb78; color: #ffffff; }
         .btn-copy:hover { background-color: #38a169; }
+        .btn-format { background-color: #9b59b6; color: #ffffff; }
+        .btn-format:hover { background-color: #8e44ad; }
         .btn-explain { background-color: #d69e2e; color: #ffffff; }
         .btn-explain:hover { background-color: #b7791f; }
         .btn-danger { background-color: #e06c75; color: #fff; }
@@ -32,22 +34,22 @@
         /* LAYOUT PRINCIPAL */
         .main-wrapper { flex: 1; display: flex; overflow: hidden; position: relative; }
 
-        /* PAINEL DE OPÇÕES/MENU (ESQUERDA) */
+        /* PAINEL ESQUERDA */
         .sidebar-left { order: 1; width: 320px; background-color: #f4f5f7; padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; flex-shrink: 0; border-right: 1px solid #dcdfe6; color: #2c3e50; }
 
-        /* EDITOR DE CÓDIGO (CENTRO) */
+        /* EDITOR CENTRO */
         .editor-container { order: 2; flex: 1; display: flex; flex-direction: column; padding: 20px; overflow-y: auto; font-family: 'Consolas', 'Fira Code', 'Courier New', monospace; font-size: 1.15rem; line-height: 1.8; background-color: #21252b; position: relative; }
 
-        /* PAINEL DE VARIÁVEIS E DADOS (DIREITA) */
+        /* PAINEL DIREITA */
         .sidebar-right { order: 3; width: 320px; background-color: #f4f5f7; padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; flex-shrink: 0; border-left: 1px solid #dcdfe6; color: #2c3e50; }
 
         .sidebar-section { background-color: #ffffff; border: 1px solid #e1e4e8; border-radius: 6px; padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         .sidebar-section h3 { font-size: 1.05rem; color: #2b5c8f; border-bottom: 1px solid #e1e4e8; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         .sidebar-section label { font-size: 0.9rem; color: #4a5568; font-weight: 600; }
-        .sidebar-section input[type="text"], .sidebar-section select { background-color: #f8f9fa; border: 1px solid #cbd5e0; color: #2d3748; padding: 10px 12px; border-radius: 4px; font-family: inherit; width: 100%; font-size: 0.95rem; }
-        .sidebar-section input[type="text"]:focus, .sidebar-section select:focus { border-color: #3182ce; background-color: #fff; outline: none; }
+        .sidebar-section input[type="text"], .sidebar-section input[type="number"], .sidebar-section select { background-color: #f8f9fa; border: 1px solid #cbd5e0; color: #2d3748; padding: 10px 12px; border-radius: 4px; font-family: inherit; width: 100%; font-size: 0.95rem; }
+        .sidebar-section input[type="text"]:focus, .sidebar-section input[type="number"]:focus, .sidebar-section select:focus { border-color: #3182ce; background-color: #fff; outline: none; }
 
-        /* ESTILO DO SLIDER DE VELOCIDADE */
+        /* SLIDER VELOCIDADE */
         .speed-slider-container { display: flex; flex-direction: column; gap: 6px; }
         .slider-header { display: flex; justify-content: space-between; align-items: center; }
         .slider-header span { font-weight: bold; color: #2b5c8f; font-size: 0.95rem; }
@@ -55,11 +57,9 @@
         .speed-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #2b5c8f; cursor: pointer; transition: transform 0.1s; }
         .speed-slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
 
-        /* BUTTON GROUP */
         .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
         .btn-group .btn-top { flex: 1 1 calc(50% - 4px); text-align: center; }
 
-        /* COMPONENTE RETRÁTIL (COLLAPSIBLE) */
         .collapsible-header { cursor: pointer; user-select: none; }
         .toggle-icon { font-size: 0.85rem; transition: transform 0.2s ease; display: inline-block; }
         .collapsible-content { display: none; margin-top: 5px; }
@@ -72,14 +72,12 @@
         .line-number { width: 45px; color: #5c6370; text-align: right; padding-right: 15px; font-size: 0.95rem; font-weight: bold; flex-shrink: 0; }
         .line-content { flex: 1; color: #abb2bf; white-space: pre; }
 
-        /* HIGHLIGHT DA EXPLICAÇÃO PASSO A PASSO */
         .code-line.explaining-active {
             background-color: rgba(229, 192, 123, 0.25) !important;
             border-left: 4px solid #e5c07b !important;
             box-shadow: inset 0 0 8px rgba(229, 192, 123, 0.3);
         }
 
-        /* BALÃO POPUP DE EXPLICAÇÃO FLUTUANTE */
         .explanation-popover {
             position: absolute;
             z-index: 999;
@@ -108,63 +106,27 @@
             border-right: 10px solid #e5c07b;
         }
 
-        .explanation-popover h4 {
-            color: #e5c07b;
-            font-size: 0.95rem;
-            margin-bottom: 6px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .explanation-popover p {
-            line-height: 1.45;
-            color: #abb2bf;
-        }
-
-        .explanation-controls {
-            margin-top: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid #3e4451;
-            padding-top: 8px;
-        }
-
-        .explanation-progress {
-            font-size: 0.8rem;
-            color: #5c6370;
-            font-weight: bold;
-        }
-
-        .btn-stop-explain {
-            background: #e06c75;
-            color: #fff;
-            border: none;
-            padding: 3px 8px;
-            border-radius: 3px;
-            font-size: 0.78rem;
-            cursor: pointer;
-            font-weight: 600;
-        }
+        .explanation-popover h4 { color: #e5c07b; font-size: 0.95rem; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+        .explanation-popover p { line-height: 1.45; color: #abb2bf; }
+        .explanation-controls { margin-top: 10px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #3e4451; padding-top: 8px; }
+        .explanation-progress { font-size: 0.8rem; color: #5c6370; font-weight: bold; }
+        .btn-stop-explain { background: #e06c75; color: #fff; border: none; padding: 3px 8px; border-radius: 3px; font-size: 0.78rem; cursor: pointer; font-weight: 600; }
 
         @keyframes fadeInPopover {
             from { opacity: 0; transform: translateX(-8px); }
             to { opacity: 1; transform: translateX(0); }
         }
 
-        /* ALÇA DE ARRASTE */
         .drag-handle { cursor: grab; color: #5c6370; margin-right: 10px; font-weight: bold; display: none; font-size: 1rem; }
         .code-line.editable:hover .drag-handle { display: inline-block; }
         .code-line.dragging { opacity: 0.4; background-color: #3e4451; }
         .code-line.drag-over { border-top: 2px dashed #61afef; }
 
-        /* BOTÃO DE DELETAR LINHA */
         .btn-delete-line { display: none; background: transparent; border: none; color: #e06c75; font-size: 0.9rem; cursor: pointer; padding: 2px 8px; border-radius: 3px; font-weight: bold; }
         .code-line.editable:hover .btn-delete-line { display: inline-block; }
         .btn-delete-line:hover { background-color: rgba(224, 108, 117, 0.2); }
 
-        /* HIGHLIGHT / COLORIZAÇÃO DE SINTAXE */
+        /* SINTAXE */
         .hl-instrucao { color: #c678dd; font-weight: bold; }
         .hl-escreva   { color: #56b6c2; font-weight: bold; }
         .hl-variavel  { color: #e5c07b; font-weight: 600; }
@@ -174,7 +136,6 @@
         .hl-comment   { color: #5c6370; font-style: italic; }
         .hl-funcao    { color: #e06c75; font-weight: bold; }
 
-        /* LISTA DE VARIÁVEIS CADASTRADAS */
         .var-list { display: flex; flex-direction: column; gap: 8px; max-height: 400px; overflow-y: auto; }
         .var-item { background-color: #f8f9fa; padding: 6px 10px; border-radius: 4px; border: 1px solid #cbd5e0; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; font-family: monospace; }
         .var-info { display: flex; gap: 8px; align-items: center; flex: 1; }
@@ -186,7 +147,7 @@
         /* MODAIS */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 1000; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-card { background-color: #21252b; border: 1px solid #3e4451; width: 90%; max-width: 560px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); overflow: hidden; display: flex; flex-direction: column; }
+        .modal-card { background-color: #21252b; border: 1px solid #3e4451; width: 90%; max-width: 620px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); overflow: hidden; display: flex; flex-direction: column; }
         .modal-header { background-color: #181a1f; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; color: #61afef; font-weight: bold; font-size: 1.1rem; }
         .modal-close { background: none; border: none; color: #e06c75; font-size: 1.4rem; cursor: pointer; }
         .modal-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; max-height: 75vh; overflow-y: auto; }
@@ -201,14 +162,16 @@
         .instruction-opt strong { color: #61afef; display: block; margin-bottom: 4px; font-size: 1.05rem; }
         .instruction-opt span { font-size: 0.85rem; color: #abb2bf; }
 
-        /* EDITOR BÁSICO DE EXPRESSÕES MATEMÁTICAS */
-        .expr-builder { display: flex; flex-direction: column; gap: 10px; background-color: #181a1f; padding: 12px; border-radius: 6px; border: 1px solid #3e4451; }
-        .expr-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
-        .btn-calc { background-color: #282c34; color: #61afef; border: 1px solid #3e4451; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: monospace; font-size: 1rem; }
+        .expr-builder { display: flex; flex-direction: column; gap: 10px; background-color: #181a1f; padding: 12px; border-radius: 6px; border: 1px solid #3e4451; margin-top: 4px; }
+        .expr-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+        .btn-calc { background-color: #282c34; color: #61afef; border: 1px solid #3e4451; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: monospace; font-size: 0.95rem; }
         .btn-calc:hover { background-color: #3e4451; color: #fff; }
         .btn-calc.var-btn { color: #e5c07b; }
         .btn-calc.func-btn { color: #e06c75; }
+        .btn-calc.op-rel { color: #98c379; }
+        .btn-calc.op-log { color: #c678dd; }
         .btn-calc.danger-btn { color: #e06c75; border-color: #e06c75; margin-left: auto; }
+        .cond-block { background-color: #181a1f; border: 1px solid #3e4451; padding: 12px; border-radius: 6px; display: flex; flex-direction: column; gap: 8px; }
     </style>
 </head>
 <body>
@@ -216,6 +179,7 @@
     <header>
         <h1>Editor de Aplicação Auxiliar de Edição de Algoritmos Básicos — desenvolvido por Rogério B. de Andrade</h1>
         <div class="header-actions">
+            <button class="btn-top btn-format" id="btnFormatCode" onclick="autoIndentCode()">⚡ Identar Código</button>
             <button class="btn-top btn-explain" id="btnExplainCode" onclick="toggleExplainCode()">▶ Explicar Código</button>
             <button class="btn-top btn-copy" id="btnCopyCode" onclick="copyCodeToClipboard()">📋 Copiar Código</button>
             <button class="btn-top btn-primary" onclick="resetEditor(true)">+ Novo Projeto</button>
@@ -223,7 +187,6 @@
     </header>
 
     <div class="main-wrapper">
-        <!-- MENU LATERAL (ESQUERDA) -->
         <div class="sidebar-left">
             <div class="sidebar-section">
                 <h3>Gerenciador Local</h3>
@@ -242,13 +205,9 @@
             </div>
         </div>
 
-        <!-- EDITOR DE CÓDIGO (CENTRO) -->
-        <div class="editor-container" id="editor">
-        </div>
+        <div class="editor-container" id="editor"></div>
 
-        <!-- PAINEL DE EXPANSÃO DE VARIÁVEIS E DADOS (DIREITA) -->
         <div class="sidebar-right">
-            <!-- DADOS DO PROJETO (EXPANSÍVEL) -->
             <div class="sidebar-section">
                 <h3 class="collapsible-header" onclick="toggleSection('projectDataContainer', 'projectToggleIcon')">
                     <span>Dados do Projeto</span>
@@ -266,7 +225,6 @@
                 </div>
             </div>
 
-            <!-- CONFIGURAÇÃO DA EXECUÇÃO (EXPANSÍVEL) -->
             <div class="sidebar-section">
                 <h3 class="collapsible-header" onclick="toggleSection('executionConfigContainer', 'execToggleIcon')">
                     <span>Configuração da Execução</span>
@@ -283,7 +241,6 @@
                 </div>
             </div>
 
-            <!-- ADICIONAR VARIÁVEL (EXPANSÍVEL) -->
             <div class="sidebar-section">
                 <h3 class="collapsible-header" onclick="toggleSection('addVarContainer', 'addVarToggleIcon')">
                     <span>Adicionar Variável</span>
@@ -307,7 +264,6 @@
                 </div>
             </div>
 
-            <!-- ALTERAR VARIÁVEIS (EXPANSÍVEL) -->
             <div class="sidebar-section">
                 <h3 class="collapsible-header" onclick="toggleSection('varCollapsibleContainer', 'varToggleIcon')">
                     <span>Alterar Variáveis (<span id="varCountLabel">0</span>)</span>
@@ -352,6 +308,10 @@
                     <strong>Atribuição ( &lt;- )</strong>
                     <span>Calcula uma expressão/valor e atribui a uma variável (Processamento).</span>
                 </div>
+                <div class="instruction-opt" onclick="selectInstructionType('decisao')">
+                    <strong>Estrutura de Decisão (se ... entao)</strong>
+                    <span>Cria estruturas condicionais simples, compostas ou encadeadas.</span>
+                </div>
                 <div class="instruction-opt" onclick="selectInstructionType('raizq')">
                     <strong>Raiz Quadrada ( raizq )</strong>
                     <span>Calcula a raiz quadrada de um número ou variável e guarda o resultado.</span>
@@ -395,12 +355,12 @@
         let activeLineIndex = null;
         let currentInstructionType = "";
         let draggedIndex = null;
+        let activeCondInputId = null; 
 
-        /* VARIÁVEIS DE CONTROLE DA EXPLICAÇÃO E TEMPO */
         let isExplaining = false;
         let explanationTimer = null;
         let currentExplainStep = 0;
-        let stepDelaySeconds = 3.0; // Padrão: 3 segundos
+        let stepDelaySeconds = 3.0;
 
         window.addEventListener('DOMContentLoaded', () => {
             const savedAuthor = localStorage.getItem('app_last_author');
@@ -411,13 +371,11 @@
             updateSavedProjectsDropdown();
         });
 
-        /* FUNÇÃO PARA ATUALIZAR VELOCIDADE DE EXECUÇÃO VIA SLIDER */
         function updateExecutionSpeed(value) {
             stepDelaySeconds = parseFloat(value);
             document.getElementById('stepDelayValue').innerText = `${stepDelaySeconds.toFixed(1)}s`;
         }
 
-        /* FUNÇÃO GENÉRICA DE COLLAPSIBLE PARA PAINÉIS EXPANSÍVEIS */
         function toggleSection(containerId, iconId) {
             const container = document.getElementById(containerId);
             const icon = document.getElementById(iconId);
@@ -432,7 +390,47 @@
             }
         }
 
-        /* MOTOR DE EXPLICAÇÃO DO CÓDIGO PASSO A PASSO */
+        /* FUNÇÃO DE AUTO-IDENTAÇÃO AUTOMÁTICA DO CÓDIGO */
+        function autoIndentCode() {
+            let indentLevel = 1; // Nível base de recuo no bloco inicio
+            const tab = "   ";
+
+            codeLines = codeLines.map(line => {
+                const trimmed = line.trim();
+                if (!trimmed) return "";
+
+                // Trata fechamento de blocos ou senao antes de recalcular recuo da linha
+                if (trimmed === "fimse" || trimmed === "senao" || trimmed.startsWith("senao se ")) {
+                    if (trimmed === "fimse") {
+                        indentLevel = Math.max(1, indentLevel - 1);
+                    }
+                }
+
+                const indentSpaces = tab.repeat(indentLevel);
+                const indentedLine = `${indentSpaces}${trimmed}`;
+
+                // Trata abertura de novos blocos para as próximas linhas
+                if (trimmed.startsWith("se ") && trimmed.includes("entao")) {
+                    indentLevel++;
+                } else if (trimmed === "senao" || trimmed.startsWith("senao se ")) {
+                    if (trimmed.startsWith("senao se ")) {
+                        indentLevel++;
+                    }
+                }
+
+                return indentedLine;
+            });
+
+            renderEditor();
+
+            const btn = document.getElementById('btnFormatCode');
+            const originalText = btn.innerText;
+            btn.innerText = "✓ Identado!";
+            setTimeout(() => {
+                btn.innerText = originalText;
+            }, 1500);
+        }
+
         function toggleExplainCode() {
             if (isExplaining) {
                 stopExplanation();
@@ -474,53 +472,38 @@
         function generateDetailedExplanation(lineText) {
             const trimmed = lineText.trim();
 
-            if (!trimmed) {
-                return "Linha em branco pronta para receber novas instruções do programa.";
-            }
-
-            if (trimmed.startsWith('algoritmo')) {
-                return "Declaração inicial do algoritmo. Define o nome do programa para identificação no sistema.";
-            }
-            if (trimmed === 'var') {
-                return "Início do bloco de declaração de variáveis. Aqui informamos quais memórias o algoritmo usará.";
-            }
+            if (!trimmed) return "Linha em branco pronta para receber novas instruções do programa.";
+            if (trimmed.startsWith('algoritmo')) return "Declaração inicial do algoritmo. Define o nome do programa.";
+            if (trimmed === 'var') return "Início do bloco de declaração de variáveis.";
             if (trimmed.includes(' : inteiro') || trimmed.includes(' : real') || trimmed.includes(' : caractere') || trimmed.includes(' : logico')) {
                 const parts = trimmed.split(':');
-                const vars = parts[0].trim();
-                const type = parts[1].trim();
-                return `Criação da(s) variável(is) <strong style="color:#e5c07b">${vars}</strong> reservando memória do tipo <strong style="color:#d19a66">${type}</strong>.`;
+                return `Criação da(s) variável(is) <strong style="color:#e5c07b">${parts[0].trim()}</strong> do tipo <strong style="color:#d19a66">${parts[1].trim()}</strong>.`;
             }
-            if (trimmed === 'inicio') {
-                return "Marca o fim da declaração de variáveis e o início do fluxo de comandos que serão executados sequencialmente.";
-            }
-            if (trimmed === 'fimalgoritmo') {
-                return "Encerra a execução do algoritmo. Todas as instruções da parte principal foram finalizadas.";
-            }
+            if (trimmed === 'inicio') return "Início da execução dos comandos sequenciais do algoritmo.";
+            if (trimmed === 'fimalgoritmo') return "Encerra a execução do programa.";
 
-            // INSTRUÇÕES DA SEÇÃO DE CÓDIGO
+            if (trimmed.startsWith('se ') && trimmed.includes('entao')) {
+                const cond = trimmed.substring(trimmed.indexOf('se ') + 3, trimmed.indexOf('entao')).trim();
+                return `Estrutura Condicional: Avalia se <code style="color:#61afef">${cond}</code> é verdadeiro.`;
+            }
+            if (trimmed.startsWith('senao se ') && trimmed.includes('entao')) {
+                const cond = trimmed.substring(trimmed.indexOf('senao se ') + 9, trimmed.indexOf('entao')).trim();
+                return `Condicional Encadeada: Teste alternativo se o anterior for falso. Avalia <code style="color:#61afef">${cond}</code>.`;
+            }
+            if (trimmed === 'senao') return `Bloco Senão: Executado caso nenhuma condição anterior seja verdadeira.`;
+            if (trimmed === 'fimse') return `Fim do Bloco Condicional: Conclui a estrutura de decisão completa.`;
+
             if (trimmed.startsWith('leia')) {
                 const varName = trimmed.replace('leia(', '').replace(')', '').trim();
-                return `Comando de Entrada: O sistema pausa e aguarda que o usuário digite um valor no teclado. O valor será gravado na variável <strong style="color:#e5c07b">${varName}</strong>.`;
+                return `Entrada: Aguarda digitação do usuário e guarda em <strong style="color:#e5c07b">${varName}</strong>.`;
             }
-
             if (trimmed.startsWith('escreva') || trimmed.startsWith('escreval')) {
                 const isPulaLinha = trimmed.startsWith('escreval');
-                const tipoPulo = isPulaLinha ? " e depois pula para a linha de baixo." : " mantendo o cursor na mesma linha.";
-                return `Comando de Saída: Imprime uma mensagem ou o conteúdo de uma variável na tela do usuário${tipoPulo}`;
+                return `Saída: Exibe dados na tela${isPulaLinha ? " e pula a linha." : "."}`;
             }
-
             if (trimmed.includes('<-')) {
                 const parts = trimmed.split('<-');
-                const target = parts[0].trim();
-                const expr = parts[1].trim();
-
-                if (expr.includes('raizq')) {
-                    return `Atribuição com Função: Calcula a raiz quadrada da expressão <code style="color:#61afef">${expr}</code> e armazena o resultado na variável <strong style="color:#e5c07b">${target}</strong>.`;
-                }
-                if (expr.includes('^')) {
-                    return `Atribuição com Potência: Eleva a base ao expoente (<code style="color:#61afef">${expr}</code>) e salva o valor calculado dentro da variável <strong style="color:#e5c07b">${target}</strong>.`;
-                }
-                return `Atribuição (Processamento): Avalia e calcula o resultado de <code style="color:#61afef">${expr}</code> e o armazena dentro da variável <strong style="color:#e5c07b">${target}</strong>.`;
+                return `Atribuição: Armazena o valor de <code style="color:#61afef">${parts[1].trim()}</code> na variável <strong style="color:#e5c07b">${parts[0].trim()}</strong>.`;
             }
 
             return "Instrução sequencial do algoritmo.";
@@ -531,12 +514,9 @@
 
             const allLines = Array.from(document.querySelectorAll('.code-line'));
             
-            // Avança até encontrar uma linha que NÃO seja um comentário (//)
             while (currentExplainStep < allLines.length) {
                 const activeLineText = allLines[currentExplainStep].querySelector('.line-content').innerText.trim();
-                if (!activeLineText.startsWith('//')) {
-                    break;
-                }
+                if (!activeLineText.startsWith('//')) break;
                 currentExplainStep++;
             }
 
@@ -545,13 +525,9 @@
                 return;
             }
 
-            // Remove highlight anterior
             allLines.forEach(l => l.classList.remove('explaining-active'));
-
             const activeLineEl = allLines[currentExplainStep];
             activeLineEl.classList.add('explaining-active');
-
-            // Scroll automático para a linha
             activeLineEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
             const lineContentText = activeLineEl.querySelector('.line-content').innerText;
@@ -559,12 +535,9 @@
             const popoverText = document.getElementById('popoverText');
             const popoverProgress = document.getElementById('popoverProgress');
 
-            const explanationMsg = generateDetailedExplanation(lineContentText);
-
-            popoverText.innerHTML = explanationMsg;
+            popoverText.innerHTML = generateDetailedExplanation(lineContentText);
             popoverProgress.innerText = `Linha ${currentExplainStep + 1} de ${allLines.length}`;
 
-            // Posiciona o popover ao lado da linha
             const lineRect = activeLineEl.getBoundingClientRect();
             const wrapperRect = document.querySelector('.main-wrapper').getBoundingClientRect();
 
@@ -576,8 +549,6 @@
             popover.style.display = 'block';
 
             currentExplainStep++;
-            
-            // Transição baseada no slider configurado pelo usuário
             explanationTimer = setTimeout(runNextExplanationStep, stepDelaySeconds * 1000); 
         }
 
@@ -597,8 +568,7 @@
                 });
 
                 for (const type in groupedVars) {
-                    const varListStr = groupedVars[type].join(", ");
-                    fullText.push(`   ${varListStr} : ${type}`);
+                    fullText.push(`   ${groupedVars[type].join(", ")} : ${type}`);
                 }
             }
 
@@ -610,38 +580,29 @@
         }
 
         function copyCodeToClipboard() {
-            const fullCode = generateFullCodeText();
-            navigator.clipboard.writeText(fullCode).then(() => {
+            navigator.clipboard.writeText(generateFullCodeText()).then(() => {
                 const btn = document.getElementById('btnCopyCode');
                 const originalText = btn.innerText;
                 btn.innerText = "✓ Copiado!";
                 btn.style.backgroundColor = "#38a169";
-                
                 setTimeout(() => {
                     btn.innerText = originalText;
                     btn.style.backgroundColor = "";
                 }, 2000);
-            }).catch(err => {
-                alert("Erro ao copiar código: " + err);
-            });
+            }).catch(err => alert("Erro ao copiar código: " + err));
         }
 
         function resetEditor(askConfirmation = true) {
             if (askConfirmation) {
-                const confirmReset = confirm("Deseja criar um novo projeto? Todas as alterações não salvas serão perdidas.");
-                if (!confirmReset) return;
+                if (!confirm("Deseja criar um novo projeto? Alterações não salvas serão perdidas.")) return;
             }
-
             stopExplanation();
-
             algorithmName = "sem_titulo";
             createdAt = new Date().toLocaleString('pt-BR');
             variables = [];
             codeLines = [""]; 
-
             document.getElementById('algNameInput').value = algorithmName;
             document.getElementById('savedProjectsSelect').value = "";
-            
             renderEditor();
             renderSidebarVarList();
         }
@@ -658,7 +619,73 @@
             renderEditor();
         }
 
+        function isDecisionKeyword(line) {
+            const trimmed = line.trim();
+            return (
+                (trimmed.startsWith("se ") && trimmed.includes("entao")) ||
+                (trimmed.startsWith("senao se ") && trimmed.includes("entao")) ||
+                trimmed === "senao" ||
+                trimmed === "fimse"
+            );
+        }
+
+        function findDecisionBlockRange(index) {
+            const line = codeLines[index];
+            if (!isDecisionKeyword(line)) return null;
+
+            let start = index;
+            let end = index;
+
+            let depth = 0;
+            for (let i = index; i >= 0; i--) {
+                const tr = codeLines[i].trim();
+                if (tr === "fimse") {
+                    if (i !== index) depth++;
+                } else if (tr.startsWith("se ") && tr.includes("entao")) {
+                    if (depth === 0) {
+                        start = i;
+                        break;
+                    } else {
+                        depth--;
+                    }
+                }
+            }
+
+            depth = 0;
+            for (let i = start; i < codeLines.length; i++) {
+                const tr = codeLines[i].trim();
+                if (tr.startsWith("se ") && tr.includes("entao")) {
+                    if (i !== start) depth++;
+                } else if (tr === "fimse") {
+                    if (depth === 0) {
+                        end = i;
+                        break;
+                    } else {
+                        depth--;
+                    }
+                }
+            }
+
+            return { start, end };
+        }
+
         function deleteLine(index) {
+            const decisionRange = findDecisionBlockRange(index);
+
+            if (decisionRange) {
+                const totalLines = (decisionRange.end - decisionRange.start) + 1;
+                const confirmDelete = confirm(
+                    `A linha selecionada faz parte de uma Estrutura de Decisão.\n\nDeseja remover TODO o bloco correspondente (${totalLines} linhas)?`
+                );
+
+                if (confirmDelete) {
+                    codeLines.splice(decisionRange.start, totalLines);
+                    if (codeLines.length === 0) codeLines.push("");
+                    renderEditor();
+                }
+                return;
+            }
+
             if (codeLines.length <= 1) {
                 codeLines[0] = "";
             } else {
@@ -669,8 +696,9 @@
 
         function deleteActiveLine() {
             if (activeLineIndex !== null) {
-                deleteLine(activeLineIndex);
+                const idx = activeLineIndex;
                 closeModal('modalConfig');
+                deleteLine(idx);
             }
         }
 
@@ -684,13 +712,10 @@
 
         function deleteVariable(varName) {
             const regexVar = new RegExp(`\\b${varName}\\b`);
-            const isReferenced = codeLines.some(line => {
-                if (line.trim().startsWith("//")) return false;
-                return regexVar.test(line);
-            });
+            const isReferenced = codeLines.some(line => !line.trim().startsWith("//") && regexVar.test(line));
 
             if (isReferenced) {
-                alert(`Não é possível excluir a variável "${varName}". Ela está sendo referenciada nas instruções do código!`);
+                alert(`Não é possível excluir "${varName}". Ela é usada nas instruções do código!`);
                 return;
             }
 
@@ -719,17 +744,13 @@
 
         function saveAlgorithmToStorage() {
             if (!algorithmName || algorithmName.trim() === "") {
-                alert("Dê um nome válido para o seu algoritmo antes de salvar.");
+                alert("Dê um nome válido para o algoritmo.");
                 return;
             }
-
             const projects = getSavedProjects();
-
             if (projects[algorithmName]) {
-                const confirmOverwrite = confirm(`Já existe um projeto salvo com o nome "${algorithmName}". Deseja sobrescrevê-lo?`);
-                if (!confirmOverwrite) return;
+                if (!confirm(`Sobrescrever o projeto "${algorithmName}"?`)) return;
             }
-
             projects[algorithmName] = {
                 name: algorithmName,
                 author: authorName,
@@ -738,7 +759,6 @@
                 codeLines: codeLines,
                 updatedAt: new Date().toISOString()
             };
-
             localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
             updateSavedProjectsDropdown();
             document.getElementById('savedProjectsSelect').value = algorithmName;
@@ -746,17 +766,10 @@
         }
 
         function loadAlgorithmFromStorage() {
-            const select = document.getElementById('savedProjectsSelect');
-            const selectedName = select.value;
+            const selectedName = document.getElementById('savedProjectsSelect').value;
+            if (!selectedName) return alert("Selecione um projeto na lista.");
 
-            if (!selectedName) {
-                alert("Selecione um projeto na lista para carregar.");
-                return;
-            }
-
-            const projects = getSavedProjects();
-            const project = projects[selectedName];
-
+            const project = getSavedProjects()[selectedName];
             if (project) {
                 stopExplanation();
                 algorithmName = project.name;
@@ -774,20 +787,15 @@
         }
 
         function deleteAlgorithmFromStorage() {
-            const select = document.getElementById('savedProjectsSelect');
-            const selectedName = select.value;
+            const selectedName = document.getElementById('savedProjectsSelect').value;
+            if (!selectedName) return alert("Selecione um projeto.");
 
-            if (!selectedName) {
-                alert("Selecione um projeto na lista para excluir.");
-                return;
-            }
-
-            if (confirm(`Tem certeza que deseja apagar o projeto "${selectedName}"?`)) {
+            if (confirm(`Deseja apagar o projeto "${selectedName}"?`)) {
                 const projects = getSavedProjects();
                 delete projects[selectedName];
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
                 updateSavedProjectsDropdown();
-                alert(`Algoritmo "${selectedName}" excluído com sucesso.`);
+                alert(`Projeto "${selectedName}" excluído.`);
             }
         }
 
@@ -810,11 +818,11 @@
             };
 
             let p = linhaTexto;
-
             p = p.replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, match => salvarToken(match, 'hl-literal'));
             p = p.replace(/\b(raizq|exp)\b/g, match => salvarToken(match, 'hl-funcao'));
+            p = p.replace(/\b(e|ou|nao)\b/g, match => salvarToken(match, 'hl-instrucao'));
             p = p.replace(/\b\d+(\.\d+)?\b/g, match => salvarToken(match, 'hl-numero'));
-            p = p.replace(/\b(algoritmo|var|inicio|fimalgoritmo|leia)\b/g, match => salvarToken(match, 'hl-instrucao'));
+            p = p.replace(/\b(algoritmo|var|inicio|fimalgoritmo|leia|se|entao|senao|fimse)\b/g, match => salvarToken(match, 'hl-instrucao'));
             p = p.replace(/\b(escreval|escreva)\b/g, match => salvarToken(match, 'hl-escreva'));
             p = p.replace(/\b(inteiro|real|caractere|logico)\b/g, match => salvarToken(match, 'hl-tipo'));
 
@@ -825,7 +833,6 @@
             }
 
             p = escapeHtml(p);
-
             tokens.forEach((tokenHtml, index) => {
                 p = p.replace(`___TOKEN_${index}___`, tokenHtml);
             });
@@ -836,7 +843,6 @@
         function renderEditor() {
             const editor = document.getElementById('editor');
             editor.innerHTML = "";
-
             let lineNumber = 1;
 
             appendLine(editor, lineNumber++, `algoritmo "${algorithmName}"`, false);
@@ -851,10 +857,8 @@
                     if (!groupedVars[v.type]) groupedVars[v.type] = [];
                     groupedVars[v.type].push(v.name);
                 });
-
                 for (const type in groupedVars) {
-                    const varListStr = groupedVars[type].join(", ");
-                    appendLine(editor, lineNumber++, `   ${varListStr} : ${type}`, false);
+                    appendLine(editor, lineNumber++, `   ${groupedVars[type].join(", ")} : ${type}`, false);
                 }
             }
 
@@ -884,9 +888,7 @@
                     }
                 };
 
-                lineDiv.ondragleave = () => {
-                    lineDiv.classList.remove('drag-over');
-                };
+                lineDiv.ondragleave = () => lineDiv.classList.remove('drag-over');
 
                 lineDiv.ondrop = (e) => {
                     e.preventDefault();
@@ -904,7 +906,6 @@
                 const dragHandle = document.createElement('span');
                 dragHandle.className = 'drag-handle';
                 dragHandle.innerText = '⠿';
-                dragHandle.title = 'Arrastar para reordenar';
 
                 const numSpan = document.createElement('span');
                 numSpan.className = 'line-number';
@@ -917,7 +918,6 @@
                 const delBtn = document.createElement('button');
                 delBtn.className = 'btn-delete-line';
                 delBtn.innerText = '✕';
-                delBtn.title = 'Excluir linha';
                 delBtn.onclick = (e) => {
                     e.stopPropagation(); 
                     deleteLine(index);
@@ -953,33 +953,26 @@
 
         function renderSidebarVarList() {
             const listContainer = document.getElementById('sidebarVarList');
-            const countLabel = document.getElementById('varCountLabel');
+            document.getElementById('varCountLabel').innerText = variables.length;
             listContainer.innerHTML = "";
-            countLabel.innerText = variables.length;
-
-            const availableTypes = ['inteiro', 'real', 'caractere', 'logico'];
 
             if (variables.length === 0) {
                 listContainer.innerHTML = '<span style="font-size:0.85rem; color:#718096;">Nenhuma variável cadastrada.</span>';
                 return;
             }
 
+            const availableTypes = ['inteiro', 'real', 'caractere', 'logico'];
             variables.forEach(v => {
                 const item = document.createElement('div');
                 item.className = 'var-item';
-
-                const typeOptionsHtml = availableTypes.map(t => 
-                    `<option value="${t}" ${t === v.type ? 'selected' : ''}>:${t}</option>`
-                ).join('');
+                const optionsHtml = availableTypes.map(t => `<option value="${t}" ${t === v.type ? 'selected' : ''}>:${t}</option>`).join('');
 
                 item.innerHTML = `
                     <div class="var-info">
                         <span class="var-name">${v.name}</span>
-                        <select class="var-type-select" onchange="updateVariableType('${v.name}', this.value)">
-                            ${typeOptionsHtml}
-                        </select>
+                        <select class="var-type-select" onchange="updateVariableType('${v.name}', this.value)">${optionsHtml}</select>
                     </div>
-                    <button class="btn-del-var" title="Excluir Variável" onclick="deleteVariable('${v.name}')">🗑</button>
+                    <button class="btn-del-var" onclick="deleteVariable('${v.name}')">🗑</button>
                 `;
                 listContainer.appendChild(item);
             });
@@ -993,6 +986,43 @@
             openModal('modalInstructions');
         }
 
+        function toggleDecisionOptions(type) {
+            const chainedContainer = document.getElementById('chainedCountContainer');
+            const countInput = document.getElementById('chainedCountInput');
+            
+            if (type === 'encadeada') {
+                chainedContainer.style.display = 'block';
+                renderConditionInputs(parseInt(countInput.value) || 2);
+            } else {
+                chainedContainer.style.display = 'none';
+                renderConditionInputs(1);
+            }
+        }
+
+        function renderConditionInputs(count) {
+            const container = document.getElementById('conditionsContainer');
+            container.innerHTML = "";
+            const total = Math.max(1, parseInt(count) || 1);
+            
+            for (let i = 0; i < total; i++) {
+                const inputId = `condInput_${i}`;
+                const div = document.createElement('div');
+                div.className = 'cond-block';
+                const labelText = i === 0 ? "Condição (Se):" : `Condição ${i + 1} (Senão Se):`;
+                
+                div.innerHTML = `
+                    <label>${labelText}</label>
+                    <input type="text" id="${inputId}" class="cond-input" placeholder="Ex: nota >= 7 e media > 5" onfocus="setActiveCondInput('${inputId}')">
+                `;
+                container.appendChild(div);
+            }
+            activeCondInputId = "condInput_0";
+        }
+
+        function setActiveCondInput(id) {
+            activeCondInputId = id;
+        }
+
         function selectInstructionType(type) {
             currentInstructionType = type;
             closeModal('modalInstructions');
@@ -1003,18 +1033,61 @@
 
             const requiresVar = ['leia', 'atribuicao', 'raizq', 'potencia'];
             if (variables.length === 0 && requiresVar.includes(type)) {
-                alert("Crie pelo menos uma variável no painel de opções antes de utilizar esta instrução.");
+                alert("Crie pelo menos uma variável antes de utilizar esta instrução.");
                 return;
             }
 
             const existingLine = codeLines[activeLineIndex] || "";
 
-            if (type === 'comentario') {
+            if (type === 'decisao') {
+                configTitle.innerText = "Estrutura de Decisão (Condicional)";
+                configBody.innerHTML = `
+                    <label>Tipo de Estrutura:</label>
+                    <select id="decisionTypeSelect" onchange="toggleDecisionOptions(this.value)">
+                        <option value="simples">Simples (se ... entao ... fimse)</option>
+                        <option value="composta">Composta (se ... entao ... senao ... fimse)</option>
+                        <option value="encadeada">Encadeada (se ... senao se ... senao ... fimse)</option>
+                    </select>
+
+                    <div id="chainedCountContainer" style="display:none; margin-top:6px;">
+                        <label>Quantidade de condições (Se / Senão Se):</label>
+                        <input type="number" id="chainedCountInput" min="2" max="10" value="2" onchange="renderConditionInputs(this.value)">
+                    </div>
+
+                    <div id="conditionsContainer" style="margin-top:6px; display:flex; flex-direction:column; gap:8px;">
+                        <div class="cond-block">
+                            <label>Condição (Se):</label>
+                            <input type="text" id="condInput_0" class="cond-input" placeholder="Ex: nota >= 7 e presenca > 75" onfocus="setActiveCondInput('condInput_0')">
+                        </div>
+                    </div>
+
+                    <label style="margin-top:8px;">Editor de Expressões Lógicas e Relacionais:</label>
+                    <div class="expr-builder">
+                        <div class="expr-buttons">
+                            ${variables.map(v => `<button type="button" class="btn-calc var-btn" onclick="appendToCondExpr('${v.name}')">${v.name}</button>`).join('')}
+                        </div>
+                        <div class="expr-buttons">
+                            <button type="button" class="btn-calc op-rel" onclick="appendToCondExpr(' == ')">==</button>
+                            <button type="button" class="btn-calc op-rel" onclick="appendToCondExpr(' &lt;&gt; ')">&lt;&gt;</button>
+                            <button type="button" class="btn-calc op-rel" onclick="appendToCondExpr(' &gt; ')">&gt;</button>
+                            <button type="button" class="btn-calc op-rel" onclick="appendToCondExpr(' &lt; ')">&lt;</button>
+                            <button type="button" class="btn-calc op-rel" onclick="appendToCondExpr(' &gt;= ')">&gt;=</button>
+                            <button type="button" class="btn-calc op-rel" onclick="appendToCondExpr(' &lt;= ')">&lt;=</button>
+                        </div>
+                        <div class="expr-buttons">
+                            <button type="button" class="btn-calc op-log" onclick="appendToCondExpr(' e ')">e</button>
+                            <button type="button" class="btn-calc op-log" onclick="appendToCondExpr(' ou ')">ou</button>
+                            <button type="button" class="btn-calc op-log" onclick="appendToCondExpr(' nao ')">nao</button>
+                            <button type="button" class="btn-calc" onclick="appendToCondExpr('(')">(</button>
+                            <button type="button" class="btn-calc" onclick="appendToCondExpr(')')">)</button>
+                            <button type="button" class="btn-calc danger-btn" onclick="clearCondExpr()">Limpar</button>
+                        </div>
+                    </div>
+                `;
+                activeCondInputId = "condInput_0";
+            } else if (type === 'comentario') {
                 configTitle.innerText = "Inserir Comentário";
-                let currentComment = "";
-                if (existingLine.trim().startsWith("//")) {
-                    currentComment = existingLine.replace(/^\s*\/\/\s*/, "");
-                }
+                let currentComment = existingLine.trim().startsWith("//") ? existingLine.replace(/^\s*\/\/\s*/, "") : "";
                 configBody.innerHTML = `
                     <label>Texto do Comentário:</label>
                     <input type="text" id="commentText" value="${currentComment}" placeholder="Ex: Esta seção calcula a área">
@@ -1033,9 +1106,7 @@
                 `;
             } else if (type === 'escreva' || type === 'escreval') {
                 configTitle.innerText = `Instrução de Saída (${type})`;
-                let currentText = "";
-                let currentVar = "";
-
+                let currentText = "", currentVar = "";
                 const matchTextAndVar = existingLine.match(/escreva[l]?\("([^"]*)",\s*([^)]+)\)/);
                 const matchTextOnly = existingLine.match(/escreva[l]?\("([^"]*)"\)/);
                 const matchVarOnly = existingLine.match(/escreva[l]?\(([^"\\)]+)\)/);
@@ -1087,14 +1158,13 @@
                         <option value="__custom__">-- Digitar Número Fixo --</option>
                     </select>
                     <div id="customExpContainer" style="display:none; margin-top:8px;">
-                        <input type="number" id="customExpInput" placeholder="Ex: 2 para elevado ao quadrado">
+                        <input type="number" id="customExpInput" placeholder="Ex: 2">
                     </div>
                 `;
             } else if (type === 'atribuicao') {
                 configTitle.innerText = "Processamento (Atribuição)";
                 let targetVar = variables[0] ? variables[0].name : "";
                 let exprValue = "";
-
                 const matchAttr = existingLine.match(/^\s*([^\s]+)\s*<-\s*(.+)$/);
                 if (matchAttr) {
                     targetVar = matchAttr[1].trim();
@@ -1136,9 +1206,7 @@
 
         function toggleExpCustom(val) {
             const container = document.getElementById('customExpContainer');
-            if (container) {
-                container.style.display = (val === '__custom__') ? 'block' : 'none';
-            }
+            if (container) container.style.display = (val === '__custom__') ? 'block' : 'none';
         }
 
         function appendToExpr(value, cursorOffset = 0) {
@@ -1150,7 +1218,6 @@
             
             exprInput.value = current.substring(0, startPos) + value + current.substring(endPos);
             exprInput.focus();
-            
             const newPos = startPos + value.length + cursorOffset;
             exprInput.setSelectionRange(newPos, newPos);
         }
@@ -1160,30 +1227,97 @@
             if (exprInput) exprInput.value = "";
         }
 
+        function appendToCondExpr(value) {
+            if (!activeCondInputId) activeCondInputId = "condInput_0";
+            const condInput = document.getElementById(activeCondInputId);
+            if (!condInput) return;
+
+            const startPos = condInput.selectionStart || condInput.value.length;
+            const endPos = condInput.selectionEnd || condInput.value.length;
+            const current = condInput.value;
+
+            condInput.value = current.substring(0, startPos) + value + current.substring(endPos);
+            condInput.focus();
+            const newPos = startPos + value.length;
+            condInput.setSelectionRange(newPos, newPos);
+        }
+
+        function clearCondExpr() {
+            if (!activeCondInputId) activeCondInputId = "condInput_0";
+            const condInput = document.getElementById(activeCondInputId);
+            if (condInput) condInput.value = "";
+        }
+
         function validateVariablesInExpr(expression) {
             if (!expression || expression.trim() === "") return true;
-
             const tokens = expression.match(/[a-zA-Z_][a-zA-Z0-9_]*/g);
             if (!tokens) return true;
 
             const knownVarNames = variables.map(v => v.name);
-            const nativeFunctions = ['raizq', 'exp', 'abs', 'int', 'carac', 'rand'];
-            
-            const invalidTokens = tokens.filter(token => !knownVarNames.includes(token) && !nativeFunctions.includes(token));
+            const nativeKeywords = ['raizq', 'exp', 'abs', 'int', 'carac', 'rand', 'e', 'ou', 'nao', 'verdadeiro', 'falso'];
+            const invalidTokens = tokens.filter(token => !knownVarNames.includes(token) && !nativeKeywords.includes(token));
 
             if (invalidTokens.length > 0) {
                 const uniqueInvalid = [...new Set(invalidTokens)];
-                alert(`Erro na expressão!\nAs seguintes variáveis/termos não foram declarados: ${uniqueInvalid.join(', ')}.`);
+                alert(`Erro na expressão! Variáveis/termos não declarados: ${uniqueInvalid.join(', ')}.`);
                 return false;
             }
-
             return true;
         }
 
         function confirmInstruction() {
             let generatedCode = "";
 
-            if (currentInstructionType === 'comentario') {
+            if (currentInstructionType === 'decisao') {
+                const decType = document.getElementById('decisionTypeSelect').value;
+                const condInputs = document.querySelectorAll('.cond-input');
+                const generatedLines = [];
+
+                for (let input of condInputs) {
+                    if (!validateVariablesInExpr(input.value)) return;
+                }
+
+                if (decType === 'simples') {
+                    const cond = condInputs[0].value.trim() || "verdadeiro";
+                    generatedLines.push(`   se ${cond} entao`);
+                    generatedLines.push(`      // Instruções se verdadeiro`);
+                    generatedLines.push(`   fimse`);
+                } 
+                else if (decType === 'composta') {
+                    const cond = condInputs[0].value.trim() || "verdadeiro";
+                    generatedLines.push(`   se ${cond} entao`);
+                    generatedLines.push(`      // Instruções se verdadeiro`);
+                    generatedLines.push(`   senao`);
+                    generatedLines.push(`      // Instruções se falso`);
+                    generatedLines.push(`   fimse`);
+                } 
+                else if (decType === 'encadeada') {
+                    condInputs.forEach((input, idx) => {
+                        const cond = input.value.trim() || "verdadeiro";
+                        if (idx === 0) {
+                            generatedLines.push(`   se ${cond} entao`);
+                            generatedLines.push(`      // Instruções condição 1`);
+                        } else {
+                            generatedLines.push(`   senao`);
+                            generatedLines.push(`      se ${cond} entao`);
+                            generatedLines.push(`         // Instruções condição ${idx + 1}`);
+                        }
+                    });
+                    
+                    generatedLines.push(`      senao`);
+                    generatedLines.push(`         // Instruções padrão (nenhuma condição satisfeita)`);
+                    
+                    for (let i = 0; i < condInputs.length; i++) {
+                        const indent = "   ".repeat(condInputs.length - i);
+                        generatedLines.push(`${indent}fimse`);
+                    }
+                }
+
+                codeLines.splice(activeLineIndex, 1, ...generatedLines);
+                closeModal('modalConfig');
+                renderEditor();
+                return;
+            } else if (currentInstructionType === 'comentario') {
                 const commentText = document.getElementById('commentText').value.trim();
                 generatedCode = `   // ${commentText}`;
             } else if (currentInstructionType === 'leia') {
@@ -1224,19 +1358,12 @@
             } else if (currentInstructionType === 'atribuicao') {
                 const targetVar = document.getElementById('targetVarSelect').value;
                 const expr = document.getElementById('mathExpression').value.trim();
-
-                if (!validateVariablesInExpr(expr)) {
-                    return; 
-                }
-
+                if (!validateVariablesInExpr(expr)) return;
                 generatedCode = `   ${targetVar} <- ${expr}`;
             }
 
             codeLines[activeLineIndex] = generatedCode;
-
-            if (activeLineIndex === codeLines.length - 1) {
-                codeLines.push("");
-            }
+            if (activeLineIndex === codeLines.length - 1) codeLines.push("");
 
             closeModal('modalConfig');
             renderEditor();
@@ -1257,7 +1384,7 @@
                 renderEditor();
                 renderSidebarVarList();
             } else {
-                alert("Por favor, digite um nome válido para a variável.");
+                alert("Digite um nome válido para a variável.");
             }
         }
     </script>
