@@ -16,22 +16,22 @@
 
         /* HEADER */
         header { background-color: #ffffff; padding: 14px 24px; border-bottom: 1px solid #dcdfe6; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-        header h1 { font-size: 1.15rem; color: #2b5c8f; font-weight: 700; }
+        header h1 { font-size: 1.15rem; color: #0f172a; font-weight: 700; }
         .header-actions { display: flex; gap: 10px; }
         .btn-top { background-color: #3e4451; color: #fff; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: background 0.2s; }
         .btn-top:hover { background-color: #4b5263; }
-        .btn-primary { background-color: #2b5c8f; color: #ffffff; }
-        .btn-primary:hover { background-color: #1d4066; }
-        .btn-copy { background-color: #48bb78; color: #ffffff; }
-        .btn-copy:hover { background-color: #38a169; }
-        .btn-format { background-color: #9b59b6; color: #ffffff; }
-        .btn-format:hover { background-color: #8e44ad; }
-        .btn-format.active { background-color: #27ae60; }
-        .btn-format.active:hover { background-color: #219150; }
-        .btn-explain { background-color: #d69e2e; color: #ffffff; }
-        .btn-explain:hover { background-color: #b7791f; }
-        .btn-danger { background-color: #e06c75; color: #fff; }
-        .btn-danger:hover { background-color: #d15663; }
+        .btn-primary { background-color: #0f172a; color: #ffffff; }
+        .btn-primary:hover { background-color: #1e293b; }
+        .btn-copy { background-color: #10b981; color: #ffffff; }
+        .btn-copy:hover { background-color: #059669; }
+        .btn-format { background-color: #8b5cf6; color: #ffffff; }
+        .btn-format:hover { background-color: #7c3aed; }
+        .btn-format.active { background-color: #059669; }
+        .btn-format.active:hover { background-color: #047857; }
+        .btn-explain { background-color: #d97706; color: #ffffff; }
+        .btn-explain:hover { background-color: #b45309; }
+        .btn-danger { background-color: #e11d48; color: #fff; }
+        .btn-danger:hover { background-color: #be123c; }
 
         /* LAYOUT PRINCIPAL */
         .main-wrapper { flex: 1; display: flex; overflow: hidden; position: relative; }
@@ -46,17 +46,17 @@
         .sidebar-right { order: 3; width: 320px; background-color: #f4f5f7; padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; flex-shrink: 0; border-left: 1px solid #dcdfe6; color: #2c3e50; }
 
         .sidebar-section { background-color: #ffffff; border: 1px solid #e1e4e8; border-radius: 6px; padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .sidebar-section h3 { font-size: 1.05rem; color: #2b5c8f; border-bottom: 1px solid #e1e4e8; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .sidebar-section label { font-size: 0.9rem; color: #4a5568; font-weight: 600; }
-        .sidebar-section input[type="text"], .sidebar-section input[type="number"], .sidebar-section select { background-color: #f8f9fa; border: 1px solid #cbd5e0; color: #2d3748; padding: 10px 12px; border-radius: 4px; font-family: inherit; width: 100%; font-size: 0.95rem; }
-        .sidebar-section input[type="text"]:focus, .sidebar-section input[type="number"]:focus, .sidebar-section select:focus { border-color: #3182ce; background-color: #fff; outline: none; }
+        .sidebar-section h3 { font-size: 1.05rem; color: #0f172a; border-bottom: 1px solid #e1e4e8; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .sidebar-section label { font-size: 0.9rem; color: #475569; font-weight: 600; }
+        .sidebar-section input[type="text"], .sidebar-section input[type="number"], .sidebar-section select { background-color: #f8fafc; border: 1px solid #cbd5e1; color: #0f172a; padding: 10px 12px; border-radius: 4px; font-family: inherit; width: 100%; font-size: 0.95rem; }
+        .sidebar-section input[type="text"]:focus, .sidebar-section input[type="number"]:focus, .sidebar-section select:focus { border-color: #0f172a; background-color: #fff; outline: none; }
 
         /* SLIDER VELOCIDADE */
         .speed-slider-container { display: flex; flex-direction: column; gap: 6px; }
         .slider-header { display: flex; justify-content: space-between; align-items: center; }
-        .slider-header span { font-weight: bold; color: #2b5c8f; font-size: 0.95rem; }
-        .speed-slider { -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px; background: #cbd5e0; outline: none; margin: 6px 0; }
-        .speed-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #2b5c8f; cursor: pointer; transition: transform 0.1s; }
+        .slider-header span { font-weight: bold; color: #0f172a; font-size: 0.95rem; }
+        .speed-slider { -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px; background: #cbd5e1; outline: none; margin: 6px 0; }
+        .speed-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #0f172a; cursor: pointer; transition: transform 0.1s; }
         .speed-slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
 
         .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -139,45 +139,98 @@
         .hl-funcao    { color: #e06c75; font-weight: bold; }
 
         .var-list { display: flex; flex-direction: column; gap: 8px; max-height: 400px; overflow-y: auto; }
-        .var-item { background-color: #f8f9fa; padding: 6px 10px; border-radius: 4px; border: 1px solid #cbd5e0; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; font-family: monospace; }
+        .var-item { background-color: #f8fafc; padding: 6px 10px; border-radius: 4px; border: 1px solid #cbd5e1; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; font-family: monospace; }
         .var-info { display: flex; gap: 8px; align-items: center; flex: 1; }
-        .var-item .var-name { color: #d69e2e; font-weight: bold; min-width: 80px; }
-        .var-type-select { background-color: #fff; border: 1px solid #cbd5e0; color: #dd6b20; font-weight: bold; font-size: 0.85rem; padding: 2px 4px; border-radius: 3px; cursor: pointer; }
-        .btn-del-var { background: none; border: none; color: #e53e3e; cursor: pointer; font-size: 0.85rem; padding: 2px 6px; border-radius: 3px; transition: background 0.2s; margin-left: 5px; }
-        .btn-del-var:hover { background-color: rgba(229, 62, 62, 0.15); }
+        .var-item .var-name { color: #d97706; font-weight: bold; min-width: 80px; }
+        .var-type-select { background-color: #fff; border: 1px solid #cbd5e1; color: #c2410c; font-weight: bold; font-size: 0.85rem; padding: 2px 4px; border-radius: 3px; cursor: pointer; }
+        .btn-del-var { background: none; border: none; color: #dc2626; cursor: pointer; font-size: 0.85rem; padding: 2px 6px; border-radius: 3px; transition: background 0.2s; margin-left: 5px; }
+        .btn-del-var:hover { background-color: rgba(220, 38, 38, 0.15); }
 
-        /* MODAIS */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 1000; }
+        /* MODAIS CLAROS COM PALETA AZUL ESCURO (NAVY/SLATE) */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 1000; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-card { background-color: #21252b; border: 1px solid #3e4451; width: 90%; max-width: 720px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); overflow: hidden; display: flex; flex-direction: column; }
-        .modal-header { background-color: #181a1f; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; color: #61afef; font-weight: bold; font-size: 1.1rem; }
-        .modal-close { background: none; border: none; color: #e06c75; font-size: 1.4rem; cursor: pointer; }
-        .modal-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; max-height: 75vh; overflow-y: auto; }
-        .modal-body label { font-size: 0.95rem; color: #abb2bf; font-weight: 500; }
-        .modal-body input, .modal-body select { background-color: #181a1f; border: 1px solid #3e4451; color: #abb2bf; padding: 10px 12px; border-radius: 4px; font-family: inherit; width: 100%; font-size: 1rem; }
-        .modal-body input:focus, .modal-body select:focus { border-color: #61afef; outline: none; }
-        .modal-footer { padding: 14px 20px; background-color: #181a1f; display: flex; justify-content: space-between; align-items: center; }
+        .modal-card { background-color: #f8fafc; border: 1px solid #cbd5e1; width: 90%; max-width: 780px; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.35); overflow: hidden; display: flex; flex-direction: column; }
+        
+        .modal-header { background-color: #0f172a; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; color: #ffffff; font-weight: 700; font-size: 1.15rem; border-bottom: 2px solid #1e293b; }
+        .modal-close { background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; transition: color 0.15s; }
+        .modal-close:hover { color: #f43f5e; }
+        
+        .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; max-height: 75vh; overflow-y: auto; color: #334155; }
+        .modal-body label { font-size: 0.95rem; color: #0f172a; font-weight: 700; }
+        .modal-body input, .modal-body select { background-color: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; padding: 10px 14px; border-radius: 6px; font-family: inherit; width: 100%; font-size: 0.95rem; }
+        .modal-body input:focus, .modal-body select:focus { border-color: #0f172a; outline: none; box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.15); }
+        
+        .modal-footer { padding: 16px 24px; background-color: #f1f5f9; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
         .modal-footer .right-btns { display: flex; gap: 10px; }
 
-        /* GRID DE CARDS DE INSTRUÇÃO (MODAL) */
-        .instructions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
-        .instruction-card { background: #181a1f; border: 1px solid #3e4451; border-radius: 8px; padding: 16px; cursor: pointer; transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
-        .instruction-card:hover { transform: translateY(-3px); border-color: #61afef; box-shadow: 0 6px 16px rgba(97, 175, 239, 0.15); background: #282c34; }
-        .instruction-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-        .instruction-card-icon { font-size: 1.3rem; background: rgba(97, 175, 239, 0.1); width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 6px; color: #61afef; }
-        .instruction-card-title { color: #61afef; font-weight: bold; font-size: 1.05rem; }
-        .instruction-card-desc { font-size: 0.85rem; color: #abb2bf; line-height: 1.4; }
+        /* GRID DE CARDS EM AZUL ESCURO HARMONIZADO */
+        .instructions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+        
+        .instruction-card { 
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); 
+            border: 1px solid #334155; 
+            border-radius: 8px; 
+            padding: 18px; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            height: 100%; 
+            color: #ffffff; 
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.15); 
+        }
+        
+        .instruction-card:hover { 
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%); 
+            transform: translateY(-3px); 
+            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.3); 
+            border-color: #475569; 
+        }
+        
+        .instruction-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+        
+        .instruction-card-icon { 
+            font-size: 1.2rem; 
+            background: rgba(255, 255, 255, 0.1); 
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            width: 38px; 
+            height: 38px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            border-radius: 6px; 
+            color: #38bdf8; 
+            font-weight: bold; 
+            flex-shrink: 0; 
+        }
+        
+        .instruction-card-title { color: #ffffff; font-weight: 700; font-size: 1.05rem; }
+        .instruction-card-desc { font-size: 0.86rem; color: #94a3b8; line-height: 1.45; }
 
-        .expr-builder { display: flex; flex-direction: column; gap: 10px; background-color: #181a1f; padding: 12px; border-radius: 6px; border: 1px solid #3e4451; margin-top: 4px; }
+        /* CONSTRUTOR DE EXPRESSÕES REFORMULADO */
+        .expr-builder { display: flex; flex-direction: column; gap: 10px; background-color: #ffffff; padding: 14px; border-radius: 8px; border: 1px solid #cbd5e1; margin-top: 4px; }
         .expr-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
-        .btn-calc { background-color: #282c34; color: #61afef; border: 1px solid #3e4451; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: monospace; font-size: 0.95rem; }
-        .btn-calc:hover { background-color: #3e4451; color: #fff; }
-        .btn-calc.var-btn { color: #e5c07b; }
-        .btn-calc.func-btn { color: #e06c75; }
-        .btn-calc.op-rel { color: #98c379; }
-        .btn-calc.op-log { color: #c678dd; }
-        .btn-calc.danger-btn { color: #e06c75; border-color: #e06c75; margin-left: auto; }
-        .cond-block { background-color: #181a1f; border: 1px solid #3e4451; padding: 12px; border-radius: 6px; display: flex; flex-direction: column; gap: 8px; }
+        
+        .btn-calc { background-color: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 600; font-family: monospace; font-size: 0.95rem; transition: all 0.15s ease; }
+        .btn-calc:hover { background-color: #e2e8f0; border-color: #94a3b8; color: #0f172a; }
+        
+        .btn-calc.var-btn { background-color: #fef3c7; color: #92400e; border-color: #fde68a; }
+        .btn-calc.var-btn:hover { background-color: #fde68a; }
+        
+        .btn-calc.func-btn { background-color: #e0f2fe; color: #0369a1; border-color: #bae6fd; }
+        .btn-calc.func-btn:hover { background-color: #bae6fd; }
+        
+        .btn-calc.op-rel { background-color: #dcfce7; color: #15803d; border-color: #86efac; }
+        .btn-calc.op-rel:hover { background-color: #bbf7d0; }
+        
+        .btn-calc.op-log { background-color: #f3e8ff; color: #7e22ce; border-color: #d8b4fe; }
+        .btn-calc.op-log:hover { background-color: #e9d5ff; }
+        
+        .btn-calc.danger-btn { background-color: #ffe4e6; color: #be123c; border-color: #fecdd3; margin-left: auto; }
+        .btn-calc.danger-btn:hover { background-color: #fecdd3; }
+        
+        .cond-block { background-color: #ffffff; border: 1px solid #cbd5e1; padding: 14px; border-radius: 6px; display: flex; flex-direction: column; gap: 8px; }
     </style>
 </head>
 <body>
@@ -393,7 +446,7 @@
             <div class="modal-footer">
                 <button class="btn-top btn-danger" onclick="deleteActiveLine()">Excluir Linha</button>
                 <div class="right-btns">
-                    <button class="btn-top" onclick="closeModal('modalConfig')">Cancelar</button>
+                    <button class="btn-top" style="background-color:#64748b; color:#fff;" onclick="closeModal('modalConfig')">Cancelar</button>
                     <button class="btn-top btn-primary" onclick="confirmInstruction()">Salvar Alteração</button>
                 </div>
             </div>
@@ -462,7 +515,6 @@
             }
         }
 
-        /* FUNÇÃO DE AUTO-IDENTAÇÃO AUTOMÁTICA DO CÓDIGO */
         function autoIndentCode() {
             let indentLevel = 1; 
             const tab = "   ";
@@ -511,7 +563,7 @@
 
             const btn = document.getElementById('btnExplainCode');
             btn.innerText = "⏹ Parar Explicação";
-            btn.style.backgroundColor = "#e06c75";
+            btn.style.backgroundColor = "#e11d48";
 
             runNextExplanationStep();
         }
@@ -647,7 +699,7 @@
                 const btn = document.getElementById('btnCopyCode');
                 const originalText = btn.innerText;
                 btn.innerText = "✓ Copiado!";
-                btn.style.backgroundColor = "#38a169";
+                btn.style.backgroundColor = "#059669";
                 setTimeout(() => {
                     btn.innerText = originalText;
                     btn.style.backgroundColor = "";
@@ -1021,7 +1073,7 @@
             listContainer.innerHTML = "";
 
             if (variables.length === 0) {
-                listContainer.innerHTML = '<span style="font-size:0.85rem; color:#718096;">Nenhuma variável cadastrada.</span>';
+                listContainer.innerHTML = '<span style="font-size:0.85rem; color:#64748b;">Nenhuma variável cadastrada.</span>';
                 return;
             }
 
@@ -1272,8 +1324,6 @@
             const container = document.getElementById('customExpContainer');
             if (container) container.style.display = (val === '__custom__') ? 'block' : 'none';
         }
-
-        /* FUNÇÕES DE VALIDAÇÃO E ADIÇÃO SEM OPERADORES DUPLICADOS */
 
         function isOperator(val) {
             const trimmed = val.trim();
